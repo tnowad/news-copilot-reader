@@ -1,59 +1,87 @@
-<script>
-	import Counter from './Counter.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+<script lang="ts">
+	import { onDestroy, onMount } from 'svelte';
+	import * as monaco from 'monaco-editor';
+	import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+
+	let editorElement: HTMLDivElement;
+	let editor: monaco.editor.IStandaloneCodeEditor;
+	let model: monaco.editor.ITextModel;
+
+	function loadCode(code: string, language: string) {
+		model = monaco.editor.createModel(code, language);
+
+		editor.setModel(model);
+	}
+
+	const generateTextService = {
+		generateText: async (text: string) => {
+			return { generatedText: text + ' là người kinh doanh.' };
+		}
+	};
+
+	onMount(async () => {
+		self.MonacoEnvironment = {
+			getWorker(workerId, label) {
+				console.log(workerId, label);
+				return new editorWorker();
+			}
+		};
+
+		monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
+
+		monaco.languages.registerInlineCompletionsProvider('markdown', {
+			provideInlineCompletions: async function (model, position, context, token) {
+				const response = await generateTextService.generateText(
+					editor.getValue().split('\n').reverse().pop() ?? ''
+				);
+
+				return Promise.resolve({
+					items: [
+						{
+							label: '',
+							sortText: '',
+							insertText: response.generatedText
+						},
+						{
+							label: '',
+							sortText: '',
+							insertText:
+								'Thủ tướng: Sớm nâng hạng thị trường chứng khoán Việt Nam lên thị trường mới nổi'
+						}
+					]
+				});
+			},
+			freeInlineCompletions(arg) {}
+		});
+
+		editor = monaco.editor.create(editorElement, {
+			automaticLayout: true,
+			theme: 'vs-dark',
+			inlineSuggest: {
+				enabled: true,
+				showToolbar: 'onHover',
+				mode: 'subwordSmart',
+				suppressSuggestions: false
+			},
+			suggest: {
+				// preview: true,
+				selectionMode: 'whenQuickSuggestion'
+			}
+		});
+
+		editor.onDidChangeModelContent(() => {
+			console.log(editor.getValue());
+		});
+
+		loadCode('# News Copilot\n', 'markdown');
+	});
+
+	onDestroy(() => {
+		monaco?.editor.getModels().forEach((model) => model.dispose());
+		editor?.dispose();
+	});
 </script>
 
-<svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
-</svelte:head>
-
-<section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
-			</picture>
-		</span>
-
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
-
-	<Counter />
-</section>
-
-<style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
-	}
-
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
-	}
-</style>
+<div class="flex h-screen w-full flex-col">
+	<div class="h-[100vh]" bind:this={editorElement} />
+</div>
