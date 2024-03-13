@@ -47,7 +47,7 @@
 
 ### HomeAdmin:
 
-1. Allow post approval: path: /approve/{idUser}
+1. allow post approval: path: /approve/{idUser}
 
 - header
 - table list all post news wait to approve:
@@ -82,3 +82,16 @@
   - postcast: show up all postcast: path: /postcast
   - radio: support scan on waves radio: path: /radio
 - footer
+
+## ALL FUNCTIONS:
+
+1. Sign in,Sign out be supported by account facebook,google,git hub,...
+2. Forget Password
+3. Write news support AI train model generate text
+4. Switch from text to voice support for radio and postcast
+5. CRUD news,users
+6. comments,like,reports news
+7. allow post news approval
+8. authentication
+9. bookmark
+10. data analysis about user behavior by read news history
