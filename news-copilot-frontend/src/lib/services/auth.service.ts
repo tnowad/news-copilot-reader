@@ -61,8 +61,69 @@ const signIn = async (params: SignInBody, headers: HeadersInit = {}) => {
 	}
 };
 
+type SignUpBody = {
+	email: string;
+	password: string;
+	displayName: string;
+};
+
+type SignUpSuccessful = {
+	statusCode: StatusCodes.CREATED;
+	data: {
+		user: {
+			id: number;
+			email: string;
+			role: string;
+			avatar: string;
+			displayName: string;
+		};
+		token: {
+			accessToken: string;
+			refreshToken: string;
+		};
+	};
+	message: string;
+};
+
+type SignUpFailed = {
+	statusCode: StatusCodes.BAD_REQUEST | StatusCodes.CONFLICT;
+	message: string;
+	error: string;
+};
+
+type SignUpValidationFailed = {
+	statusCode: StatusCodes.UNPROCESSABLE_ENTITY;
+	message: string;
+	errors: {
+		field: 'email' | 'password' | 'displayName';
+		message: string;
+	}[];
+};
+
+type SignUpResponse = Omit<Response, 'json'> & {
+	json: () => Promise<SignUpSuccessful | SignUpFailed | SignUpValidationFailed>;
+};
+
+const signUp = async (params: SignUpBody, headers: HeadersInit = {}) => {
+	try {
+		const url = new URL('/auth/sign-up', API_URL);
+		const requestInit: RequestInit = {
+			method: 'POST',
+			body: JSON.stringify(params),
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as SignUpResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to sign up: ' + (error as Error).message);
+	}
+};
+
 const authService = {
-	signIn
+	signIn,
+	signUp
 };
 
 export default authService;
