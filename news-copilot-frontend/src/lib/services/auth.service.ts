@@ -1,5 +1,6 @@
 import type { StatusCodes } from 'http-status-codes';
 import { defaultHeaders } from './config';
+import { API_URL } from '$env/static/private';
 
 type SignInBody = {
 	email: string;
@@ -45,7 +46,7 @@ type SignInResponse = Omit<Response, 'json'> & {
 
 const signIn = async (params: SignInBody, headers: HeadersInit = {}) => {
 	try {
-		const url = new URL('/auth/sign-in');
+		const url = new URL('/auth/sign-in', API_URL);
 		const requestInit: RequestInit = {
 			method: 'POST',
 			body: JSON.stringify(params),
