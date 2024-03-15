@@ -42,6 +42,7 @@
 				>News Copilot</span
 			>
 		</NavBrand>
+
 		<div class="flex items-center md:order-2 gap-x-5">
 			<!-- Search component -->
 			<Button
@@ -66,6 +67,7 @@
 			<!-- Hamburger component -->
 			<NavHamburger class1="w-full md:flex md:w-auto md:order-1" />
 		</div>
+
 		<Dropdown placement="bottom" triggeredBy="#avatar-menu">
 			<DropdownHeader>
 				<span class="block text-sm">Welcome Display Name!</span>
@@ -88,7 +90,7 @@
 			</NavLi>
 			<Dropdown>
 				{#each categoriesItems as item}
-					<DropdownItem href={`/categories/${item.slug}/${item.id}`}>{item.label}</DropdownItem>
+					<DropdownItem href={`/categories/${item.slug}`}>{item.label}</DropdownItem>
 				{/each}
 			</Dropdown>
 
