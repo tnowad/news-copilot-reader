@@ -1,5 +1,6 @@
 import { redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import authService from '$lib/services/auth.service';
 
 export const load: PageServerLoad = async (event) => {
 	const sessionId = event.cookies.get('sessionId');
@@ -12,14 +13,15 @@ export const load: PageServerLoad = async (event) => {
 export const actions = {
 	default: async (event) => {
 		const formData = await event.request.formData();
-		const email = formData.get('email');
-		const password = formData.get('password');
+		const email = formData.get('email') as string;
+		const password = formData.get('password') as string;
 		const remember = formData.get('remember');
-		const body = JSON.stringify({ email, password });
 
 		if (remember) console.log('Remember me checked');
 
-		console.log(body);
+		const response = await authService.signIn({ email, password });
+
+		console.log(response);
 
 		throw redirect(301, '/');
 	}
