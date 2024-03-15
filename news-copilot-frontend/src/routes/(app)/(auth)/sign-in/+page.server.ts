@@ -1,12 +1,13 @@
 import { redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import authService from '$lib/services/auth.service';
+import { StatusCodes } from 'http-status-codes';
 
 export const load: PageServerLoad = async (event) => {
-	const sessionId = event.cookies.get('sessionId');
+	const accessToken = event.cookies.get('accessToken');
 
-	if (sessionId) {
-		throw redirect(301, '/');
+	if (accessToken) {
+		return redirect(StatusCodes.MOVED_TEMPORARILY, '/');
 	}
 };
 
@@ -15,14 +16,30 @@ export const actions = {
 		const formData = await event.request.formData();
 		const email = formData.get('email') as string;
 		const password = formData.get('password') as string;
-		const remember = formData.get('remember');
+		const remember = (formData.get('remember') as null | 'on') === 'on';
 
-		if (remember) console.log('Remember me checked');
+		if (remember) {
+			console.log(remember);
+		}
 
 		const response = await authService.signIn({ email, password });
 
-		console.log(response);
+		switch (response.statusCode) {
+			case StatusCodes.OK:
+				console.log('Sign in successful');
+				event.cookies.set('refreshToken', response.data.token.refreshToken, { path: '/' });
+				event.cookies.set('accessToken', response.data.token.accessToken, { path: '/' });
+				break;
+			case StatusCodes.UNAUTHORIZED:
+				console.log('Sign in failed');
+				break;
+			case StatusCodes.UNPROCESSABLE_ENTITY:
+				console.log('Sign in validation failed');
+				break;
+			default:
+				console.log('Unknown status code');
+		}
 
-		throw redirect(301, '/');
+		return response;
 	}
 } satisfies Actions;
