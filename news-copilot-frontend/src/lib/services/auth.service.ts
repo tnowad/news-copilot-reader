@@ -63,8 +63,10 @@ const signIn = async (params: SignInBody, headers: HeadersInit = {}) => {
 
 type SignUpBody = {
 	email: string;
-	password: string;
 	displayName: string;
+	password: string;
+	confirmPassword: string;
+	acceptTerms: boolean;
 };
 
 type SignUpSuccessful = {
@@ -95,7 +97,7 @@ type SignUpValidationFailed = {
 	statusCode: StatusCodes.UNPROCESSABLE_ENTITY;
 	message: string;
 	errors: {
-		field: 'email' | 'password' | 'displayName';
+		field: 'email' | 'password' | 'displayName' | 'confirmPassword' | 'acceptTerms';
 		message: string;
 	}[];
 };
