@@ -32,8 +32,11 @@ type SignInFailed = {
 
 type SignInValidationFailed = {
 	statusCode: StatusCodes.UNPROCESSABLE_ENTITY;
-	message: string[];
-	error: string;
+	message: string;
+	errors: {
+		field: 'email' | 'password';
+		message: string;
+	}[];
 };
 
 type SignInResponse = Omit<Response, 'json'> & {
