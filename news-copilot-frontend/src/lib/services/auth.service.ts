@@ -121,9 +121,51 @@ const signUp = async (params: SignUpBody, headers: HeadersInit = {}) => {
 	}
 };
 
+type RefreshTokenBody = {
+	refreshToken: string;
+};
+
+type RefreshTokenSuccessful = {
+	statusCode: StatusCodes.OK;
+	data: {
+		token: {
+			refreshToken: string;
+		};
+	};
+	message: string;
+};
+
+type RefreshTokenFailed = {
+	statusCode: StatusCodes.UNAUTHORIZED;
+	message: string;
+	error: string;
+};
+
+type RefreshTokenResponse = Omit<Response, 'json'> & {
+	json: () => Promise<RefreshTokenSuccessful | RefreshTokenFailed>;
+};
+
+const refreshToken = async (params: RefreshTokenBody, headers: HeadersInit = {}) => {
+	try {
+		const url = new URL('/auth/refresh-token', API_URL);
+		const requestInit: RequestInit = {
+			method: 'POST',
+			body: JSON.stringify(params),
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as RefreshTokenResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to refresh token: ' + (error as Error).message);
+	}
+};
+
 const authService = {
 	signIn,
-	signUp
+	signUp,
+	refreshToken
 };
 
 export default authService;
