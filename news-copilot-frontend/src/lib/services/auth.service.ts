@@ -129,7 +129,7 @@ type RefreshTokenSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
 		token: {
-			refreshToken: string;
+			accessToken: string;
 		};
 	};
 	message: string;
