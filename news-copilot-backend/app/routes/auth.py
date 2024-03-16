@@ -75,19 +75,87 @@ def sign_up():
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
+    confirm_password = data.get("confirmPassword")
+    display_name = data.get("displayName")
+    accept_terms = data.get("acceptTerms")
 
-    if not email or not password:
-        return jsonify({"error": "Email and password are required"}), 400
+    if not email or not password or not display_name or accept_terms is None:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.UNPROCESSABLE_ENTITY,
+                    "message": "Validation failed",
+                    "errors": [
+                        {
+                            "field": "email",
+                            "message": "Email is required" if not email else None,
+                        },
+                        {
+                            "field": "password",
+                            "message": "Password is required" if not password else None,
+                        },
+                        {
+                            "field": "displayName",
+                            "message": (
+                                "Display name is required" if not display_name else None
+                            ),
+                        },
+                        {
+                            "field": "acceptTerms",
+                            "message": (
+                                "Terms acceptance is required"
+                                if accept_terms is None
+                                else None
+                            ),
+                        },
+                    ],
+                }
+            ),
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+        )
 
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
-        return jsonify({"error": "Email already exists"}), 400
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.CONFLICT,
+                    "message": "Email already exists",
+                    "error": "Email already exists",
+                }
+            ),
+            HTTPStatus.CONFLICT,
+        )
 
     # TODO: Hash the password
+    new_user = User(email=email, display_name=display_name, password=password)
     new_user = User(email=email, password=password)
     db.session.add(new_user)
     db.session.commit()
 
     # TODO: Generate JWT token and include it in the response
+    access_token = "fake-access-token"
+    refresh_token = "fake-refresh-token"
 
-    return jsonify({"message": "User created successfully"}), 201
+    return (
+        jsonify(
+            {
+                "statusCode": HTTPStatus.CREATED,
+                "message": "User created successfully",
+                "data": {
+                    "user": {
+                        "id": new_user.id,
+                        "email": new_user.email,
+                        "roles": ["USER"],
+                        "avatar": "",
+                        "displayName": new_user.display_name,
+                    },
+                    "token": {
+                        "accessToken": access_token,
+                        "refreshToken": refresh_token,
+                    },
+                },
+            }
+        ),
+        HTTPStatus.CREATED,
+    )

@@ -13,7 +13,7 @@ type SignInSuccessful = {
 		user: {
 			id: number;
 			email: string;
-			role: string;
+			roles: string[];
 			avatar: string;
 			displayName: string;
 		};
@@ -75,7 +75,7 @@ type SignUpSuccessful = {
 		user: {
 			id: number;
 			email: string;
-			role: string;
+			roles: string[];
 			avatar: string;
 			displayName: string;
 		};
