@@ -5,28 +5,38 @@ import jwt, { type JwtPayload } from 'jsonwebtoken';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const accessToken = event.cookies.get('accessToken');
-	const refreshToken = event.cookies.get('refreshToken');
 
 	if (accessToken && accessToken !== 'null') {
 		try {
 			const decoded = jwt.decode(accessToken) as JwtPayload;
-			const currentTime = Math.floor(Date.now() / 1000);
-
-			if (decoded.exp && decoded.exp < currentTime && refreshToken) {
-				await refreshAccessToken(event, refreshToken);
+			if (!decoded) {
+				throw new Error('Invalid token');
 			}
 
-			if (decoded.sub) {
+			const currentTime = Math.floor(Date.now() / 1000);
+
+			if (decoded?.exp && decoded.exp < currentTime) {
+				throw new Error('Token expired');
+			}
+
+			if (decoded?.sub) {
 				event.locals.userId = decoded.sub;
 			}
 		} catch (error) {
-			console.error('Error decoding accessToken:', error);
-		}
-	} else if (refreshToken) {
-		await refreshAccessToken(event, refreshToken);
-	}
+			event.cookies.delete('accessToken', { path: '/' });
 
-	console.log(event);
+			console.error('Error decoding accessToken:', error);
+			const refreshToken = event.cookies.get('refreshToken');
+			if (refreshToken) {
+				try {
+					await refreshAccessToken(event, refreshToken);
+				} catch (error) {
+					console.error('Error refreshing token:', error);
+					event.cookies.delete('refreshToken', { path: '/' });
+				}
+			}
+		}
+	}
 
 	return await resolve(event);
 };
