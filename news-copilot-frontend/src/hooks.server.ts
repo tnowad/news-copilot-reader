@@ -15,6 +15,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 			if (decoded.exp && decoded.exp < currentTime && refreshToken) {
 				await refreshAccessToken(event, refreshToken);
 			}
+
+			if (decoded.sub) {
+				event.locals.userId = decoded.sub;
+			}
 		} catch (error) {
 			console.error('Error decoding accessToken:', error);
 		}

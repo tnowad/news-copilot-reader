@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import {
 		Navbar,
 		NavBrand,
@@ -22,6 +22,7 @@
 		FooterBrand,
 		FooterLink
 	} from 'flowbite-svelte';
+	import type { LayoutData } from './$types';
 
 	const categoriesItems = [
 		{ id: 1, label: 'Business', slug: 'business' },
@@ -32,6 +33,10 @@
 		{ id: 6, label: 'Sports', slug: 'sports' },
 		{ id: 7, label: 'Technology', slug: 'technology' }
 	];
+
+	export let data: LayoutData;
+
+	$: console.log({ data });
 </script>
 
 <div class="flex flex-col min-h-screen">
@@ -61,24 +66,36 @@
 				<Input id="search-navbar" class="ps-10" placeholder="Search..." />
 			</div>
 
-			<!-- Avatar component -->
-			<Avatar id="avatar-menu" src="/images/default-profile-picture.png" />
+			{#if data.user}
+				<Avatar id="avatar-menu" src="/images/default-profile-picture.png" />
+			{:else}
+				<Button href="/sign-in" size="sm">Get started</Button>
+			{/if}
 
 			<!-- Hamburger component -->
 			<NavHamburger class1="w-full md:flex md:w-auto md:order-1" />
 		</div>
 
-		<Dropdown placement="bottom" triggeredBy="#avatar-menu">
-			<DropdownHeader>
-				<span class="block text-sm">Welcome Display Name!</span>
-				<span class="block truncate text-sm font-medium">name@email.com</span>
-			</DropdownHeader>
-			<DropdownItem>Dashboard</DropdownItem>
-			<DropdownItem>Settings</DropdownItem>
-			<DropdownItem>Bookmark</DropdownItem>
-			<DropdownDivider />
-			<DropdownItem>Sign out</DropdownItem>
-		</Dropdown>
+		{#if data.user}
+			<Dropdown placement="bottom" triggeredBy="#avatar-menu">
+				<DropdownHeader>
+					<span class="block text-sm">Welcome, {data.user.displayName}!</span>
+					<span class="block truncate text-sm font-medium">{data.user.email}</span>
+				</DropdownHeader>
+				{#if data.user.roles.some((role) => role === 'ADMIN')}
+					<DropdownItem href="/admin">Admin Dashboard</DropdownItem>
+				{/if}
+				{#if data.user.roles.some((role) => role === 'WRITER')}
+					<DropdownItem href="/writer">Writer Dashboard</DropdownItem>
+				{/if}
+				{#if data.user.roles.some((role) => role === 'USER')}
+					<DropdownItem>Settings</DropdownItem>
+					<DropdownItem>Bookmark</DropdownItem>
+				{/if}
+				<DropdownDivider />
+				<DropdownItem href="/sign-out">Sign out</DropdownItem>
+			</Dropdown>
+		{/if}
 
 		<NavUl>
 			<NavLi href="/" active={true}>Latest News</NavLi>
