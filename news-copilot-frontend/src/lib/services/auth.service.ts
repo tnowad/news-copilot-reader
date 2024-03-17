@@ -44,12 +44,12 @@ type SignInResponse = Omit<Response, 'json'> & {
 	json: () => Promise<SignInSuccessful | SignInFailed | SignInValidationFailed>;
 };
 
-const signIn = async (params: SignInBody, headers: HeadersInit = {}) => {
+const signIn = async (body: SignInBody, headers: HeadersInit = {}) => {
 	try {
 		const url = new URL('/auth/sign-in', API_URL);
 		const requestInit: RequestInit = {
 			method: 'POST',
-			body: JSON.stringify(params),
+			body: JSON.stringify(body),
 			headers: { ...defaultHeaders, ...headers }
 		};
 
@@ -106,12 +106,12 @@ type SignUpResponse = Omit<Response, 'json'> & {
 	json: () => Promise<SignUpSuccessful | SignUpFailed | SignUpValidationFailed>;
 };
 
-const signUp = async (params: SignUpBody, headers: HeadersInit = {}) => {
+const signUp = async (body: SignUpBody, headers: HeadersInit = {}) => {
 	try {
 		const url = new URL('/auth/sign-up', API_URL);
 		const requestInit: RequestInit = {
 			method: 'POST',
-			body: JSON.stringify(params),
+			body: JSON.stringify(body),
 			headers: { ...defaultHeaders, ...headers }
 		};
 
@@ -143,12 +143,12 @@ type SignOutResponse = Omit<Response, 'json'> & {
 	json: () => Promise<SignOutSuccessful | SignOutFailed>;
 };
 
-const signOut = async (params: SignOutBody, headers: HeadersInit = {}) => {
+const signOut = async (body: SignOutBody, headers: HeadersInit = {}) => {
 	try {
 		const url = new URL('/auth/sign-out', API_URL);
 		const requestInit: RequestInit = {
 			method: 'POST',
-			body: JSON.stringify(params),
+			body: JSON.stringify(body),
 			headers: { ...defaultHeaders, ...headers }
 		};
 
@@ -184,12 +184,12 @@ type RefreshTokenResponse = Omit<Response, 'json'> & {
 	json: () => Promise<RefreshTokenSuccessful | RefreshTokenFailed>;
 };
 
-const refreshToken = async (params: RefreshTokenBody, headers: HeadersInit = {}) => {
+const refreshToken = async (body: RefreshTokenBody, headers: HeadersInit = {}) => {
 	try {
 		const url = new URL('/auth/refresh-token', API_URL);
 		const requestInit: RequestInit = {
 			method: 'POST',
-			body: JSON.stringify(params),
+			body: JSON.stringify(body),
 			headers: { ...defaultHeaders, ...headers }
 		};
 
