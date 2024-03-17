@@ -123,6 +123,43 @@ const signUp = async (params: SignUpBody, headers: HeadersInit = {}) => {
 	}
 };
 
+type SignOutBody = {
+	accessToken?: string;
+	refreshToken?: string;
+};
+
+type SignOutSuccessful = {
+	statusCode: StatusCodes.OK;
+	message: string;
+};
+
+type SignOutFailed = {
+	statusCode: StatusCodes.UNAUTHORIZED;
+	message: string;
+	error: string;
+};
+
+type SignOutResponse = Omit<Response, 'json'> & {
+	json: () => Promise<SignOutSuccessful | SignOutFailed>;
+};
+
+const signOut = async (params: SignOutBody, headers: HeadersInit = {}) => {
+	try {
+		const url = new URL('/auth/sign-out', API_URL);
+		const requestInit: RequestInit = {
+			method: 'POST',
+			body: JSON.stringify(params),
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as SignOutResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to sign out: ' + (error as Error).message);
+	}
+};
+
 type RefreshTokenBody = {
 	refreshToken: string;
 };
@@ -167,6 +204,7 @@ const refreshToken = async (params: RefreshTokenBody, headers: HeadersInit = {})
 const authService = {
 	signIn,
 	signUp,
+	signOut,
 	refreshToken
 };
 
