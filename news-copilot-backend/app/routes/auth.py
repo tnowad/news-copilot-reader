@@ -1,10 +1,16 @@
-from flask import Blueprint, jsonify, request
+from enum import _auto_null
+from flask import Blueprint, jsonify, request, Flask
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, JWTManager
+from datetime import timedelta
 from ..models.user import User
 from .. import db
 from http import HTTPStatus
-
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
-
+# TODO: jwt settime access_token and refresh_token 
+auth_bp.config["JWT_SECRET_KEY"] = "manager_access123"  # Change this!
+auth_bp.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+auth_bp.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=356)
+jwt = JWTManager(auth_bp)
 
 @auth_bp.route("/sign-in", methods=["POST"])
 def sign_in():
@@ -43,8 +49,8 @@ def sign_in():
         )
 
     # TODO: Generate JWT token and include it in the response
-    access_token = "fake-access-token"
-    refresh_token = "fake-refresh-token"
+    access_token = create_access_token(identity=email)
+    refresh_token = create_refresh_token(identity=email)
 
     return (
         jsonify(
@@ -134,8 +140,8 @@ def sign_up():
     db.session.commit()
 
     # TODO: Generate JWT token and include it in the response
-    access_token = "fake-access-token"
-    refresh_token = "fake-refresh-token"
+    access_token = create_access_token(identity=email)
+    refresh_token = create_refresh_token(identity=email)
 
     return (
         jsonify(
@@ -159,3 +165,23 @@ def sign_up():
         ),
         HTTPStatus.CREATED,
     )
+
+# TODO: If we are refreshing a token here we have not verified the users password in
+# TODO: a while, so mark the newly created access token as not fresh
+@auth_bp.route("/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh():
+    identity = get_jwt_identity()
+    access_token = create_access_token(identity=identity, fresh=False)
+    return jsonify(access_token=access_token)
+
+
+# TODO: Only allow fresh JWTs to access this route with the `fresh=True` arguement.
+@auth_bp.route("/protected", methods=["GET"])
+@jwt_required(fresh=True)
+def protected():
+    return jsonify(foo="bar")
+
+
+if __name__ == "__main__":
+    auth_bp.run()
