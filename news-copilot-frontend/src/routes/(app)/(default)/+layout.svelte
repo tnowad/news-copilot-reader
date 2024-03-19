@@ -11,7 +11,8 @@
 		DropdownHeader,
 		DropdownDivider,
 		Input,
-		Button
+		Button,
+		DarkMode
 	} from 'flowbite-svelte';
 	import { SearchOutline, ChevronDownOutline } from 'flowbite-svelte-icons';
 
@@ -41,7 +42,8 @@
 	<Navbar>
 		<NavBrand href="/">
 			<img src="/images/logo.png" class="me-3 h-6 sm:h-9" alt="News Copilot Logo" />
-			<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"
+			<span
+				class="hidden sm:block self-center whitespace-nowrap text-xl font-semibold dark:text-white"
 				>News Copilot</span
 			>
 		</NavBrand>
@@ -63,6 +65,8 @@
 				</div>
 				<Input id="search-navbar" class="ps-10" placeholder="Search..." />
 			</div>
+
+			<DarkMode class="text-primary-500 dark:text-primary-600 border dark:border-gray-800" />
 
 			{#if data.user}
 				<Avatar id="avatar-menu" src="/images/default-profile-picture.png" />
