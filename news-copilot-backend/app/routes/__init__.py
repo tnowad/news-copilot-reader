@@ -1,10 +1,10 @@
 from flask import Blueprint
 
-from .main import main_bp
-from .auth import auth_bp
-from .articles import articles_bp
-from .categories import categories_bp
-from .user import user_bp
+from app.routes.main import main_bp
+from app.routes.auth import auth_bp
+from app.routes.articles import articles_bp
+from app.routes.categories import categories_bp
+from app.routes.user import user_bp
 
 routes_bp = Blueprint("api", __name__)
 

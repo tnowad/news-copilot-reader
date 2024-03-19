@@ -1,10 +1,9 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
 from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required,
 )
-from ..models.user import User
-from .. import db
+from app.models.user import User
 from http import HTTPStatus
 
 user_bp = Blueprint("user", __name__, url_prefix="/user")
@@ -25,8 +24,6 @@ def profile():
             ),
             HTTPStatus.NOT_FOUND,
         )
-
-    print(current_user)
 
     return (
         jsonify(

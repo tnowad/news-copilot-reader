@@ -1,4 +1,4 @@
-from app import db
+from app.db import db
 
 
 class User(db.Model):
@@ -7,6 +7,7 @@ class User(db.Model):
     display_name = db.Column(db.String(120))
     avatar = db.Column(db.String(120))
     password = db.Column(db.String(128))
+    roles = db.relationship("Role", backref="user", lazy="dynamic")
 
     def __init__(self, email, display_name=None, avatar=None, password=None):
         self.email = email
