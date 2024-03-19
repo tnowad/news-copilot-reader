@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import (
     create_access_token,
@@ -5,9 +7,10 @@ from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required,
 )
-from app.models.user import User
+
 from app.db import db
-from http import HTTPStatus
+from app.models.user import User
+from app.models.role import Role, RoleEnum
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -48,7 +51,8 @@ def sign_in():
             HTTPStatus.UNAUTHORIZED,
         )
 
-    # TODO: Generate JWT token and include it in the response
+    roles = [str(role.name) for role in user.roles]
+
     access_token = create_access_token(identity=email)
     refresh_token = create_refresh_token(identity=email)
 
@@ -63,7 +67,7 @@ def sign_in():
                         "email": user.email,
                         "displayName": user.display_name,
                         "avatar": user.avatar,
-                        "roles": ["GUEST", "USER", "WRITER", "ADMIN"],
+                        "roles": roles,
                     },
                     "token": {
                         "accessToken": access_token,
@@ -152,9 +156,14 @@ def sign_up():
     # TODO: Hash the password
     new_user = User(email=email, display_name=display_name, password=password)
     db.session.add(new_user)
+
+    role = Role.query.filter_by(name=RoleEnum.USER).first()
+    if role:
+        new_user.roles.append(role)
     db.session.commit()
 
-    # TODO: Generate JWT token and include it in the response
+    roles = [str(role.name) for role in new_user.roles]
+
     access_token = create_access_token(identity=email)
     refresh_token = create_refresh_token(identity=email)
 
@@ -167,8 +176,8 @@ def sign_up():
                     "user": {
                         "id": new_user.id,
                         "email": new_user.email,
-                        "roles": ["USER"],
-                        "avatar": "",
+                        "roles": roles,
+                        "avatar": new_user.avatar,
                         "displayName": new_user.display_name,
                     },
                     "token": {

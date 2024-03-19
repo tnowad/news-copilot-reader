@@ -13,6 +13,7 @@ user_bp = Blueprint("user", __name__, url_prefix="/user")
 @jwt_required()
 def profile():
     current_user = User.query.filter_by(email=get_jwt_identity()).first()
+
     if not current_user:
         return (
             jsonify(
@@ -25,6 +26,7 @@ def profile():
             HTTPStatus.NOT_FOUND,
         )
 
+    roles = [str(role.name) for role in current_user.roles]
     return (
         jsonify(
             {
@@ -36,6 +38,7 @@ def profile():
                         "email": current_user.email,
                         "displayName": current_user.display_name,
                         "avatar": current_user.avatar,
+                        "roles": roles,
                     }
                 },
             }

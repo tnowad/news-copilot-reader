@@ -2,7 +2,6 @@
 // for information about these interfaces
 
 enum Role {
-	GUEST = 'GUEST',
 	USER = 'USER',
 	WRITER = 'WRITER',
 	ADMIN = 'ADMIN'
