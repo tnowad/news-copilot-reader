@@ -9,8 +9,8 @@ from flask_jwt_extended import (
 )
 
 from app.db import db
-from app.models.user import User
 from app.models.role import Role, RoleEnum
+from app.models.user import User
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 

@@ -1,9 +1,9 @@
 from typing import List
-from sqlalchemy.orm import Mapped, Mapper
-from sqlalchemy.orm import relationship
-from app.db import db
-from app.models.role import Role, RoleEnum
 
+from sqlalchemy.orm import Mapped, relationship
+
+from app.db import db
+from app.models.role import Role
 
 association_table = db.Table(
     "users_roles",

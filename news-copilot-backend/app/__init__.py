@@ -1,10 +1,12 @@
-from flask import Flask
-from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager
 from datetime import timedelta
+
+from flask import Flask
+from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
+
+from app.db import db
 from app.models.role import Role, RoleEnum
 from app.models.user import User
-from app.db import db
 
 migrate = Migrate()
 

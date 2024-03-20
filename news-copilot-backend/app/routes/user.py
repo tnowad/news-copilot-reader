@@ -1,16 +1,21 @@
+from http import HTTPStatus
+
 from flask import Blueprint, jsonify
 from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required,
 )
+
+from app.decorators.authorization import role_required
+from app.models.role import RoleEnum
 from app.models.user import User
-from http import HTTPStatus
 
 user_bp = Blueprint("user", __name__, url_prefix="/user")
 
 
 @user_bp.route("/profile", methods=["GET"])
 @jwt_required()
+@role_required([RoleEnum.USER, RoleEnum.ADMIN, RoleEnum.WRITER])
 def profile():
     current_user = User.query.filter_by(email=get_jwt_identity()).first()
 
