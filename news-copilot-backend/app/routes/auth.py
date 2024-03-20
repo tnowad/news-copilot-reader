@@ -39,7 +39,7 @@ def sign_in():
     user = User.query.filter_by(email=email).first()
 
     # TODO: Use check_password method
-    if not user or not user.password == password:
+    if not user or not user.check_password(password):
         return (
             jsonify(
                 {

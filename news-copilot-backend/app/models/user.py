@@ -1,6 +1,7 @@
 from typing import List
 
 from sqlalchemy.orm import Mapped, relationship
+from app.bcrypt import bcrypt
 
 from app.db import db
 from app.models.role import Role
@@ -28,7 +29,14 @@ class User(db.Model):
         self.email = email
         self.display_name = display_name
         self.avatar = avatar
-        self.password = password
+        if password:
+            self.set_password(password)
 
     def __repr__(self):
         return "<User {}>".format(self.email)
+
+    def set_password(self, password):
+        self.password = bcrypt.generate_password_hash(password).decode("utf-8")
+
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password, password)
