@@ -1,10 +1,10 @@
 from datetime import timedelta
 
 from flask import Flask
-from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 
 from app.db import db
+from app.jwt import jwt
 from app.models.role import Role, RoleEnum
 from app.models.user import User
 
@@ -73,8 +73,8 @@ def create_app():
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=356)
 
     db.init_app(app)
+    jwt.init_app(app)
     migrate.init_app(app, db, render_as_batch=True)
-    JWTManager(app)
 
     with app.app_context():
         from .routes import routes_bp
