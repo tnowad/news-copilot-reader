@@ -2,7 +2,7 @@
 </script>
 
 <main
-	class="flex bg-gray-50 w-full h-full flex-col items-center justify-center mx-auto md:h-screen dark:bg-gray-900"
+	class="mx-auto flex h-full w-full flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 md:h-screen"
 >
 	<slot />
 </main>

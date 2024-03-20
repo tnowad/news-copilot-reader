@@ -5,12 +5,12 @@
 	import { StatusCodes } from 'http-status-codes';
 </script>
 
-<div class="flex justify-center items-center h-screen">
+<div class="flex h-screen items-center justify-center">
 	{#if $page.status === StatusCodes.NOT_FOUND}
 		<Page404>
 			<svelte:fragment slot="h1">404 🙁</svelte:fragment>
 			<svelte:fragment slot="paragraph">
-				<p class="mb-4 text-3xl tracking-tight font-bold text-gray-900 md:text-4xl dark:text-white">
+				<p class="mb-4 text-3xl font-bold tracking-tight text-gray-900 dark:text-white md:text-4xl">
 					Not Found
 				</p>
 				<p class="mb-4 text-lg font-light text-gray-500 dark:text-gray-400">
@@ -23,7 +23,7 @@
 		<Page500>
 			<svelte:fragment slot="h1">500 💥</svelte:fragment>
 			<svelte:fragment slot="paragraph">
-				<p class="mb-4 text-3xl tracking-tight font-bold text-gray-900 md:text-4xl dark:text-white">
+				<p class="mb-4 text-3xl font-bold tracking-tight text-gray-900 dark:text-white md:text-4xl">
 					Internal Server Error.
 				</p>
 				<p class="mb-4 text-lg font-light text-gray-500 dark:text-gray-400">

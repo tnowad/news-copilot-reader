@@ -38,35 +38,35 @@
 	export let data: LayoutData;
 </script>
 
-<div class="flex flex-col min-h-screen">
+<div class="flex min-h-screen flex-col">
 	<Navbar>
 		<NavBrand href="/">
 			<img src="/images/logo.png" class="me-3 h-6 sm:h-9" alt="News Copilot Logo" />
 			<span
-				class="hidden sm:block self-center whitespace-nowrap text-xl font-semibold dark:text-white"
+				class="hidden self-center whitespace-nowrap text-xl font-semibold dark:text-white sm:block"
 				>News Copilot</span
 			>
 		</NavBrand>
 
-		<div class="flex items-center md:order-2 gap-x-5">
+		<div class="flex items-center gap-x-5 md:order-2">
 			<!-- Search component -->
 			<Button
 				color="none"
 				data-collapse-toggle="mobile-menu-3"
 				aria-controls="mobile-menu-3"
 				aria-expanded="false"
-				class="lg:hidden text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 me-1"
+				class="me-1 rounded-lg p-2.5 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700 lg:hidden"
 			>
-				<SearchOutline class="w-5 h-5" />
+				<SearchOutline class="h-5 w-5" />
 			</Button>
-			<div class="hidden relative lg:block">
-				<div class="flex absolute inset-y-0 start-0 items-center ps-3 pointer-events-none">
-					<SearchOutline class="w-4 h-4" />
+			<div class="relative hidden lg:block">
+				<div class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3">
+					<SearchOutline class="h-4 w-4" />
 				</div>
 				<Input id="search-navbar" class="ps-10" placeholder="Search..." />
 			</div>
 
-			<DarkMode class="text-primary-500 dark:text-primary-600 border dark:border-gray-800" />
+			<DarkMode class="border text-primary-500 dark:border-gray-800 dark:text-primary-600" />
 
 			{#if data.user}
 				<Avatar id="avatar-menu" src="/images/default-profile-picture.png" />
@@ -104,7 +104,7 @@
 
 			<NavLi class="cursor-pointer">
 				Categories<ChevronDownOutline
-					class="w-3 h-3 ms-2 text-primary-800 dark:text-white inline"
+					class="ms-2 inline h-3 w-3 text-primary-800 dark:text-white"
 				/>
 			</NavLi>
 			<Dropdown>
@@ -122,7 +122,7 @@
 	</main>
 
 	<Footer footerType="logo">
-		<div class="mx-auto container">
+		<div class="container mx-auto">
 			<div class="sm:flex sm:items-center sm:justify-between">
 				<FooterBrand href="/" src="/images/logo.png" alt="News Copilot Logo" name="News Copilot" />
 				<FooterLinkGroup
@@ -135,7 +135,7 @@
 				</FooterLinkGroup>
 			</div>
 		</div>
-		<hr class="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
+		<hr class="my-6 border-gray-200 dark:border-gray-700 sm:mx-auto lg:my-8" />
 		<FooterCopyright href="/" by="News Copilot™" />
 	</Footer>
 </div>

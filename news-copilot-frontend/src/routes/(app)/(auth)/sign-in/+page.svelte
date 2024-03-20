@@ -13,12 +13,12 @@
 <Section name="login" sectionClass="w-full md:w-[500px]">
 	<Register href="/">
 		<svelte:fragment slot="top">
-			<img class="w-8 h-8 mr-2" src="/images/logo.png" alt="logo" />
+			<img class="mr-2 h-8 w-8" src="/images/logo.png" alt="logo" />
 			News Copilot
 		</svelte:fragment>
-		<div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+		<div class="space-y-4 p-6 sm:p-8 md:space-y-6">
 			<form class="flex flex-col space-y-6" action="/sign-in" method="post" use:enhance>
-				<h3 class="text-xl font-medium text-gray-900 dark:text-white p-0">Sign In</h3>
+				<h3 class="p-0 text-xl font-medium text-gray-900 dark:text-white">Sign In</h3>
 				<Label class="space-y-2">
 					<span>Your email</span>
 					<Input type="email" name="email" placeholder="name@email.com" required />
