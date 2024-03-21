@@ -1,6 +1,9 @@
 <script lang="ts">
 	import {} from 'flowbite-svelte';
 	import {} from 'flowbite-svelte-blocks';
+
+	import type { PageData } from './$types';
+	export let data: PageData;
 </script>
 
 <div>
