@@ -20,7 +20,7 @@ export const load: LayoutServerLoad = async (event) => {
 		case StatusCodes.OK:
 			user = currentUserProfileResponse.data.user;
 			break;
-		case StatusCodes.UNAUTHORIZED:
+		case StatusCodes.UNAUTHORIZED | StatusCodes.FORBIDDEN:
 			user = null;
 			break;
 		default:

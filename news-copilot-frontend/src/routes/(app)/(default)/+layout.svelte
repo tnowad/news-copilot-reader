@@ -102,11 +102,11 @@
 					<DropdownItem href="/admin">Admin Dashboard</DropdownItem>
 				{/if}
 				{#if data.user.roles?.some((role) => role === 'WRITER')}
-					<DropdownItem href="/writer">Writer Dashboard</DropdownItem>
+					<a href="/admin"><DropdownItem href="/writer">Writer Dashboard</DropdownItem></a>
 				{/if}
 				{#if data.user.roles?.some((role) => role === 'USER')}
-					<DropdownItem>Settings</DropdownItem>
-					<DropdownItem>Bookmark</DropdownItem>
+					<a href="/settings"><DropdownItem>Settings</DropdownItem></a>
+					<a href="/bookmark"><DropdownItem>Bookmark</DropdownItem></a>
 				{/if}
 				<DropdownDivider />
 				<DropdownItem href="/sign-out">Sign out</DropdownItem>
