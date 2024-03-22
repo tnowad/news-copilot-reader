@@ -12,7 +12,9 @@
 		DropdownDivider,
 		Input,
 		Button,
-		DarkMode
+		DarkMode,
+		Modal,
+		Search
 	} from 'flowbite-svelte';
 	import { SearchOutline, ChevronDownOutline } from 'flowbite-svelte-icons';
 
@@ -36,6 +38,11 @@
 	];
 
 	export let data: LayoutData;
+	let isOpenSearchModal = false;
+
+	const setPlacement = (ev: any) => {
+		isOpenSearchModal = !isOpenSearchModal;
+	};
 </script>
 
 <div class="flex min-h-screen flex-col">
@@ -63,7 +70,7 @@
 				<div class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3">
 					<SearchOutline class="h-4 w-4" />
 				</div>
-				<Input id="search-navbar" class="ps-10" placeholder="Search..." />
+				<Input id="search-navbar" class="ps-10" placeholder="Search..." on:click={setPlacement} />
 			</div>
 
 			<DarkMode class="border text-primary-500 dark:border-gray-800 dark:text-primary-600" />
@@ -73,6 +80,13 @@
 			{:else}
 				<Button href="/sign-in" size="sm">Get started</Button>
 			{/if}
+			<Modal class="w-full mt-10" bind:open={isOpenSearchModal} placement="top-center">
+				<div class="w-4/6 m-auto">
+					<Search>
+						<Button>Search</Button>
+					</Search>
+				</div>
+			</Modal>
 
 			<!-- Hamburger component -->
 			<NavHamburger class1="w-full md:flex md:w-auto md:order-1" />
