@@ -1,3 +1,3 @@
-import type { LayoutServerLoad } from "./$types";
+import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutServerLoad = async ({ parent }) => {}
+export const load: LayoutServerLoad = async ({ parent }) => {};

@@ -99,7 +99,7 @@
 	let dropdowns = Object.fromEntries(Object.keys(posts).map((x) => [x, false]));
 </script>
 
-<div class="flex flex-col min-h-screen">
+<div class="flex min-h-screen flex-col">
 	<header
 		class="sticky top-0 z-40 mx-auto w-full flex-none border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-800"
 	>
@@ -127,7 +127,7 @@
 		</Navbar>
 	</header>
 
-	<div class="overflow-hidden lg:flex flex-1">
+	<div class="flex-1 overflow-hidden lg:flex">
 		<Sidebar
 			class={drawerHidden ? 'hidden' : ''}
 			activeUrl={mainSidebarUrl}

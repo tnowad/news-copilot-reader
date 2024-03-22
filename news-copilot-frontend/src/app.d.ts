@@ -11,8 +11,13 @@ declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			userId: string | null;
-			roles: Role[];
+			user?: {
+				id: number;
+				email: string;
+				displayName: string;
+				avatar?: string;
+				roles?: string[];
+			};
 		}
 		// interface PageData {}
 		// interface PageState {}
