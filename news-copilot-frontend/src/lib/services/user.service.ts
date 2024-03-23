@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { defaultHeaders } from './config';
 import { API_URL } from '$env/static/private';
+import type { Role } from '$lib/types/models';
 
 type GetCurrentUserProfileParams = {
 	include?: ('roles' | 'avatar')[];
@@ -14,8 +15,8 @@ type GetCurrentUserProfileSuccessful = {
 			id: number;
 			email: string;
 			displayName: string;
-			avatar?: string;
-			roles?: string[];
+			avatarImage?: string;
+			roles?: Role[];
 		};
 	};
 	message: string;

@@ -1,11 +1,6 @@
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
-
-enum Role {
-	USER = 'USER',
-	WRITER = 'WRITER',
-	ADMIN = 'ADMIN'
-}
+import type { Role } from '$lib/types/models';
 
 declare global {
 	namespace App {
