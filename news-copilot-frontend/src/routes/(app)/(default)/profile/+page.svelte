@@ -12,6 +12,10 @@
 		Textarea
 	} from 'flowbite-svelte';
 	import { UploadSolid } from 'flowbite-svelte-icons';
+	import type { PageData } from '../about-us/$types';
+	import { enhance } from '$app/forms';
+
+	export let data: PageData;
 </script>
 
 <section>
@@ -57,10 +61,14 @@
 			</Card>
 			<Card class="xl:col-span-8" size="none">
 				<Heading tag="h3" class="text-xl">General Information</Heading>
-				<form class="grid grid-cols-6 gap-6">
+				<form class="grid grid-cols-6 gap-6" action="/profile" method="post" use:enhance>
 					<Label class="col-span-6 space-y-2 sm:col-span-3">
 						<span>Display Name:</span>
-						<Input type="text" class="border font-normal outline-none" />
+						<Input
+							type="text"
+							class="border font-normal outline-none"
+							value={data.user?.displayName}
+						/>
 					</Label>
 
 					<Label class="col-span-6 space-y-2 sm:col-span-3">
@@ -70,7 +78,12 @@
 
 					<Label class="col-span-6 space-y-2 sm:col-span-3">
 						<span>Email address:</span>
-						<Input type="text" class="border font-normal outline-none" />
+						<Input
+							type="text"
+							class="border font-normal outline-none"
+							value={data.user?.email}
+							disabled
+						/>
 					</Label>
 
 					<Label class="col-span-6 space-y-2 sm:col-span-3">
@@ -80,12 +93,17 @@
 
 					<Label class="col-span-6 space-y-2 sm:col-span-3">
 						<span>Password:</span>
-						<Input type="password" class="border font-normal outline-none" />
+						<Input
+							type="password"
+							placeholder="••••••••"
+							class="border font-normal outline-none"
+							required
+						/>
 					</Label>
 
 					<Label class="col-span-6 space-y-2 sm:col-span-3">
 						<span>New Password:</span>
-						<Input type="password" class="border font-normal outline-none" />
+						<Input type="password" placeholder="••••••••" class="border font-normal outline-none" />
 					</Label>
 
 					<Label class="col-span-full space-y-2">
@@ -94,12 +112,14 @@
 					</Label>
 					<Label class="col-span-full space-y-2">
 						<span>Role:</span>
-						<div>
-							<Badge>USER</Badge>
+						<div class="flex gap-x-2">
+							{#each data.user?.roles ?? [] as role}
+								<Badge>{role}</Badge>
+							{/each}
 						</div>
 					</Label>
 
-					<Button class="w-fit whitespace-nowrap">Save all</Button>
+					<Button type="submit" class="w-fit whitespace-nowrap">Save all</Button>
 				</form>
 			</Card>
 		</div>
