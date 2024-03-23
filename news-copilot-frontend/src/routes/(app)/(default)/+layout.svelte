@@ -10,13 +10,10 @@
 		DropdownItem,
 		DropdownHeader,
 		DropdownDivider,
-		Input,
 		Button,
-		DarkMode,
-		Modal,
-		Search
+		DarkMode
 	} from 'flowbite-svelte';
-	import { SearchOutline, ChevronDownOutline } from 'flowbite-svelte-icons';
+	import { ChevronDownOutline } from 'flowbite-svelte-icons';
 
 	import {
 		Footer,
@@ -26,6 +23,7 @@
 		FooterLink
 	} from 'flowbite-svelte';
 	import type { LayoutData } from './$types';
+	import SearchInput from '$lib/widgets/search-input.svelte';
 
 	const categoriesItems = [
 		{ id: 1, label: 'Business', slug: 'business' },
@@ -38,11 +36,6 @@
 	];
 
 	export let data: LayoutData;
-	let isOpenSearchModal = false;
-
-	const setPlacement = (ev: any) => {
-		isOpenSearchModal = !isOpenSearchModal;
-	};
 </script>
 
 <div class="flex min-h-screen flex-col">
@@ -57,22 +50,7 @@
 
 		<div class="flex items-center gap-x-5 md:order-2">
 			<!-- Search component -->
-			<Button
-				color="none"
-				data-collapse-toggle="mobile-menu-3"
-				aria-controls="mobile-menu-3"
-				aria-expanded="false"
-				class="me-1 rounded-lg p-2.5 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700 lg:hidden"
-			>
-				<SearchOutline class="h-5 w-5" />
-			</Button>
-			<div class="relative hidden lg:block">
-				<div class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3">
-					<SearchOutline class="h-4 w-4" />
-				</div>
-				<Input id="search-navbar" class="ps-10" placeholder="Search..." on:click={setPlacement} />
-			</div>
-
+			<SearchInput />
 			<DarkMode class="border text-primary-500 dark:border-gray-800 dark:text-primary-600" />
 
 			{#if data.user}
@@ -80,13 +58,6 @@
 			{:else}
 				<Button href="/sign-in" size="sm">Get started</Button>
 			{/if}
-			<Modal class="w-full mt-10" bind:open={isOpenSearchModal} placement="top-center">
-				<div class="w-4/6 m-auto">
-					<Search>
-						<Button>Search</Button>
-					</Search>
-				</div>
-			</Modal>
 
 			<!-- Hamburger component -->
 			<NavHamburger class1="w-full md:flex md:w-auto md:order-1" />
