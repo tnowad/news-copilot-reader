@@ -26,7 +26,6 @@ class User(db.Model):
     roles: Mapped[List["Role"]] = relationship(
         secondary=association_table, back_populates="users"
     )
-    articles = relationship("Article", back_populates="author")
 
     def __init__(self, email, display_name=None, avatar=None, password=None):
         self.email = email

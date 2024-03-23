@@ -9,8 +9,6 @@ class Article(db.Model):
     title = Column(String(255), nullable=False)
     cover_image = Column(String(255))
     summary = Column(Text)
-    author_id = Column(Integer, ForeignKey("users.id"))
-    author = relationship("User", back_populates="articles")
 
     def __init__(self, title, cover_image=None, summary=None, author=None):
         self.title = title
