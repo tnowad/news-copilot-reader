@@ -16,7 +16,7 @@ declare global {
 				email: string;
 				displayName: string;
 				avatar?: string;
-				roles?: string[];
+				roles?: Role[];
 			};
 		}
 		// interface PageData {}
