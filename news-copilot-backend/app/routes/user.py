@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required,
@@ -31,22 +31,25 @@ def profile():
             HTTPStatus.NOT_FOUND,
         )
 
-    roles = [str(role.name) for role in current_user.roles]
-    return (
-        jsonify(
-            {
-                "statusCode": HTTPStatus.OK,
-                "message": "User profile",
-                "data": {
-                    "user": {
-                        "id": current_user.id,
-                        "email": current_user.email,
-                        "displayName": current_user.display_name,
-                        "avatar": current_user.avatar,
-                        "roles": roles,
-                    }
-                },
+    response_data = {
+        "statusCode": HTTPStatus.OK,
+        "message": "User profile",
+        "data": {
+            "user": {
+                "id": current_user.id,
+                "email": current_user.email,
+                "displayName": current_user.display_name,
             }
-        ),
-        HTTPStatus.OK,
-    )
+        },
+    }
+
+    include_params = request.args.getlist("include")
+
+    if "roles" in include_params:
+        roles = [str(role.name) for role in current_user.roles]
+        response_data["data"]["user"]["roles"] = roles
+
+    if "avatar" in include_params:
+        response_data["data"]["user"]["avatar"] = current_user.avatar
+
+    return jsonify(response_data), HTTPStatus.OK
