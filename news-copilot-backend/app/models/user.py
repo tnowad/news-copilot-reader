@@ -1,10 +1,12 @@
-from typing import List
+from typing import List, TYPE_CHECKING
 
 from sqlalchemy.orm import Mapped, relationship
 from app.bcrypt import bcrypt
 
 from app.db import db
-from app.models.role import Role
+
+if TYPE_CHECKING:
+    from app.models.role import Role
 
 association_table = db.Table(
     "users_roles",
@@ -21,9 +23,10 @@ class User(db.Model):
     display_name = db.Column(db.String(120))
     avatar = db.Column(db.String(120))
     password = db.Column(db.String(128))
-    roles: Mapped[List[Role]] = relationship(
+    roles: Mapped[List["Role"]] = relationship(
         secondary=association_table, back_populates="users"
     )
+    articles = relationship("Article", back_populates="author")
 
     def __init__(self, email, display_name=None, avatar=None, password=None):
         self.email = email
