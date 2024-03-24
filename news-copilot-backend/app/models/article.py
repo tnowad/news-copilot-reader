@@ -1,6 +1,8 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, relationship
+
 from app.db import db
+from app.models.user import User
 
 
 class Article(db.Model):
@@ -10,13 +12,12 @@ class Article(db.Model):
     cover_image = db.Column(String(255))
     summary = db.Column(Text)
     author_id = db.Column(Integer, ForeignKey("users.id"))
-    author = relationship("User", back_populates="articles")
+    author: Mapped["User"] = relationship("User", back_populates="articles")
 
-    def __init__(self, title, cover_image=None, summary=None, author=None):
+    def __init__(self, title, cover_image=None, summary=None):
         self.title = title
         self.cover_image = cover_image
         self.summary = summary
-        self.author = author
 
     def __repr__(self):
         return f"<Article {self.title}>"
