@@ -6,7 +6,7 @@ export const load: PageServerLoad = async (event) => {
 	const accessToken = event.cookies.get('accessToken');
 
 	const currentUserProfileResponse = await userService.getCurrentUserProfile(
-		{ include: ['roles', 'avatar'] },
+		{ include: ['roles', 'avatarImage'] },
 		{ Authorization: `Bearer ${accessToken}` }
 	);
 
