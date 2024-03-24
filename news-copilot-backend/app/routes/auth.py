@@ -8,7 +8,7 @@ from flask_jwt_extended import (
     jwt_required,
 )
 
-from app.db import db
+from app.extensions import db
 from app.models.role import Role, RoleEnum
 from app.models.user import User
 

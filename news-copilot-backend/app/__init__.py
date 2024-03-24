@@ -3,8 +3,7 @@ from datetime import timedelta
 from flask import Flask
 from flask_migrate import Migrate
 
-from app.db import db
-from app.jwt import jwt
+from app.extensions import db, jwt
 from app.models.role import Role, RoleEnum
 from app.models.user import User
 

@@ -1,13 +1,17 @@
 from http import HTTPStatus
 
 from flask import jsonify
+from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
+from flask_sqlalchemy import SQLAlchemy
 
+bcrypt = Bcrypt()
+db = SQLAlchemy()
 jwt = JWTManager()
 
 
 @jwt.unauthorized_loader
-def unauthorized_response(callback):
+def unauthorized_response():
     return (
         jsonify(
             {
@@ -21,7 +25,7 @@ def unauthorized_response(callback):
 
 
 @jwt.expired_token_loader
-def expired_token_response(callback):
+def expired_token_response():
     return (
         jsonify(
             {
@@ -35,7 +39,7 @@ def expired_token_response(callback):
 
 
 @jwt.invalid_token_loader
-def invalid_token_response(callback):
+def invalid_token_response():
     return (
         jsonify(
             {

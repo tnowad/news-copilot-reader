@@ -2,8 +2,7 @@ from typing import TYPE_CHECKING, List
 
 from sqlalchemy.orm import Mapped, relationship
 
-from app.bcrypt import bcrypt
-from app.db import db
+from app.extensions import db, bcrypt
 
 if TYPE_CHECKING:
     from app.models.article import Article

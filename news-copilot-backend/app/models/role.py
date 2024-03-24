@@ -1,9 +1,7 @@
 from enum import Enum
 from typing import TYPE_CHECKING, List
-
 from sqlalchemy.orm import Mapped, relationship
-
-from app.db import db
+from app.extensions import db
 
 if TYPE_CHECKING:
     from app.models.user import User
