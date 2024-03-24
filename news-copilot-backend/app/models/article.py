@@ -5,10 +5,12 @@ from app.db import db
 
 class Article(db.Model):
     __tablename__ = "articles"
-    id = Column(Integer, primary_key=True)
-    title = Column(String(255), nullable=False)
-    cover_image = Column(String(255))
-    summary = Column(Text)
+    id = db.Column(Integer, primary_key=True)
+    title = db.Column(String(255), nullable=False)
+    cover_image = db.Column(String(255))
+    summary = db.Column(Text)
+    author_id = db.Column(Integer, ForeignKey("users.id"))
+    author = relationship("User", back_populates="articles")
 
     def __init__(self, title, cover_image=None, summary=None, author=None):
         self.title = title
