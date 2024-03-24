@@ -48,7 +48,7 @@ const getCurrentUserProfile = async (
 			queryParams.set('style', style);
 		}
 
-		const url = new URL('/user/profile', API_URL);
+		const url = new URL('/users/profile', API_URL);
 		url.search = queryParams.toString();
 
 		const requestInit: RequestInit = {

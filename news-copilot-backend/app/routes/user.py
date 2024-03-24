@@ -10,7 +10,7 @@ from app.decorators.authorization import role_required
 from app.models.role import RoleEnum
 from app.models.user import User
 
-user_bp = Blueprint("user", __name__, url_prefix="/user")
+user_bp = Blueprint("user", __name__, url_prefix="/users")
 
 
 @user_bp.route("/profile", methods=["GET"])
