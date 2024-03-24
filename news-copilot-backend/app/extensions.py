@@ -11,7 +11,7 @@ jwt = JWTManager()
 
 
 @jwt.unauthorized_loader
-def unauthorized_response():
+def unauthorized_response(callback):
     return (
         jsonify(
             {
@@ -25,7 +25,7 @@ def unauthorized_response():
 
 
 @jwt.expired_token_loader
-def expired_token_response():
+def expired_token_response(callback):
     return (
         jsonify(
             {
@@ -39,7 +39,7 @@ def expired_token_response():
 
 
 @jwt.invalid_token_loader
-def invalid_token_response():
+def invalid_token_response(callback):
     return (
         jsonify(
             {
