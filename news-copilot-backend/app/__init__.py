@@ -25,21 +25,21 @@ def seed_users():
         {
             "email": "admin@example.com",
             "display_name": "Admin User",
-            "avatar": "https://i.pravatar.cc/150?img=1",
+            "avatar_image": "https://i.pravatar.cc/150?img=1",
             "password": "Password123",
             "roles": [RoleEnum.USER, RoleEnum.ADMIN],
         },
         {
             "email": "writer@example.com",
             "display_name": "Writer User",
-            "avatar": "https://i.pravatar.cc/150?img=2",
+            "avatar_image": "https://i.pravatar.cc/150?img=2",
             "password": "Password123",
             "roles": [RoleEnum.USER, RoleEnum.WRITER],
         },
         {
             "email": "user@example.com",
             "display_name": "Normal User",
-            "avatar": "https://i.pravatar.cc/150?img=3",
+            "avatar_image": "https://i.pravatar.cc/150?img=3",
             "password": "Password123",
             "roles": [RoleEnum.USER],
         },
@@ -51,7 +51,7 @@ def seed_users():
             user = User(
                 email=user_map["email"],
                 display_name=user_map["display_name"],
-                avatar=user_map["avatar"],
+                avatar_image=user_map["avatar_image"],
                 password=user_map["password"],
             )
             db.session.add(user)

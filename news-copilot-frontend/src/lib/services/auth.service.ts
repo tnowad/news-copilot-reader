@@ -14,7 +14,7 @@ type SignInSuccessful = {
 			id: number;
 			email: string;
 			roles: string[];
-			avatar: string;
+			avatarImage: string;
 			displayName: string;
 		};
 		token: {
@@ -76,7 +76,7 @@ type SignUpSuccessful = {
 			id: number;
 			email: string;
 			roles: string[];
-			avatar: string;
+			avatarImage: string;
 			displayName: string;
 		};
 		token: {

@@ -77,7 +77,7 @@ const getCurrentUser = async (event: RequestEvent) => {
 
 	const currentUserProfileResponse = await userService.getCurrentUserProfile(
 		{
-			include: ['roles']
+			include: ['roles', 'avatarImage']
 		},
 		{
 			Authorization: `Bearer ${accessToken}`

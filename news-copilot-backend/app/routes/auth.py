@@ -66,7 +66,7 @@ def sign_in():
                         "id": user.id,
                         "email": user.email,
                         "displayName": user.display_name,
-                        "avatar": user.avatar,
+                        "avatar": user.avatar_image,
                         "roles": roles,
                     },
                     "token": {
@@ -177,7 +177,7 @@ def sign_up():
                         "id": new_user.id,
                         "email": new_user.email,
                         "roles": roles,
-                        "avatar": new_user.avatar,
+                        "avatar": new_user.avatar_image,
                         "displayName": new_user.display_name,
                     },
                     "token": {
