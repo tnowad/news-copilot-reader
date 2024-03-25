@@ -4,7 +4,7 @@ import { API_URL } from '$env/static/private';
 import type { Role } from '$lib/types/models';
 
 type GetCurrentUserProfileParams = {
-	include?: ('roles' | 'avatar')[];
+	include?: ('roles' | 'avatarImage')[];
 	style?: 'compact' | 'full';
 };
 

@@ -1,8 +1,10 @@
 from enum import Enum
+from typing import TYPE_CHECKING, List
+from sqlalchemy.orm import Mapped, relationship
+from app.extensions import db
 
-from sqlalchemy.orm import relationship
-
-from app.db import db
+if TYPE_CHECKING:
+    from app.models.user import User
 
 
 class RoleEnum(Enum):
@@ -18,7 +20,7 @@ class Role(db.Model):
     __tablename__ = "roles"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Enum(RoleEnum), unique=True, nullable=False)
-    users = relationship("User", secondary="users_roles")
+    users: Mapped[List["User"]] = relationship("User", secondary="users_roles")
 
     def __init__(self, name):
         self.name = name

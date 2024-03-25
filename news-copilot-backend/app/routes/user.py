@@ -49,7 +49,7 @@ def profile():
         roles = [str(role.name) for role in current_user.roles]
         response_data["data"]["user"]["roles"] = roles
 
-    if "avatar" in include_params:
-        response_data["data"]["user"]["avatar"] = current_user.avatar
+    if "avatarImage" in include_params:
+        response_data["data"]["user"]["avatarImage"] = current_user.avatar_image
 
     return jsonify(response_data), HTTPStatus.OK
