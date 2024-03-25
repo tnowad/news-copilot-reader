@@ -1,25 +1,24 @@
 import userService from '$lib/services/user.service';
 import { StatusCodes } from 'http-status-codes';
 import type { PageServerLoad } from './$types';
-// Todo load current user
+import { redirect } from '@sveltejs/kit';
+
 export const load: PageServerLoad = async (event) => {
 	const accessToken = event.cookies.get('accessToken');
 
+	if (!accessToken) {
+		redirect(StatusCodes.TEMPORARY_REDIRECT, '/sign-in');
+	}
+
 	const currentUserProfileResponse = await userService.getCurrentUserProfile(
-		{ include: ['roles', 'avatarImage'] },
+		{ include: ['roles'], style: 'full' },
 		{ Authorization: `Bearer ${accessToken}` }
 	);
 
-	switch (currentUserProfileResponse.statusCode) {
-		case StatusCodes.OK:
-			event.locals.user = currentUserProfileResponse.data.user;
-			break;
-		case StatusCodes.UNAUTHORIZED | StatusCodes.FORBIDDEN:
-			console.error('Failed to get current user:', currentUserProfileResponse.message);
-			break;
-		default:
-			break;
-	}
+	const user =
+		currentUserProfileResponse.statusCode === StatusCodes.OK
+			? currentUserProfileResponse.data.user
+			: null;
 
-	return { user: event.locals.user };
+	return { user: user };
 };

@@ -12,10 +12,33 @@
 		Textarea
 	} from 'flowbite-svelte';
 	import { UploadSolid } from 'flowbite-svelte-icons';
-	import type { PageData } from '../about-us/$types';
+	import type { PageData } from './$types';
 	import { enhance } from '$app/forms';
+	import { onMount } from 'svelte';
 
 	export let data: PageData;
+
+	let avatarInputElement: HTMLInputElement | null = null;
+	let avatarImageSrc = data.user?.avatarImage ?? '/images/default-profile-picture.png';
+
+	onMount(() => {
+		if (avatarInputElement) {
+			avatarInputElement.onchange = () => {
+				if (avatarInputElement == null) {
+					return;
+				}
+
+				if (!avatarInputElement.files?.length) {
+					return;
+				}
+
+				if (avatarInputElement.files.length > 0) {
+					const file = avatarInputElement.files[0];
+					avatarImageSrc = URL.createObjectURL(file);
+				}
+			};
+		}
+	});
 </script>
 
 <section>
@@ -42,17 +65,18 @@
 				horizontal
 			>
 				<Avatar
-					src="/images/default-profile-picture.png"
-					class="mb-4 h-28 w-28 rounded-lg sm:mb-0 xl:mb-4 2xl:mb-0"
+					class="mb-4 h-28 w-28 overflow-hidden rounded-lg sm:mb-0 xl:mb-4 2xl:mb-0"
 					size="none"
 					rounded
-				/>
+				>
+					<img src={avatarImageSrc} class="h-full w-full object-cover" alt="Avatar" />
+				</Avatar>
 
 				<div class="py-0.5">
 					<Heading tag="h3" class="text-xl">Profile picture</Heading>
 					<p class="mb-4 mt-1 pt-px text-sm">JPG, GIF or PNG. Max size of 800K</p>
 					<div class="flex items-center space-x-4">
-						<Button size="sm" class="px-3"
+						<Button size="sm" class="px-3" on:click={() => avatarInputElement?.click()}
 							><UploadSolid size="sm" class="-ms-1 me-2" /> Upload picture</Button
 						>
 						<Button size="sm" class="px-3" color="alternative">Delete</Button>
@@ -67,13 +91,19 @@
 						<Input
 							type="text"
 							class="border font-normal outline-none"
+							name="displayName"
 							value={data.user?.displayName}
 						/>
 					</Label>
 
 					<Label class="col-span-6 space-y-2 sm:col-span-3">
 						<span>Phone number:</span>
-						<Input type="text" class="border font-normal outline-none" />
+						<Input
+							type="text"
+							value={data.user?.phoneNumber}
+							name="phoneNumber"
+							class="border font-normal outline-none"
+						/>
 					</Label>
 
 					<Label class="col-span-6 space-y-2 sm:col-span-3">
@@ -82,13 +112,19 @@
 							type="text"
 							class="border font-normal outline-none"
 							value={data.user?.email}
+							name="email"
 							disabled
 						/>
 					</Label>
 
 					<Label class="col-span-6 space-y-2 sm:col-span-3">
 						<span>Birthday:</span>
-						<Input type="date" class="border font-normal outline-none" />
+						<Input
+							type="date"
+							value={data.user?.birthDate}
+							name="birthDate"
+							class="border font-normal outline-none"
+						/>
 					</Label>
 
 					<Label class="col-span-6 space-y-2 sm:col-span-3">
@@ -96,6 +132,7 @@
 						<Input
 							type="password"
 							placeholder="••••••••"
+							name="password"
 							class="border font-normal outline-none"
 							required
 						/>
@@ -103,12 +140,26 @@
 
 					<Label class="col-span-6 space-y-2 sm:col-span-3">
 						<span>New Password:</span>
-						<Input type="password" placeholder="••••••••" class="border font-normal outline-none" />
+						<Input
+							type="password"
+							name="newPassword"
+							placeholder="••••••••"
+							class="border font-normal outline-none"
+						/>
 					</Label>
 
 					<Label class="col-span-full space-y-2">
 						<span>Bio:</span>
-						<Textarea class="w-full border font-normal outline-none" />
+						<Textarea
+							value={data.user?.bio}
+							name="bio"
+							class="w-full border font-normal outline-none"
+						/>
+					</Label>
+
+					<Label class="hidden">
+						<span>Avatar Image</span>
+						<input bind:this={avatarInputElement} type="file" name="avatarImage" />
 					</Label>
 					<Label class="col-span-full space-y-2">
 						<span>Role:</span>
