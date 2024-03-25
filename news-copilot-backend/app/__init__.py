@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from flask import Flask
 from flask_migrate import Migrate
@@ -26,6 +26,9 @@ def seed_users():
             "display_name": "Admin User",
             "avatar_image": "https://i.pravatar.cc/150?img=1",
             "password": "Password123",
+            "bio": "I'm an admin user.",
+            "birth_date": "1990-01-01",
+            "phone_number": "1234567890",
             "roles": [RoleEnum.USER, RoleEnum.ADMIN],
         },
         {
@@ -33,6 +36,9 @@ def seed_users():
             "display_name": "Writer User",
             "avatar_image": "https://i.pravatar.cc/150?img=2",
             "password": "Password123",
+            "bio": "I'm a writer user.",
+            "birth_date": "1990-01-01",
+            "phone_number": "1234567890",
             "roles": [RoleEnum.USER, RoleEnum.WRITER],
         },
         {
@@ -40,6 +46,9 @@ def seed_users():
             "display_name": "Normal User",
             "avatar_image": "https://i.pravatar.cc/150?img=3",
             "password": "Password123",
+            "bio": "I'm a user.",
+            "birth_date": "1990-01-01",
+            "phone_number": "1234567890",
             "roles": [RoleEnum.USER],
         },
     ]
@@ -52,6 +61,9 @@ def seed_users():
                 display_name=user_map["display_name"],
                 avatar_image=user_map["avatar_image"],
                 password=user_map["password"],
+                bio=user_map["bio"],
+                birth_date=datetime.strptime(user_map["birth_date"], "%Y-%m-%d"),
+                phone_number=user_map["phone_number"],
             )
             db.session.add(user)
             db.session.commit()
@@ -70,6 +82,7 @@ def create_app():
     app.config["JWT_SECRET_KEY"] = "manager_access123"
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=356)
+    app.config["SQLALCHEMY_ECHO"] = True
 
     db.init_app(app)
     jwt.init_app(app)

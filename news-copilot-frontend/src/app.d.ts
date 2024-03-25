@@ -10,7 +10,7 @@ declare global {
 				id: number;
 				email: string;
 				displayName: string;
-				avatarImage?: string;
+				avatarImage: string;
 				roles?: Role[];
 			};
 		}
