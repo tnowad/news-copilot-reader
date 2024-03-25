@@ -1,8 +1,20 @@
+from typing import TYPE_CHECKING, List
+
 from sqlalchemy import ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, relationship
 
 from app.extensions import db
-from app.models.user import User
+
+if TYPE_CHECKING:
+    from app.models.category import Category
+    from app.models.user import User
+
+articles_categories_association_table = db.Table(
+    "articles_categories",
+    db.Model.metadata,
+    db.Column("article_id", db.Integer, db.ForeignKey("articles.id")),
+    db.Column("category_id", db.Integer, db.ForeignKey("categories.id")),
+)
 
 
 class Article(db.Model):
@@ -13,6 +25,9 @@ class Article(db.Model):
     summary = db.Column(Text)
     author_id = db.Column(Integer, ForeignKey("users.id"))
     author: Mapped["User"] = relationship("User", back_populates="articles")
+    categories: Mapped[List["Category"]] = relationship(
+        "Category", secondary=articles_categories_association_table
+    )
 
     def __init__(self, title, cover_image=None, summary=None):
         self.title = title
