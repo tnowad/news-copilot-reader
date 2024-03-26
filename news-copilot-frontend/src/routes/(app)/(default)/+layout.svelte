@@ -54,7 +54,10 @@
 			<DarkMode class="border text-primary-500 dark:border-gray-800 dark:text-primary-600" />
 
 			{#if data.user}
-				<Avatar id="avatar-menu" src="/images/default-profile-picture.png" />
+				<Avatar
+					id="avatar-menu"
+					src={data.user.avatarImage ?? '/images/default-profile-picture.png'}
+				/>
 			{:else}
 				<Button href="/sign-in" size="sm">Get started</Button>
 			{/if}
