@@ -75,9 +75,14 @@ const refreshAccessToken = async (event: RequestEvent) => {
 const getCurrentUser = async (event: RequestEvent) => {
 	const accessToken = event.cookies.get('accessToken');
 
+	if (!accessToken) {
+		return;
+	}
+
 	const currentUserProfileResponse = await userService.getCurrentUserProfile(
 		{
-			include: ['roles', 'avatarImage']
+			include: ['roles'],
+			style: 'compact'
 		},
 		{
 			Authorization: `Bearer ${accessToken}`

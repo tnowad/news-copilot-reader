@@ -5,11 +5,8 @@
 		NavLi,
 		NavUl,
 		NavHamburger,
-		Avatar,
 		Dropdown,
 		DropdownItem,
-		DropdownHeader,
-		DropdownDivider,
 		Button,
 		DarkMode
 	} from 'flowbite-svelte';
@@ -24,6 +21,7 @@
 	} from 'flowbite-svelte';
 	import type { LayoutData } from './$types';
 	import SearchInput from '$lib/widgets/search-input.svelte';
+	import UserMenu from '$lib/widgets/user-menu.svelte';
 
 	const categoriesItems = [
 		{ id: 1, label: 'Business', slug: 'business' },
@@ -54,10 +52,7 @@
 			<DarkMode class="border text-primary-500 dark:border-gray-800 dark:text-primary-600" />
 
 			{#if data.user}
-				<Avatar
-					id="avatar-menu"
-					src={data.user.avatarImage ?? '/images/default-profile-picture.png'}
-				/>
+				<UserMenu user={data.user} />
 			{:else}
 				<Button href="/sign-in" size="sm">Get started</Button>
 			{/if}
@@ -65,27 +60,6 @@
 			<!-- Hamburger component -->
 			<NavHamburger class1="w-full md:flex md:w-auto md:order-1" />
 		</div>
-
-		{#if data.user}
-			<Dropdown placement="bottom" triggeredBy="#avatar-menu">
-				<DropdownHeader>
-					<span class="block text-sm">Welcome, {data.user.displayName}!</span>
-					<span class="block truncate text-sm font-medium">{data.user.email}</span>
-				</DropdownHeader>
-				{#if data.user.roles?.some((role) => role === 'ADMIN')}
-					<DropdownItem href="/admin">Admin Dashboard</DropdownItem>
-				{/if}
-				{#if data.user.roles?.some((role) => role === 'WRITER')}
-					<a href="/admin"><DropdownItem href="/writer">Writer Dashboard</DropdownItem></a>
-				{/if}
-				{#if data.user.roles?.some((role) => role === 'USER')}
-					<a href="/settings"><DropdownItem>Settings</DropdownItem></a>
-					<a href="/bookmark"><DropdownItem>Bookmark</DropdownItem></a>
-				{/if}
-				<DropdownDivider />
-				<DropdownItem href="/sign-out">Sign out</DropdownItem>
-			</Dropdown>
-		{/if}
 
 		<NavUl>
 			<NavLi href="/" active={true}>Latest News</NavLi>

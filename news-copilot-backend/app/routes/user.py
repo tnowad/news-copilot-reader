@@ -1,3 +1,4 @@
+from datetime import datetime
 from http import HTTPStatus
 
 from flask import Blueprint, jsonify, request
@@ -39,17 +40,24 @@ def profile():
                 "id": current_user.id,
                 "email": current_user.email,
                 "displayName": current_user.display_name,
+                "avatarImage": current_user.avatar_image,
             }
         },
     }
+
+    style_param = request.args.get("style")
+
+    if style_param == "full":
+        response_data["data"]["user"]["bio"] = current_user.bio
+        response_data["data"]["user"]["birthDate"] = datetime.strftime(
+            current_user.birth_date, "%Y-%m-%d"
+        )
+        response_data["data"]["user"]["phoneNumber"] = current_user.phone_number
 
     include_params = request.args.getlist("include")
 
     if "roles" in include_params:
         roles = [str(role.name) for role in current_user.roles]
         response_data["data"]["user"]["roles"] = roles
-
-    if "avatarImage" in include_params:
-        response_data["data"]["user"]["avatarImage"] = current_user.avatar_image
 
     return jsonify(response_data), HTTPStatus.OK
