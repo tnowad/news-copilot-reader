@@ -87,7 +87,7 @@ def seed_categories():
     ]
 
     for category in categories:
-        category_entry = Category.query.filter_by(title=category["title"]).first()
+        category_entry = Category.query.filter_by(slug=category["slug"]).first()
         if not category_entry:
             category_entry = Category(
                 title=category["title"],
