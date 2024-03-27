@@ -26,6 +26,16 @@ def get_articles():
                     "articles": [
                         {
                             "id": article.id,
+                            "title": article.title,
+                            "coverImage": article.cover_image,
+                            "summary": article.summary,
+                            "slug": article.slug,
+                            "content": article.content,
+                            "author": {
+                                "id": article.author.id,
+                                "displayName": article.author.display_name,
+                                "avatarImage": article.author.avatar_image,
+                            },
                         }
                         for article in articles
                     ]

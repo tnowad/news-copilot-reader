@@ -1,7 +1,14 @@
 from datetime import datetime
+
+from faker import Faker
+
+from app.extensions import db
+from app.models.article import Article
+from app.models.category import Category
 from app.models.role import Role, RoleEnum
 from app.models.user import User
-from app.extensions import db
+
+fake = Faker()
 
 
 def seed_roles():
@@ -70,11 +77,59 @@ def seed_users():
 
 
 def seed_categories():
-    pass
+    categories = [
+        {
+            "id": i,
+            "title": fake.word(),
+            "slug": fake.slug(),
+        }
+        for i in range(10)
+    ]
+
+    for category in categories:
+        category_entry = Category.query.filter_by(title=category["title"]).first()
+        if not category_entry:
+            category_entry = Category(
+                title=category["title"],
+                slug=category["slug"],
+            )
+            db.session.add(category_entry)
 
 
 def seed_articles():
-    pass
+
+    articles = [
+        {
+            "id": i,
+            "title": fake.sentence(),
+            "cover_image": "https://i.pravatar.cc/150?img=4",
+            "summary": fake.paragraph(),
+            "slug": fake.slug(),
+            "content": fake.text(),
+            "category_ids": [1, 2],
+            "author_id": 1,
+        }
+        for i in range(100)
+    ]
+
+    for article in articles:
+        article_entry = Article.query.filter_by(title=article["title"]).first()
+        if not article_entry:
+            article_entry = Article(
+                title=article["title"],
+                cover_image=article["cover_image"],
+                summary=article["summary"],
+                slug=article["slug"],
+                content=article["content"],
+            )
+            article_entry.author_id = article["author_id"]
+            for category_id in article["category_ids"]:
+                category = Category.query.get(category_id)
+                if category:
+                    article_entry.categories.append(category)
+
+        db.session.add(article_entry)
+        db.session.commit()
 
 
 def seed_database():
