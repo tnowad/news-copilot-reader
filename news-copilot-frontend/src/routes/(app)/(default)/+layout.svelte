@@ -23,16 +23,6 @@
 	import SearchInput from '$lib/widgets/search-input.svelte';
 	import UserMenu from '$lib/widgets/user-menu.svelte';
 
-	const categoriesItems = [
-		{ id: 1, label: 'Business', slug: 'business' },
-		{ id: 2, label: 'Entertainment', slug: 'entertainment' },
-		{ id: 3, label: 'General', slug: 'general' },
-		{ id: 4, label: 'Health', slug: 'health' },
-		{ id: 5, label: 'Science', slug: 'science' },
-		{ id: 6, label: 'Sports', slug: 'sports' },
-		{ id: 7, label: 'Technology', slug: 'technology' }
-	];
-
 	export let data: LayoutData;
 </script>
 
@@ -70,8 +60,8 @@
 				/>
 			</NavLi>
 			<Dropdown>
-				{#each categoriesItems as item}
-					<DropdownItem href={`/categories/${item.slug}`}>{item.label}</DropdownItem>
+				{#each data.categoryItems as item}
+					<DropdownItem href={`/categories/${item.slug}`}>{item.title}</DropdownItem>
 				{/each}
 			</Dropdown>
 
