@@ -8,7 +8,7 @@ type CreateArticleBody = {
 	coverImage?: string;
 	content: string;
 	authorId?: number;
-	categoriesIds: number[];
+	categoryIds: number[];
 };
 
 type CreateArticleSuccessful = {
@@ -40,7 +40,7 @@ type CreateArticleValidationFailed = {
 	statusCode: StatusCodes.UNPROCESSABLE_ENTITY;
 	message: string;
 	errors: {
-		field: 'title' | 'summary' | 'content' | 'authorId' | 'categoriesIds';
+		field: 'title' | 'summary' | 'content' | 'authorId' | 'categoryIds';
 		message: string;
 	}[];
 };
@@ -90,7 +90,7 @@ type UpdateArticleBody = {
 	coverImage?: string;
 	content?: string;
 	authorId?: number;
-	categoriesIds?: number[];
+	categoryIds?: number[];
 };
 
 type UpdateArticleSuccessful = {
@@ -122,7 +122,7 @@ type UpdateArticleValidationFailed = {
 	statusCode: StatusCodes.UNPROCESSABLE_ENTITY;
 	message: string;
 	errors: {
-		field: 'id' | 'title' | 'summary' | 'content' | 'authorId' | 'categoriesIds';
+		field: 'id' | 'title' | 'summary' | 'content' | 'authorId' | 'categoryIds';
 		message: string;
 	}[];
 };
@@ -306,7 +306,7 @@ type GetAllArticlesParams = {
 	page?: number;
 	limit?: number;
 	search?: string;
-	categoriesIds?: number[];
+	categoryIds?: number[];
 	sortBy?: 'title' | 'date';
 	sortOrder?: 'asc' | 'desc';
 	style?: 'compact' | 'full';
@@ -366,15 +366,14 @@ type GetAllArticlesResponse = Omit<Response, 'json'> & {
 
 const getAllArticles = async (params: GetAllArticlesParams = {}, headers: HeadersInit = {}) => {
 	try {
-		const { page, limit, search, categoriesIds, sortBy, sortOrder, style, includes } = params;
+		const { page, limit, search, categoryIds, sortBy, sortOrder, style, includes } = params;
 		const url = new URL('/articles', API_URL);
 		const queryParams = new URLSearchParams();
 
 		if (page) queryParams.set('page', page.toString());
 		if (limit) queryParams.set('limit', limit.toString());
 		if (search) queryParams.set('search', search);
-		if (categoriesIds)
-			categoriesIds.forEach((id) => queryParams.append('categoriesIds', id.toString()));
+		if (categoryIds) categoryIds.forEach((id) => queryParams.append('categoryIds', id.toString()));
 		if (sortBy) queryParams.set('sortBy', sortBy);
 		if (sortOrder) queryParams.set('sortOrder', sortOrder);
 		if (style) queryParams.set('style', style);
