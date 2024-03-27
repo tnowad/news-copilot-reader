@@ -307,7 +307,7 @@ type GetAllArticlesParams = {
 	limit?: number;
 	search?: string;
 	categoryIds?: number[];
-	sortBy?: 'title' | 'date';
+	sortBy?: 'title' | 'created_at';
 	sortOrder?: 'asc' | 'desc';
 	style?: 'compact' | 'full';
 	includes?: ('author' | 'categories')[];
@@ -322,6 +322,8 @@ type GetAllArticlesSuccessful = {
 			summary: string;
 			coverImage?: string;
 			content: string;
+			slug: string;
+			
 			author: {
 				id: number;
 				email: string;
