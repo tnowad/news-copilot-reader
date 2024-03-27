@@ -60,8 +60,10 @@
 				/>
 			</NavLi>
 			<Dropdown>
-				{#each data.categoryItems as item}
-					<DropdownItem href={`/categories/${item.slug}`}>{item.title}</DropdownItem>
+				{#each data.categoryItems as category}
+					<DropdownItem href={`/categories/${category.slug}/${category.id}`}
+						>{category.title}</DropdownItem
+					>
 				{/each}
 			</Dropdown>
 
