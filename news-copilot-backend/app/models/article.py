@@ -23,16 +23,20 @@ class Article(db.Model):
     title = db.Column(String(255), nullable=False)
     cover_image = db.Column(String(255))
     summary = db.Column(Text)
+    content = db.Column(Text)
+    slug = db.Column(String(255), unique=True)
     author_id = db.Column(Integer, ForeignKey("users.id"))
     author: Mapped["User"] = relationship("User", back_populates="articles")
     categories: Mapped[List["Category"]] = relationship(
         "Category", secondary=articles_categories_association_table
     )
 
-    def __init__(self, title, cover_image=None, summary=None):
+    def __init__(self, title, cover_image=None, summary=None, slug=None, content=None):
         self.title = title
         self.cover_image = cover_image
         self.summary = summary
+        self.slug = slug
+        self.content = content
 
     def __repr__(self):
         return f"<Article {self.title}>"
