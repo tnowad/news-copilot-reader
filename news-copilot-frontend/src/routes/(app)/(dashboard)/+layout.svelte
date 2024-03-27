@@ -12,6 +12,7 @@
 		NavHamburger,
 		Navbar
 	} from 'flowbite-svelte';
+	import {ClipboardListSolid, ListSolid} from 'flowbite-svelte-icons'
 	import {
 		AngleDownSolid,
 		AngleUpOutline,
@@ -20,7 +21,7 @@
 	} from 'flowbite-svelte-icons';
 	import UserMenu from '$lib/widgets/user-menu.svelte';
 	import type { LayoutData } from './$types';
-
+	import UserSidebar from '$lib/widgets/user-sidebar.svelte';
 	let drawerHidden = false;
 
 	const closeDrawer = () => {
@@ -49,13 +50,16 @@
 			name: 'Articles',
 			icon: TableColumnSolid,
 			children: {
-				Sidebar: '/layouts/sidebar'
+				'Manage Articles': '/writer/article'  ,
+				'Categories' : '/writer/catagories' 
 			}
-		}
+		},
+		
+	
 	];
 
 	let dropdowns = Object.fromEntries(Object.keys(menuItems).map((x) => [x, false]));
-	export let data: LayoutData;
+		export let data: LayoutData;
 </script>
 
 <div class="flex min-h-screen flex-col">
@@ -112,8 +116,10 @@
 											{href}
 											spanClass="ml-9"
 											class={itemClass}
-											active={activeMainSidebar === href}
-										/>
+											active={activeMainSidebar === href}	>
+											<!--<svelte:component this={childIcon} slot="icon" class={iconClass} />-->
+								
+											</SidebarItem>
 									{/each}
 								</SidebarDropdownWrapper>
 							{:else}
@@ -145,4 +151,5 @@
 		on:keydown={closeDrawer}
 		role="presentation"
 	/>
+	<!-- <UserSidebar/>-->
 </div>

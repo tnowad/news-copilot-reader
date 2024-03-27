@@ -14,13 +14,19 @@
 	</DropdownHeader>
 	{#if user.roles?.some((role) => role === 'ADMIN')}
 		<DropdownItem href="/admin">Admin Dashboard</DropdownItem>
+
 	{/if}
 	{#if user.roles?.some((role) => role === 'WRITER')}
-		<a href="/admin"><DropdownItem href="/writer">Writer Dashboard</DropdownItem></a>
+		<DropdownItem href="/writer">Writer Dashboard</DropdownItem>
+		
+
 	{/if}
+	<DropdownItem href="/profile">Profile </DropdownItem>
+	
 	{#if user.roles?.some((role) => role === 'USER')}
-		<a href="/settings"><DropdownItem>Settings</DropdownItem></a>
-		<a href="/bookmark"><DropdownItem>Bookmark</DropdownItem></a>
+		
+		<DropdownItem href="/settings">Settings</DropdownItem>
+		<DropdownItem href="/bookmark">Bookmark</DropdownItem>
 	{/if}
 	<DropdownDivider />
 	<DropdownItem href="/sign-out">Sign out</DropdownItem>
