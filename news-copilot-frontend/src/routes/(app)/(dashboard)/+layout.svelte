@@ -15,14 +15,11 @@
 	import {
 		AngleDownSolid,
 		AngleUpOutline,
-		CogOutline,
-		FileChartBarSolid,
-		LockSolid,
-		MagicWandSolid,
 		PieChartSolid,
-		RectangleListSolid,
 		TableColumnSolid
 	} from 'flowbite-svelte-icons';
+	import UserMenu from '$lib/widgets/user-menu.svelte';
+	import type { LayoutData } from './$types';
 
 	let drawerHidden = false;
 
@@ -46,57 +43,19 @@
 		activeMainSidebar = navigation.to?.url.pathname ?? '';
 	});
 
-	let posts = [
+	let menuItems = [
 		{ name: 'Dashboard', icon: PieChartSolid, href: '/dashboard' },
 		{
-			name: 'Layouts',
+			name: 'Articles',
 			icon: TableColumnSolid,
 			children: {
-				Stacked: '/layouts/stacked',
 				Sidebar: '/layouts/sidebar'
-			}
-		},
-		{
-			name: 'CRUD',
-			icon: RectangleListSolid,
-			children: {
-				Products: '/crud/products',
-				Users: '/crud/users'
-			}
-		},
-		{ name: 'Settings', icon: CogOutline, href: '/settings' },
-		{
-			name: 'Pages',
-			icon: FileChartBarSolid,
-			children: {
-				Pricing: '/pages/pricing',
-				Maintenance: '/errors/400',
-				'404 not found': '/errors/404',
-				'500 server error': '/errors/500'
-			}
-		},
-		{
-			name: 'Authenication',
-			icon: LockSolid,
-			children: {
-				'Sign in': '/authentication/sign-in',
-				'Sign up': '/authentication/sign-up',
-				'Forgot password': '/authentication/forgot-password',
-				'Reset password': '/authentication/reset-password',
-				'Profile lock': '/authentication/profile-lock'
-			}
-		},
-		{
-			name: 'Playground',
-			icon: MagicWandSolid,
-			children: {
-				Stacked: '/playground/stacked',
-				Sidebar: '/playground/sidebar'
 			}
 		}
 	];
 
-	let dropdowns = Object.fromEntries(Object.keys(posts).map((x) => [x, false]));
+	let dropdowns = Object.fromEntries(Object.keys(menuItems).map((x) => [x, false]));
+	export let data: LayoutData;
 </script>
 
 <div class="flex min-h-screen flex-col">
@@ -117,11 +76,11 @@
 						News Copilot
 					</span>
 				</NavBrand>
-				<div class="ms-auto flex items-center text-gray-500 dark:text-gray-400 sm:order-2">
+				<div class="ms-auto flex items-center gap-x-5 text-gray-500 dark:text-gray-400 sm:order-2">
 					<!-- <Notifications /> -->
 					<!-- <AppsMenu /> -->
 					<DarkMode />
-					<!-- <UserMenu {...Users[4]} /> -->
+					<UserMenu user={data.user} />
 				</div>
 			</NavContainer>
 		</Navbar>
@@ -140,7 +99,7 @@
 			>
 				<nav class="divide-y divide-gray-200 dark:divide-gray-700">
 					<SidebarGroup ulClass={groupClass} class="mb-3">
-						{#each posts as { name, icon, children, href } (name)}
+						{#each menuItems as { name, icon, children, href } (name)}
 							{#if children}
 								<SidebarDropdownWrapper bind:isOpen={dropdowns[name]} label={name} class="pr-3">
 									<AngleDownSolid slot="arrowdown" strokeWidth="3.3" size="sm" />
