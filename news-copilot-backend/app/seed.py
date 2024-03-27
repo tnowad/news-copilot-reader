@@ -87,7 +87,7 @@ def seed_categories():
     ]
 
     for category in categories:
-        category_entry = Category.query.filter_by(title=category["title"]).first()
+        category_entry = Category.query.filter_by(id=category["id"]).first()
         if not category_entry:
             category_entry = Category(
                 title=category["title"],
@@ -97,7 +97,6 @@ def seed_categories():
 
 
 def seed_articles():
-
     articles = [
         {
             "id": i,
@@ -106,14 +105,16 @@ def seed_articles():
             "summary": fake.paragraph(),
             "slug": fake.slug(),
             "content": fake.text(),
-            "category_ids": [1, 2],
+            "category_ids": fake.random_elements(
+                elements=range(10), length=3, unique=True
+            ),
             "author_id": 1,
         }
         for i in range(100)
     ]
 
     for article in articles:
-        article_entry = Article.query.filter_by(title=article["title"]).first()
+        article_entry = Article.query.filter_by(id=article["id"]).first()
         if not article_entry:
             article_entry = Article(
                 title=article["title"],
