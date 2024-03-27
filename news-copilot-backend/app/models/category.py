@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 class Category(db.Model):
     __tablename__ = "categories"
     id = db.Column(Integer, primary_key=True)
+    description = db.Column(db.Text, nullable=True)
     title = db.Column(String(255), nullable=False)
     slug = db.Column(String(255), nullable=False, unique=True)
     articles: Mapped[List["Article"]] = relationship(
@@ -22,9 +23,11 @@ class Category(db.Model):
         self,
         title,
         slug=None,
+        description=None,
     ):
         self.title = title
         self.slug = slug
+        self.description = description
 
     def __repr__(self):
         return f"<Article {self.title}>"

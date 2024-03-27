@@ -18,6 +18,7 @@ def get_categories():
                     "categories": [
                         {
                             "id": category.id,
+                            "description": category.description,
                             "slug": category.slug,
                             "title": category.title,
                         }

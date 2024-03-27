@@ -80,6 +80,7 @@ def seed_categories():
     categories = [
         {
             "id": i,
+            "description": fake.paragraph(),
             "title": fake.word(),
             "slug": fake.slug(),
         }
@@ -90,6 +91,7 @@ def seed_categories():
         category_entry = Category.query.filter_by(slug=category["slug"]).first()
         if not category_entry:
             category_entry = Category(
+                description=category["description"],
                 title=category["title"],
                 slug=category["slug"],
             )
