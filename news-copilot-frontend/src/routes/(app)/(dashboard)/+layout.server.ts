@@ -3,7 +3,7 @@ import type { LayoutServerLoad } from './$types';
 import { StatusCodes } from 'http-status-codes';
 
 export const load: LayoutServerLoad = async (event) => {
-	if (!event.locals.user?.roles?.includes('ADMIN')) {
+	if (!event.locals.user?.roles?.some((role) => role === 'ADMIN' || role === 'WRITER')) {
 		redirect(StatusCodes.TEMPORARY_REDIRECT, '/');
 	}
 	return {
