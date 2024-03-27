@@ -2,10 +2,14 @@
 	import { onDestroy, onMount } from 'svelte';
 	import * as monaco from 'monaco-editor';
 	import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+	import SvelteMarkdown from 'svelte-markdown';
+
+	import { Tabs, TabItem } from 'flowbite-svelte';
 
 	let editorElement: HTMLDivElement;
 	let editor: monaco.editor.IStandaloneCodeEditor;
 	let model: monaco.editor.ITextModel;
+	let source = '';
 
 	function loadCode(code: string, language: string) {
 		model = monaco.editor.createModel(code, language);
@@ -70,7 +74,7 @@
 		});
 
 		editor.onDidChangeModelContent(() => {
-			console.log(editor.getValue());
+			source = editor.getValue();
 		});
 
 		loadCode('# News Copilot\n', 'markdown');
@@ -82,6 +86,11 @@
 	});
 </script>
 
-<div class="flex h-screen w-full flex-col">
-	<div class="h-[100vh]" bind:this={editorElement} />
-</div>
+<Tabs style="full">
+	<TabItem open title="Article Editor">
+		<div class="h-screen" bind:this={editorElement} />
+	</TabItem>
+	<TabItem title="Preview">
+		<SvelteMarkdown {source} />
+	</TabItem>
+</Tabs>
