@@ -92,7 +92,7 @@
 				>
 					<FooterLink href="/about-us">About Us</FooterLink>
 					<FooterLink href="/privacy">Privacy Policy</FooterLink>
-					<FooterLink href="/License">Licensing</FooterLink>
+					<FooterLink href="/license">Licensing</FooterLink>
 					<FooterLink href="/contact">Contact</FooterLink>
 				</FooterLinkGroup>
 			</div>

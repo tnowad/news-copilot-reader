@@ -69,8 +69,92 @@ const getCurrentUserProfile = async (
 	}
 };
 
+type UpdateCurrentUserProfileBody = {
+	email: string;
+	displayName: string;
+	avatarImage: string;
+
+	bio?: string;
+	birthDate?: string;
+	phoneNumber?: string;
+
+}
+
+type UpdateCurrentUserProfileSuccessful = {
+	statusCode: StatusCodes.OK;
+	data: {
+		user: {
+			id: number;
+			email: string;
+			displayName: string;
+			avatarImage: string;
+
+			bio?: string;
+			birthDate?: string;
+			phoneNumber?: string;
+
+		};
+	};
+	message: string;
+};
+
+type UpdateCurrentUserProfileValidationFailed = {
+	statusCode: StatusCodes.UNPROCESSABLE_ENTITY;
+	message: string;
+	errors: {
+		field: 'id' | 'displayName' | 'avatarImage' | 'email' | 'phoneNumber';
+		message: string;
+	}[];
+};
+
+type UpdateCurrentUserProfilePermissionDenied = {
+	statusCode: StatusCodes.FORBIDDEN;
+	message: string;
+	error: string;
+};
+
+type UpdateCurrentUserProfileNotFound = {
+	statusCode: StatusCodes.NOT_FOUND;
+	message: string;
+	error: string;
+};
+
+type UpdateCurrentUserProfileServerError = {
+	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
+	message: string;
+	error: string;
+};
+
+type UpdateCurrentUserProfileReponse = Omit<Response, 'json'> & {
+	json: () => Promise<
+		| UpdateCurrentUserProfileSuccessful
+		| UpdateCurrentUserProfilePermissionDenied
+		| UpdateCurrentUserProfileValidationFailed
+		| UpdateCurrentUserProfileNotFound
+		| UpdateCurrentUserProfileServerError
+	>;
+};
+
+const updateCurrentUser = async (body: UpdateCurrentUserProfileBody, headers: HeadersInit = {}) => {
+	try {
+		const url = new URL(`/users/profile`, API_URL);
+		const requestInit: RequestInit = {
+			method: 'PUT',
+			body: JSON.stringify(body),
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as UpdateCurrentUserProfileReponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to update user: ' + (error as Error).message);
+	}
+};
+
 const userService = {
-	getCurrentUserProfile
+	getCurrentUserProfile,
+	updateCurrentUser,
 };
 
 export default userService;
