@@ -7,7 +7,5 @@ export const load: PageServerLoad = async (event) => {
 	const categoryResponse = await categoryService.getCategoryById({ id: parseInt(id) });
 	const category =
 		categoryResponse.status === StatusCodes.OK ? categoryResponse.data.category : null;
-
-	console.log(category);
 	return { category };
 };
