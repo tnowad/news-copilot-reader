@@ -40,7 +40,7 @@
 							<span class="font-medium dark:text-white"> {article.author.displayName} </span>
 						</svelte:fragment>
 						<a
-							href={article.slug}
+							href={`/articles/${article.slug}/${article.id}`}
 							class="text-primary-600 dark:text-primary-500 inline-flex items-center font-medium hover:underline"
 						>
 							Read more
