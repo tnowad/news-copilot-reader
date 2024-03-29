@@ -102,14 +102,15 @@ def get_articles():
         return jsonify(response_data), HTTPStatus.OK
 
     except Exception as e:
-        return jsonify(
-            {
-                "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
-                "message": "Internal Server Error",
-                "error": str(e),
-            }
-        ), HTTPStatus.INTERNAL_SERVER_ERROR @ articles_bp.route(
-            "/articles", methods=["POST"]
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
+                    "message": "Internal Server Error",
+                    "error": str(e),
+                }
+            ),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
         )
 
 
