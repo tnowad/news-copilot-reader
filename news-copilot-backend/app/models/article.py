@@ -31,6 +31,12 @@ class Article(db.Model):
         "Category", secondary=articles_categories_association_table
     )
 
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(
+        db.DateTime, server_default=db.func.now(), onupdate=db.func.now()
+    )
+    deleted_at = db.Column(db.DateTime)
+
     def __init__(self, title, cover_image=None, summary=None, slug=None, content=None):
         self.title = title
         self.cover_image = cover_image

@@ -16,37 +16,103 @@ articles_bp = Blueprint("articles", __name__)
 
 @articles_bp.route("/articles", methods=["GET"])
 def get_articles():
-    articles: List[Article] = Article.query.all()
-    return (
-        jsonify(
-            {
-                "statusCode": HTTPStatus.OK,
-                "message": "Get all articles route",
-                "data": {
-                    "articles": [
-                        {
-                            "id": article.id,
-                            "title": article.title,
-                            "coverImage": article.cover_image,
-                            "summary": article.summary,
-                            "slug": article.slug,
-                            "content": article.content,
-                            "author": {
-                                "id": article.author.id,
-                                "displayName": article.author.display_name,
-                                "avatarImage": article.author.avatar_image,
-                            },
-                        }
-                        for article in articles
-                    ]
+    try:
+        # Extract query parameters
+        page = request.args.get("page", type=int) or 1
+        limit = request.args.get("limit", type=int) or 10
+        search = request.args.get("search", type=str)
+        category_ids = request.args.getlist("categoryIds", type=int)
+        sort_by = request.args.get("sortBy", type=str)
+        sort_order = request.args.get("sortOrder", type=str)
+        style = request.args.get("style", type=str)
+        includes = request.args.getlist("includes", type=str)
+
+        # Query articles based on parameters
+        query = Article.query
+
+        if search:
+            query = query.filter(Article.title.ilike(f"%{search}%"))
+
+        if category_ids:
+            query = query.join(Article.categories).filter(Category.id.in_(category_ids))
+
+        if sort_by:
+            if sort_by == "title":
+                query = query.order_by(Article.title)
+            elif sort_by == "created_at":
+                query = query.order_by(Article.created_at)
+
+        if sort_order:
+            if sort_order == "desc":
+                query = query.order_by(Article.title.desc())
+            elif sort_order == "asc":
+                query = query.order_by(Article.title.asc())
+
+        if page and limit:
+            offset = (page - 1) * limit
+            query = query.offset(offset).limit(limit)
+
+        articles = query.all()
+
+        # Construct response data
+        articles_data = []
+        for article in articles:
+            article_info = {
+                "id": article.id,
+                "title": article.title,
+                "summary": article.summary,
+                "coverImage": article.cover_image,
+                "content": article.content,
+                "slug": article.slug,
+                "author": {
+                    "id": article.author.id,
+                    "email": article.author.email,
+                    "displayName": article.author.display_name,
+                    "avatarImage": article.author.avatar_image,
                 },
+                "categories": [
+                    {"id": category.id, "title": category.title, "slug": category.slug}
+                    for category in article.categories
+                ],
             }
-        ),
-        HTTPStatus.OK,
-    )
+            articles_data.append(article_info)
+
+        # Construct metadata
+        metadata = {
+            "pagination": {
+                "offset": (page - 1) * limit if (page and limit) else None,
+                "limit": limit,
+                "previousOffset": (page - 2) * limit if page > 1 else None,
+                "nextOffset": page * limit if articles else None,
+                "currentPage": page if page else None,
+                "pageCount": query.count() // limit if page and limit else None,
+                "totalCount": query.count(),
+            },
+            "sortedBy": {"name": sort_by, "order": sort_order},
+            "style": style,
+        }
+
+        # Construct final response
+        response_data = {
+            "statusCode": HTTPStatus.OK,
+            "message": "Get all articles route",
+            "data": {"articles": articles_data, "metadata": metadata},
+        }
+
+        return jsonify(response_data), HTTPStatus.OK
+
+    except Exception as e:
+        return jsonify(
+            {
+                "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
+                "message": "Internal Server Error",
+                "error": str(e),
+            }
+        ), HTTPStatus.INTERNAL_SERVER_ERROR @ articles_bp.route(
+            "/articles", methods=["POST"]
+        )
 
 
-@articles_bp.route("/articles", methods=["POST"])
 @jwt_required()
 @role_required([RoleEnum.ADMIN, RoleEnum.WRITER])
 def create_article():
