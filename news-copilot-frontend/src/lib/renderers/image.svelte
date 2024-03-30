@@ -1,10 +1,7 @@
 <script lang="ts">
-	export let title: string;
 	export let href: string;
 	export let alt: string;
 	export let text: string;
-
-	console.log('image is being loaded');
 </script>
 
 <div class="my-6 flex flex-col items-center justify-center space-y-3 align-middle">

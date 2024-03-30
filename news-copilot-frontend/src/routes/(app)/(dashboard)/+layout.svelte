@@ -12,7 +12,7 @@
 		NavHamburger,
 		Navbar
 	} from 'flowbite-svelte';
-	import {ClipboardListSolid, ListSolid} from 'flowbite-svelte-icons'
+	import { ClipboardListSolid, ListSolid } from 'flowbite-svelte-icons';
 	import {
 		AngleDownSolid,
 		AngleUpOutline,
@@ -50,16 +50,14 @@
 			name: 'Articles',
 			icon: TableColumnSolid,
 			children: {
-				'Manage Articles': '/writer/article'  ,
-				'Categories' : '/writer/catagories' 
+				'Manage Articles': '/writer/article',
+				Categories: '/writer/catagories'
 			}
-		},
-		
-	
+		}
 	];
 
 	let dropdowns = Object.fromEntries(Object.keys(menuItems).map((x) => [x, false]));
-		export let data: LayoutData;
+	export let data: LayoutData;
 </script>
 
 <div class="flex min-h-screen flex-col">
@@ -116,10 +114,10 @@
 											{href}
 											spanClass="ml-9"
 											class={itemClass}
-											active={activeMainSidebar === href}	>
+											active={activeMainSidebar === href}
+										>
 											<!--<svelte:component this={childIcon} slot="icon" class={iconClass} />-->
-								
-											</SidebarItem>
+										</SidebarItem>
 									{/each}
 								</SidebarDropdownWrapper>
 							{:else}

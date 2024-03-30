@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { List, Li } from 'flowbite-svelte';
+	import { List } from 'flowbite-svelte';
 	export let ordered: boolean;
 </script>
 
