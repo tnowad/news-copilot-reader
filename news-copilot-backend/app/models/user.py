@@ -7,6 +7,7 @@ from app.extensions import bcrypt, db
 if TYPE_CHECKING:
     from app.models.article import Article
     from app.models.role import Role
+    from app.models.comment import Comment
 
 users_roles_association_table = db.Table(
     "users_roles",
