@@ -70,15 +70,16 @@ const getCurrentUserProfile = async (
 };
 
 type UpdateCurrentUserProfileBody = {
-	email: string;
-	displayName: string;
-	avatarImage: string;
+	email?: string;
+	displayName?: string;
+	avatarImage?: string;
+	password: string;
+	newPassword?: string;
 
 	bio?: string;
 	birthDate?: string;
 	phoneNumber?: string;
-
-}
+};
 
 type UpdateCurrentUserProfileSuccessful = {
 	statusCode: StatusCodes.OK;
@@ -92,7 +93,6 @@ type UpdateCurrentUserProfileSuccessful = {
 			bio?: string;
 			birthDate?: string;
 			phoneNumber?: string;
-
 		};
 	};
 	message: string;
@@ -102,7 +102,17 @@ type UpdateCurrentUserProfileValidationFailed = {
 	statusCode: StatusCodes.UNPROCESSABLE_ENTITY;
 	message: string;
 	errors: {
-		field: 'id' | 'displayName' | 'avatarImage' | 'email' | 'phoneNumber';
+		field:
+			| 'id'
+			| 'displayName'
+			| 'avatarImage'
+			| 'email'
+			| 'phoneNumber'
+			| 'bio'
+			| 'birthDate'
+			| 'password'
+			| 'newPassword'
+			| 'confirmPassword';
 		message: string;
 	}[];
 };
@@ -154,7 +164,7 @@ const updateCurrentUser = async (body: UpdateCurrentUserProfileBody, headers: He
 
 const userService = {
 	getCurrentUserProfile,
-	updateCurrentUser,
+	updateCurrentUser
 };
 
 export default userService;

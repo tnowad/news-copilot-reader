@@ -35,7 +35,6 @@ export const actions = {
 		const avatarImage = formData.get('avatarImage') as string;
 		const bio = formData.get('bio') as string;
 
-		console.log(email, birthDate, password, newPassword, displayName, bio, phoneNumber);
 		const response = await userService.updateCurrentUser(
 			{
 				email,
@@ -43,11 +42,12 @@ export const actions = {
 				displayName,
 				bio,
 				phoneNumber,
-				birthDate
+				birthDate,
+				newPassword,
+				password
 			},
 			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
 		);
-		console.log(response);
 
 		switch (response.statusCode) {
 			case StatusCodes.OK:
@@ -62,6 +62,7 @@ export const actions = {
 				break;
 			default:
 				console.log('Unknown status code');
+				console.log(response);
 		}
 
 		return response;
