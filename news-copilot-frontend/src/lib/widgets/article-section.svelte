@@ -5,52 +5,71 @@
 		ArticleBody,
 		ArticleHead,
 		ArticleWrapper,
-		BlogHead,
-		BlogBodyWrapper
+		BlogBodyWrapper,
+		BlogHead
 	} from 'flowbite-svelte-blocks';
-	import { Img } from 'flowbite-svelte';
-	import { ArrowRightOutline } from 'flowbite-svelte-icons';
+	import { Avatar, Hr, Img } from 'flowbite-svelte';
 	import type { Article } from '$lib/services/types';
 
 	export let articles: Article[] = [];
+	export let title: string;
 </script>
 
-<Section name="blog">
-	<BlogBodyWrapper divClass="grid grid-cols-4 gap-2">
+<Section name="blog" sectionClass="123">
+	{#if title}
+		<BlogHead>
+			<svelte:fragment slot="h2">{title}</svelte:fragment>
+		</BlogHead>
+		<Hr />
+	{/if}
+
+	<BlogBodyWrapper divClass="grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 		{#if articles?.length === 0}
 			<div class="col-span-4">
 				<p class="text-center text-xl font-semibold dark:text-white">No articles found</p>
 			</div>
 		{:else}
 			{#each articles ?? [] as article}
-				<ArticleWrapper>
-					<ArticleHead>
-						<Img src={article.coverImage} />
-					</ArticleHead>
-					<ArticleBody>
-						<svelte:fragment slot="h2"><a href="/">{article.title}</a></svelte:fragment>
-						<svelte:fragment slot="paragraph">
-							<p class="mb-5 font-light text-gray-500 dark:text-gray-400">{article.summary}</p>
-						</svelte:fragment>
-					</ArticleBody>
-					<ArticleAuthor>
-						<svelte:fragment slot="author">
-							<Img
-								class="h-7 w-7 rounded-full"
-								src={article.author?.avatarImage}
-								alt={article.author?.displayName}
-							/>
-							<span class="font-medium dark:text-white"> {article.author?.displayName} </span>
-						</svelte:fragment>
-						<a
-							href={`/articles/${article.slug}/${article.id}`}
-							class="inline-flex items-center font-medium text-primary-600 hover:underline dark:text-primary-500"
+				<a href={`/articles/${article.slug}/${article.id}`}>
+					<ArticleWrapper
+						articleClass="p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700 h-full flex flex-col"
+					>
+						<ArticleHead>
+							<Img imgClass="h-48 w-full object-cover rounded-md" src={article.coverImage} />
+						</ArticleHead>
+
+						<ArticleBody
+							h2Class="flex-grow mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
 						>
-							Read more
-							<ArrowRightOutline size="sm" class="ml-2" />
-						</a>
-					</ArticleAuthor>
-				</ArticleWrapper>
+							<svelte:fragment slot="h2">{article.title}</svelte:fragment>
+							<svelte:fragment slot="paragraph">
+								<p class="mb-5 flex-grow font-light text-gray-500 dark:text-gray-400">
+									{article.summary}
+								</p>
+							</svelte:fragment>
+						</ArticleBody>
+
+						<ArticleAuthor>
+							<div slot="author" class="flex space-x-5">
+								<Avatar
+									class="h-10 w-10"
+									src={article.author?.avatarImage}
+									alt={article.author?.displayName}
+								/>
+								<div class="flex flex-col">
+									<h4 class="text-sm font-bold dark:text-white">
+										{article.author?.displayName}
+									</h4>
+									{#if article.createdAt}
+										<p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+											{new Date(article.createdAt).toLocaleDateString()}
+										</p>
+									{/if}
+								</div>
+							</div>
+						</ArticleAuthor>
+					</ArticleWrapper>
+				</a>
 			{/each}
 		{/if}
 	</BlogBodyWrapper>

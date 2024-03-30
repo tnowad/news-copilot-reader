@@ -6,8 +6,8 @@
 </script>
 
 <div>
-	<ArticleSection articles={data.hotArticles} />
-	<ArticleSection articles={data.latestArticles} />
+	<ArticleSection title="Hot News" articles={data.hotArticles} />
+	<ArticleSection title="Latest News" articles={data.latestArticles} />
 
 	<!--<div>Slider Breaking news (Most trending news)</div> 
 	<div>Recommendation news (Generate for each user)</div>

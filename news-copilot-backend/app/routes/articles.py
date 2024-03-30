@@ -64,11 +64,11 @@ def get_articles():
                 "summary": article.summary,
                 "coverImage": article.cover_image,
                 "slug": article.slug,
+                "createdAt": article.created_at,
             }
 
             if style == "full":
                 article_info["content"] = article.content
-                article_info["createdAt"] = article.created_at
                 article_info["updatedAt"] = article.updated_at
                 article_info["deletedAt"] = article.deleted_at
 

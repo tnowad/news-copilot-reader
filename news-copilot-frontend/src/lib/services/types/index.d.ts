@@ -14,6 +14,7 @@ export type Article = {
 	slug: string;
 	summary: string;
 	coverImage: string;
+	categories?: Category[];
 	author?: User;
 	content?: string;
 	createdAt?: string;
