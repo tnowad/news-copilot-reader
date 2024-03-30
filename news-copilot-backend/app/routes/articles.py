@@ -181,8 +181,10 @@ def create_article():
 
 
 @articles_bp.route("/articles/<int:article_id>", methods=["PUT"])
+@jwt_required()
+@role_required([RoleEnum.ADMIN, RoleEnum.WRITER])
 def update_article(article_id):
-    data = request.json
+    data = request.get_json()
     if article_id is None:
         return (
             jsonify(
@@ -206,20 +208,93 @@ def update_article(article_id):
             HTTPStatus.NOT_FOUND,
         )
 
-    article.save()
+    title = data.get("title")
+    cover_image = data.get("coverImage")
+    summary = data.get("summary")
+    slug = data.get("slug")
+    content = data.get("content")
+    category_ids = data.get("categoryIds", [])
+    author_id = data.get("authorId")
+
+    if title:
+        article.title = title
+
+    if cover_image:
+        article.cover_image = cover_image
+
+    if summary:
+        article.summary = summary
+
+    if slug:
+        article.slug = slug
+
+    if content:
+        article.content = content
+
+    if author_id:
+        current_user = User.query.filter_by(email=get_jwt_identity()).first_or_404()
+        if (
+            not any(role.name == RoleEnum.ADMIN for role in current_user.roles)
+            and author_id != current_user.id
+        ):
+            return (
+                jsonify(
+                    {
+                        "statusCode": HTTPStatus.FORBIDDEN,
+                        "message": "Only users with ADMIN role can update articles with custom author",
+                        "errors": [
+                            {
+                                "field": "authorId",
+                                "message": "Only users with ADMIN role can update articles with custom author",
+                            }
+                        ],
+                    },
+                ),
+                HTTPStatus.FORBIDDEN,
+            )
+        article.author_id = author_id
+
+    if category_ids:
+        article.categories.clear()
+        for category_id in category_ids:
+            category = Category.query.get(category_id)
+            if category:
+                article.categories.append(category)
+
+    response_data = {
+        "statusCode": HTTPStatus.OK,
+        "message": "Article updated successfully",
+        "data": {
+            "article": {
+                "id": article.id,
+                "title": article.title,
+                "summary": article.summary,
+                "coverImage": article.cover_image,
+                "slug": article.slug,
+                "content": article.content,
+                "author": {
+                    "id": article.author.id,
+                    "email": article.author.email,
+                    "displayName": article.author.display_name,
+                    "avatarImage": article.author.avatar_image,
+                },
+                "categories": [
+                    {
+                        "id": category.id,
+                        "title": category.title,
+                        "slug": category.slug,
+                    }
+                    for category in article.categories
+                ],
+            }
+        },
+    }
+
+    db.session.commit()
+    db.session.close()
 
     return (
-        jsonify(
-            {
-                "statusCode": HTTPStatus.OK,
-                "message": "Article updated successfully",
-                "data": {
-                    "article": {
-                        "id": 1,
-                    }
-                },
-            }
-        ),
+        jsonify(response_data),
         HTTPStatus.OK,
     )
 
