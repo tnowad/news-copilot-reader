@@ -8,7 +8,7 @@
 		BlogBodyWrapper,
 		BlogHead
 	} from 'flowbite-svelte-blocks';
-	import { Avatar, Hr, Img } from 'flowbite-svelte';
+	import { Avatar, Badge, Hr, Img } from 'flowbite-svelte';
 	import type { Article } from '$lib/services/types';
 
 	export let articles: Article[] = [];
@@ -34,8 +34,17 @@
 					<ArticleWrapper
 						articleClass="p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700 h-full flex flex-col"
 					>
-						<ArticleHead>
+						<ArticleHead divClass="">
 							<Img imgClass="h-48 w-full object-cover rounded-md" src={article.coverImage} />
+							{#if article.categories}
+								<div class="mt-2 flex flex-wrap space-x-2">
+									{#each article.categories as category}
+										<Badge>
+											{category.title.toUpperCase()}
+										</Badge>
+									{/each}
+								</div>
+							{/if}
 						</ArticleHead>
 
 						<ArticleBody

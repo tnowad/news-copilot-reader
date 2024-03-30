@@ -9,13 +9,13 @@ export const load: PageServerLoad = async (event) => {
 			articleService.getAllArticles({
 				sortBy: 'createdAt',
 				sortOrder: 'desc',
-				includes: ['author'],
+				includes: ['author', 'categories'],
 				limit: 12
 			}),
 			articleService.getAllArticles({
 				sortBy: 'viewCount',
 				sortOrder: 'desc',
-				includes: ['author'],
+				includes: ['author', 'categories'],
 				limit: 12
 			}),
 			categoryService.getAllCategories({ limit: 10 })
