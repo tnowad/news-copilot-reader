@@ -18,7 +18,6 @@ articles_bp = Blueprint("articles", __name__)
 @articles_bp.route("/articles", methods=["GET"])
 def get_articles():
     try:
-        # Extract query parameters
         page = request.args.get("page", type=int) or 1
         limit = request.args.get("limit", type=int) or 10
         search = request.args.get("search", type=str)
@@ -56,6 +55,7 @@ def get_articles():
         articles = query.all()
 
         # Construct response data
+
         articles_data = []
         for article in articles:
             article_info = {
@@ -63,19 +63,50 @@ def get_articles():
                 "title": article.title,
                 "summary": article.summary,
                 "coverImage": article.cover_image,
-                "content": article.content,
                 "slug": article.slug,
-                "author": {
+            }
+
+            if style == "full":
+                article_info["content"] = article.content
+                article_info["createdAt"] = article.created_at
+                article_info["updatedAt"] = article.updated_at
+                article_info["deletedAt"] = article.deleted_at
+
+            # if "comments" in includes:
+            #     article_info["comments"] = [
+            #         {
+            #             "id": comment.id,
+            #             "content": comment.content,
+            #             "createdAt": comment.created_at,
+            #             "updatedAt": comment.updated_at,
+            #             "author": {
+            #                 "id": comment.author.id,
+            #                 "email": comment.author.email,
+            #                 "displayName": comment.author.display_name,
+            #                 "avatarImage": comment.author.avatar_image,
+            #             },
+            #         }
+            #         for comment in article.comments
+            #     ]
+
+            if "categories" in includes:
+                article_info["categories"] = [
+                    {
+                        "id": category.id,
+                        "title": category.title,
+                        "slug": category.slug,
+                    }
+                    for category in article.categories
+                ]
+
+            if "author" in includes:
+                article_info["author"] = {
                     "id": article.author.id,
                     "email": article.author.email,
                     "displayName": article.author.display_name,
                     "avatarImage": article.author.avatar_image,
-                },
-                "categories": [
-                    {"id": category.id, "title": category.title, "slug": category.slug}
-                    for category in article.categories
-                ],
-            }
+                }
+
             articles_data.append(article_info)
 
         # Construct metadata
