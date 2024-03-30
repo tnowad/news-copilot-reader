@@ -1,20 +1,38 @@
-import artcileService from '$lib/services/article.service';
+import articleService from '$lib/services/article.service';
+import categoryService from '$lib/services/category.service';
 import { StatusCodes } from 'http-status-codes';
 import type { PageServerLoad } from './$types';
-import categoryService from '$lib/services/category.service';
 
 export const load: PageServerLoad = async (event) => {
-	const articlesResponse = await artcileService.getAllArticles({ sortBy: 'created_at', sortOrder: 'desc', })
-	const articles = articlesResponse.statusCode === StatusCodes.OK ? articlesResponse.data.articles : []
-	const latestArticle = articles.slice(0, 12)
-	const hotArticles = articles.slice(0, 12)
-	const recommendedArticle = articles.slice(0, 12)
-	const categoriesResponse =await  categoryService.getAllCategories({limit:10})
-	
-	const categories = categoriesResponse.statusCode === StatusCodes.OK ? categoriesResponse.data.categories : []
+	try {
+		const [latestArticleResponse, hotArticlesResponse, categoriesResponse] = await Promise.all([
+			articleService.getAllArticles({
+				sortBy: 'createdAt',
+				sortOrder: 'desc',
+				includes: ['author'],
+				limit: 12
+			}),
+			articleService.getAllArticles({
+				sortBy: 'viewCount',
+				sortOrder: 'desc',
+				includes: ['author'],
+				limit: 12
+			}),
+			categoryService.getAllCategories({ limit: 10 })
+		]);
 
-	return {
-		latestArticle,
-		categories
-	};
+		const latestArticles =
+			latestArticleResponse.statusCode === StatusCodes.OK
+				? latestArticleResponse.data.articles
+				: [];
+		const hotArticles =
+			hotArticlesResponse.statusCode === StatusCodes.OK ? hotArticlesResponse.data.articles : [];
+		const categories =
+			categoriesResponse.statusCode === StatusCodes.OK ? categoriesResponse.data.categories : [];
+
+		return { latestArticles, hotArticles, categories };
+	} catch (error) {
+		console.error('Error occurred while loading data:', error);
+		return { latestArticles: [], hotArticles: [], categories: [] };
+	}
 };

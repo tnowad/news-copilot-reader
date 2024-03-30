@@ -16,7 +16,7 @@ def create_app():
     app.config["JWT_SECRET_KEY"] = "manager_access123"
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=356)
-    app.config["SQLALCHEMY_ECHO"] = True
+    # app.config["SQLALCHEMY_ECHO"] = True
 
     db.init_app(app)
     jwt.init_app(app)
