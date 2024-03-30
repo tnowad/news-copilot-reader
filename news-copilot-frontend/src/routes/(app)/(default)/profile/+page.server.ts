@@ -35,9 +35,19 @@ export const actions = {
 		const avatarImage = formData.get('avatarImage') as string;
 		const bio = formData.get('bio') as string;
 
-		console.log(email, birthDate, password, newPassword, displayName, bio, phoneNumber)
-		const response = await userService.updateCurrentUser({ email, avatarImage, displayName, bio, phoneNumber, birthDate });
-
+		console.log(email, birthDate, password, newPassword, displayName, bio, phoneNumber);
+		const response = await userService.updateCurrentUser(
+			{
+				email,
+				avatarImage,
+				displayName,
+				bio,
+				phoneNumber,
+				birthDate
+			},
+			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
+		);
+		console.log(response);
 
 		switch (response.statusCode) {
 			case StatusCodes.OK:
@@ -56,4 +66,4 @@ export const actions = {
 
 		return response;
 	}
-} satisfies Actions;	
+} satisfies Actions;

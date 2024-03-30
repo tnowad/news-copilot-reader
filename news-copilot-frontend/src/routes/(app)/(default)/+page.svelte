@@ -12,7 +12,6 @@
 	import { VideoCameraSolid, ArrowRightOutline, NewspapperSolid } from 'flowbite-svelte-icons';
 	import type { PageData } from './$types';
 	export let data: PageData;
-	$: console.log(data);
 </script>
 
 <div>

@@ -85,7 +85,13 @@
 			</Card>
 			<Card class="xl:col-span-8" size="none">
 				<Heading tag="h3" class="text-xl">General Information</Heading>
-				<form class="grid grid-cols-6 gap-6" action="/profile" method="post" use:enhance>
+				<form
+					class="grid grid-cols-6 gap-6"
+					action="/profile"
+					method="post"
+					use:enhance
+					enctype="multipart/form-data"
+				>
 					<Label class="col-span-6 space-y-2 sm:col-span-3">
 						<span>Display Name:</span>
 						<Input

@@ -80,7 +80,7 @@ def update_current_user_profile():
             ),
             HTTPStatus.NOT_FOUND,
         )
-    data = request.json
+    data = request.get_json()
 
     # Get all fields
     display_name = data.get("displayName")
