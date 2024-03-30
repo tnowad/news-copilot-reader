@@ -40,7 +40,9 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@types/dompurify": "^3.0.5",
 		"@types/jsonwebtoken": "^9.0.6",
+		"dompurify": "^3.0.11",
 		"http-status-codes": "^2.3.0",
 		"jsonwebtoken": "^9.0.2",
 		"monaco-editor": "^0.46.0",

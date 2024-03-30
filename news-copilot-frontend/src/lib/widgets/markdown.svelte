@@ -8,6 +8,8 @@
 	import Paragraph from '$lib/renderers/paragraph.svelte';
 	import { Hr, Table, TableBody, TableBodyCell, TableBodyRow } from 'flowbite-svelte';
 	import SvelteMarkdown from 'svelte-markdown';
+	import Html from '$lib/renderers/html.svelte';
+	import Blockquote from '$lib/renderers/blockquote.svelte';
 
 	let source = `# Markdown Elements
 
@@ -112,6 +114,8 @@ alert("fuck")
 		tablecell: TableBodyCell,
 		tablerow: TableBodyRow,
 		hr: Hr,
-		code: Code
+		code: Code,
+		html: Html,
+		blockquote: Blockquote
 	}}
 />
