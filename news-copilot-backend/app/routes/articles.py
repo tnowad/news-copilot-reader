@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from typing import List
+from datetime import datetime
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
@@ -29,6 +30,7 @@ def get_articles():
 
         # Query articles based on parameters
         query = Article.query
+        query = query.filter(Article.deleted_at.is_(None))
 
         if search:
             query = query.filter(Article.title.ilike(f"%{search}%"))  # pyright: ignore
@@ -223,8 +225,10 @@ def update_article(article_id):
 
 
 @articles_bp.route("/articles/<int:article_id>", methods=["DELETE"])
+@jwt_required()
+@role_required([RoleEnum.ADMIN, RoleEnum.WRITER])
 def delete_article(article_id):
-    data = request.json
+    current_user = User.query.filter_by(email=get_jwt_identity()).first_or_404()
     if article_id is None:
         return (
             jsonify(
@@ -236,9 +240,8 @@ def delete_article(article_id):
             HTTPStatus.BAD_REQUEST,
         )
 
-    # Assuming there's a method to get article by ID from the database
     article = Article.query.get(article_id)
-    if article is None:
+    if article is None or article.deleted_at is not None:
         return (
             jsonify(
                 {"statusCode": HTTPStatus.NOT_FOUND, "message": "Article not found"}
@@ -246,8 +249,22 @@ def delete_article(article_id):
             HTTPStatus.NOT_FOUND,
         )
 
-    # Assuming there's a method to delete the article from the database
-    article.delete()
+    if article.author_id != current_user.id and not any(
+        role.name == RoleEnum.ADMIN for role in current_user.roles
+    ):
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.FORBIDDEN,
+                    "message": "You are not allowed to delete this article",
+                }
+            ),
+            HTTPStatus.FORBIDDEN,
+        )
+
+    article.deleted_at = datetime.now()
+    db.session.commit()
+    db.session.close()
 
     return (
         jsonify(
@@ -284,7 +301,7 @@ def get_article(article_id):
         "message": f"Get article with id {article_id} route",
         "data": {
             "article": {
-                "id": 1,
+                "id": article.id,
                 "title": article.title,
                 "summary": article.summary,
                 "coverImage": article.cover_image,
@@ -314,14 +331,28 @@ def get_article(article_id):
             "avatarImage": article.author.avatar_image,
         }
 
-    if style_param == "full":
-        response_data["data"]["article"]["createdAt"] = article.created_at
-        response_data["data"]["article"]["updatedAt"] = article.updated_at
-        response_data["data"]["article"]["content"] = article.content
+    # if "comments" in includes_param:
+    #     response_data["data"]["article"]["comments"] = [
+    #         {
+    #             "id": comment.id,
+    #             "content": comment.content,
+    #             "createdAt": comment.created_at,
+    #             "updatedAt": comment.updated_at,
+    #             "author": {
+    #                 "id": comment.author.id,
+    #                 "email": comment.author.email,
+    #                 "displayName": comment.author.display_name,
+    #                 "avatarImage": comment.author.avatar_image,
+    #             },
+    #         }
+    #         for comment in article.comments
+    #     ]
 
     if style_param == "full":
         response_data["data"]["article"]["createdAt"] = article.created_at
         response_data["data"]["article"]["updatedAt"] = article.updated_at
+        response_data["data"]["article"]["deletedAt"] = article.deleted_at
+        response_data["data"]["article"]["content"] = article.content
 
     return (
         jsonify(response_data),
