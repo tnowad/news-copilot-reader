@@ -30,6 +30,9 @@ class Article(db.Model):
     categories: Mapped[List["Category"]] = relationship(
         "Category", secondary=articles_categories_association_table
     )
+    comments: Mapped[List["Comment"]] = relationship(
+        "Comment", back_populates="article"
+    )
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(

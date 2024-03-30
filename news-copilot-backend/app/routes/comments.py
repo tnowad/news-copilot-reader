@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify
 from app.models.comment import Comment
 from http import HTTPStatus
 
-comments_bp = Blueprint("comments", __name__, url_prefix="/comments")
+comments_bp = Blueprint("comments", __name__)
 
 
 @comments_bp.route("/comments", methods=["GET"])

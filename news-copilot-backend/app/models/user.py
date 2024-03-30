@@ -36,6 +36,7 @@ class User(db.Model):
         secondary=users_roles_association_table, back_populates="users"
     )
     articles: Mapped[List["Article"]] = relationship("Article", back_populates="author")
+    comments: Mapped[List["Comment"]] = relationship("Comment", back_populates="author")
 
     def __init__(
         self,
