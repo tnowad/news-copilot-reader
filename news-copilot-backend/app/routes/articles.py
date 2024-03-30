@@ -259,7 +259,6 @@ def delete_article(article_id):
 
 @articles_bp.route("/articles/<int:article_id>", methods=["GET"])
 def get_article(article_id):
-    data = request.json
     if article_id is None:
         return (
             jsonify(
@@ -271,7 +270,6 @@ def get_article(article_id):
             HTTPStatus.BAD_REQUEST,
         )
 
-    # Assuming there's a method to get article by ID from the database
     article = Article.query.get(article_id)
     if article is None:
         return (
@@ -281,13 +279,51 @@ def get_article(article_id):
             HTTPStatus.NOT_FOUND,
         )
 
-    return (
-        jsonify(
-            {
-                "statusCode": HTTPStatus.OK,
-                "message": f"Get article with id {article_id} route",
-                "data": article.to_dict(),
+    response_data = {
+        "statusCode": HTTPStatus.OK,
+        "message": f"Get article with id {article_id} route",
+        "data": {
+            "article": {
+                "id": 1,
+                "title": article.title,
+                "summary": article.summary,
+                "coverImage": article.cover_image,
+                "slug": article.slug,
             }
-        ),
+        },
+    }
+
+    style_param = request.args.get("style")
+    includes_param = request.args.getlist("includes")
+
+    if "categories" in includes_param:
+        response_data["data"]["article"]["categories"] = [
+            {
+                "id": category.id,
+                "title": category.title,
+                "slug": category.slug,
+            }
+            for category in article.categories
+        ]
+
+    if "author" in includes_param:
+        response_data["data"]["article"]["author"] = {
+            "id": article.author.id,
+            "email": article.author.email,
+            "displayName": article.author.display_name,
+            "avatarImage": article.author.avatar_image,
+        }
+
+    if style_param == "full":
+        response_data["data"]["article"]["createdAt"] = article.created_at
+        response_data["data"]["article"]["updatedAt"] = article.updated_at
+        response_data["data"]["article"]["content"] = article.content
+
+    if style_param == "full":
+        response_data["data"]["article"]["createdAt"] = article.created_at
+        response_data["data"]["article"]["updatedAt"] = article.updated_at
+
+    return (
+        jsonify(response_data),
         HTTPStatus.OK,
     )
