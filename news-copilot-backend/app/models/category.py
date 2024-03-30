@@ -16,7 +16,7 @@ class Category(db.Model):
     title = db.Column(String(255), nullable=False)
     slug = db.Column(String(255), nullable=False, unique=True)
     articles: Mapped[List["Article"]] = relationship(
-        "Article", secondary="articles_categories"
+        "Article", secondary="articles_categories", overlaps="categories"
     )
 
     def __init__(

@@ -8,6 +8,7 @@ from app.extensions import db
 if TYPE_CHECKING:
     from app.models.category import Category
     from app.models.user import User
+    from app.models.comment import Comment
 
 articles_categories_association_table = db.Table(
     "articles_categories",
@@ -28,7 +29,9 @@ class Article(db.Model):
     author_id = db.Column(Integer, ForeignKey("users.id"))
     author: Mapped["User"] = relationship("User", back_populates="articles")
     categories: Mapped[List["Category"]] = relationship(
-        "Category", secondary=articles_categories_association_table
+        "Category",
+        secondary=articles_categories_association_table,
+        overlaps="categories",
     )
     comments: Mapped[List["Comment"]] = relationship(
         "Comment", back_populates="article"
