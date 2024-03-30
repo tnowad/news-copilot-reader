@@ -68,7 +68,6 @@ def profile():
 @jwt_required()
 def update_current_user_profile():
     current_user = User.query.filter_by(email=get_jwt_identity()).first()
-    # check is current user exist
 
     if not current_user:
         return (
@@ -99,8 +98,8 @@ def update_current_user_profile():
         return (
             jsonify(
                 {
-                    "statusCode": HTTPStatus.NOT_FOUND,
-                    "message": "Password have already",
+                    "statusCode": HTTPStatus.BAD_REQUEST,
+                    "message": "Password is incorrect",
                 }
             ),
             HTTPStatus.BAD_REQUEST,
@@ -119,25 +118,32 @@ def update_current_user_profile():
         current_user.phone_number = phone_number
     if bio is not None and not current_user.bio != bio:
         current_user.bio = bio
-    if birth_date is not None and not current_user.birth_day != birth_date:
-        current_user.birth_day = datetime.strptime(birth_date, "%Y-%m-%d")
+    if birth_date is not None and not current_user.birth_date != birth_date:
+        current_user.birth_date = datetime.strptime(birth_date, "%Y-%m-%d")
+
+    response_data = {
+        "statusCode": HTTPStatus.OK,
+        "message": "Article updated successfully",
+        "data": {
+            "user": {
+                "id": current_user.id,
+                "email": current_user.email,
+                "displayName": current_user.display_name,
+                "avatarImage": current_user.avatar_image,
+                "bio": current_user.bio,
+                "birthDate": datetime.strftime(current_user.birth_date, "%Y-%m-%d"),
+                "phoneNumber": current_user.phone_number,
+                "roles": [str(role.name) for role in current_user.roles],
+                "createdAt": datetime.strftime(current_user.created_at, "%Y-%m-%d"),
+                "updatedAt": datetime.strftime(current_user.updated_at, "%Y-%m-%d"),
+            }
+        },
+    }
 
     db.session.commit()
+    db.session.close()
 
     return (
-        jsonify(
-            {
-                "statusCode": HTTPStatus.OK,
-                "message": "Article updated successfully",
-                "data": {
-                    "user": {
-                        "id": current_user.id,
-                        "email": current_user.email,
-                        "displayName": current_user.display_name,
-                        "avatarImage": current_user.avatar_image,
-                    }
-                },
-            }
-        ),
+        jsonify(response_data),
         HTTPStatus.OK,
     )
