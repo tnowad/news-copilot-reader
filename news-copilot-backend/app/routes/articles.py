@@ -31,22 +31,21 @@ def get_articles():
         query = Article.query
 
         if search:
-            query = query.filter(Article.title.ilike(f"%{search}%"))
-
+            query = query.filter(Article.title.ilike(f"%{search}%"))  # pyright: ignore
         if category_ids:
             query = query.join(Article.categories).filter(Category.id.in_(category_ids))
 
         if sort_by:
             if sort_by == "title":
-                query = query.order_by(Article.title)
+                query = query.order_by(Article.title)  # pyright: ignore
             elif sort_by == "created_at":
                 query = query.order_by(Article.created_at)
 
         if sort_order:
             if sort_order == "desc":
-                query = query.order_by(Article.title.desc())
+                query = query.order_by(Article.title.desc())  # pyright: ignore
             elif sort_order == "asc":
-                query = query.order_by(Article.title.asc())
+                query = query.order_by(Article.title.asc())  # pyright: ignore
 
         if page and limit:
             offset = (page - 1) * limit
