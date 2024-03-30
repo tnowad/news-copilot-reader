@@ -226,7 +226,7 @@ const deleteArticle = async (params: DeleteArticleParams, headers: HeadersInit =
 
 type GetArticleByIdParams = {
 	id: number;
-	includes?: ('author' | 'categories')[];
+	includes?: ('author' | 'categories' | 'comments')[];
 	style?: 'compact' | 'full';
 };
 
