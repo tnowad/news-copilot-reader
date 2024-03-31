@@ -50,11 +50,13 @@ def get_category(category_id):
         )
     response_data = {
         "data": {
-            "category": {
-                "id": category.id,
-                "slug": category.slug,
-                "title": category.title,
-            }
+            "category": [
+                {
+                    "id": category.id,
+                    "slug": category.slug,
+                    "title": category.title,
+                }
+            ]
         },
         "status": HTTPStatus.OK,
         "message": f"Get category by id {category.id} successful",
