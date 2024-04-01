@@ -48,26 +48,24 @@ def get_category(category_id):
                 "error": "{category_id} not found",
             }
         )
+
     response_data = {
         "data": {
-            "category": [
-                {
-                    "id": category.id,
-                    "slug": category.slug,
-                    "title": category.title,
-                }
-            ]
+            "category": {
+                "id": category.id,
+                "slug": category.slug,
+                "title": category.title,
+            }
         },
         "statusCode": HTTPStatus.OK,
         "message": f"Get category by id {category.id} successful",
     }
 
     style_param = request.args.get("style")
+    include_params = request.args.getlist("include")
 
     if style_param == "full":
         response_data["data"]["category"]["description"] = category.description
-
-    include_params = request.args.getlist("include")
 
     if "author" in include_params:
         response_data["data"]["category"]["author"] = {
