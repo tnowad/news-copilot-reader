@@ -181,37 +181,74 @@ def create_comment():
 @comments_bp.route("/comments/<int:comment_id>", methods=["PUT"])
 @jwt_required()
 def update_comment(comment_id):
-    comment = Comment.query.get_or_404(comment_id)
-    data = request.get_json()
-    if not data:
-        return jsonify({"message": "No data provided"}), HTTPStatus.BAD_REQUEST
+    try:
+        comment = Comment.query.get(comment_id)
 
-    content = data.get("content")
-    if not content:
-        return jsonify({"message": "No content provided"}), HTTPStatus.BAD_REQUEST
+        if not comment:
+            return (
+                jsonify(
+                    {
+                        "statusCode": HTTPStatus.NOT_FOUND,
+                        "message": "Cannot update comment",
+                        "error": f"Comment with id {comment_id} not found",
+                    }
+                ),
+                HTTPStatus.NOT_FOUND,
+            )
 
-    comment.content = content
-    db.session.commit()
+        current_user = User.query.filter_by(email=get_jwt_identity()).first()
 
-    response_data = {
-        "statusCode": HTTPStatus.OK,
-        "message": "Comment updated successfully",
-        "data": {
-            "comment": {
-                "id": comment.id,
-                "content": comment.content,
-                "created_at": comment.created_at,
-                "updated_at": comment.updated_at,
-                "author": {
-                    "id": comment.author.id,
-                    "email": comment.author.email,
-                    "display_name": comment.author.display_name,
-                    "avatar_image": comment.author.avatar_image,
-                },
-            }
-        },
-    }
-    return jsonify(response_data), HTTPStatus.OK
+        if not current_user or (
+            not any(role.name == RoleEnum.ADMIN for role in current_user.roles)
+            and current_user.id != comment.author_id
+        ):
+            return (
+                jsonify(
+                    {
+                        "statusCode": HTTPStatus.UNAUTHORIZED,
+                        "message": "You are not authorized to update this comment",
+                        "error": "Unauthorized",
+                    }
+                ),
+                HTTPStatus.UNAUTHORIZED,
+            )
+
+        data = request.get_json()
+        content = data.get("content")
+
+        if content:
+            comment.content = content
+            comment.updated_at = datetime.now()
+
+        db.session.commit()
+
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.OK,
+                    "message": "Comment updated successfully",
+                    "data": {
+                        "id": comment.id,
+                        "content": comment.content,
+                        "created_at": comment.created_at,
+                        "updated_at": comment.updated_at,
+                    },
+                }
+            ),
+            HTTPStatus.OK,
+        )
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
+                    "message": "Internal Server Error",
+                    "error": str(e),
+                }
+            ),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
 
 
 @comments_bp.route("/comments/<int:comment_id>", methods=["DELETE"])
