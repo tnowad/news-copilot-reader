@@ -307,7 +307,7 @@ type GetAllArticlesParams = {
 	limit?: number;
 	search?: string;
 	categoryIds?: number[];
-	sortBy?: 'title' | 'createdAt' | 'viewCount';
+	sortBy?: 'title' | 'createdAt' | 'viewCount' | 'publishedAt' | 'updatedAt';
 	sortOrder?: 'asc' | 'desc';
 	style?: 'compact' | 'full';
 	includes?: ('author' | 'categories')[];
