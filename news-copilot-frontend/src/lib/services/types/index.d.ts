@@ -27,5 +27,9 @@ export type Category = {
 	title: string;
 	slug: string;
 	description?: string;
+	createdAt?: string;
+	updatedAt?: string;
+	deletedAt?: string;
+
 	articles?: Article[];
 };

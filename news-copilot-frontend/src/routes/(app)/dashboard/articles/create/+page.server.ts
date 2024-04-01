@@ -4,7 +4,11 @@ import { StatusCodes } from 'http-status-codes';
 export const ssr = false;
 
 export const load = async () => {
-	const categoriesResponse = await categoryService.getAllCategories({});
+	const categoriesResponse = await categoryService.getAllCategories({
+		limit: 100,
+		style: 'compact',
+		sortBy: 'title'
+	});
 
 	return {
 		categories:

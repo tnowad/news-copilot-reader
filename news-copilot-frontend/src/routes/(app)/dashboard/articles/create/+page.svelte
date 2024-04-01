@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { Label, Input, Button, Select } from 'flowbite-svelte';
+	import { Label, Input, Button } from 'flowbite-svelte';
 
 	import Markdown from '$lib/widgets/markdown.svelte';
 	import Editor from '$lib/widgets/editor.svelte';
-	import type { PageServerData } from './$types';
+	import type { PageData } from './$types';
 	let source = '';
 	const handleSubmit = () => {
 		alert('Form submited.');
 	};
 
-	export let data: PageServerData;
+	export let data: PageData;
 </script>
 
 <section class="mx-5">
