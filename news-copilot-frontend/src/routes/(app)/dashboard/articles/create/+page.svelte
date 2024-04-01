@@ -1,6 +1,6 @@
 <script lang="ts">
 
-	import { Label, Input, Button, Select } from 'flowbite-svelte';
+	import { Label, Input, Button, Select, MultiSelect } from 'flowbite-svelte';
 
 	import Markdown from '$lib/widgets/markdown.svelte';
 	import Editor from '$lib/widgets/editor.svelte';
@@ -21,11 +21,7 @@
 	}));
 
 
-	export let data: PageData;
 
-	const handleSubmit = () => {
-		alert('Form submitted.');
-	};
 
 	let selected: { value: string; name: string }[] = [];
 </script>
