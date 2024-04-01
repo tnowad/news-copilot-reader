@@ -1,16 +1,13 @@
 <script lang="ts">
-<<<<<<< HEAD
+
 	import { Label, Input, Button, Select } from 'flowbite-svelte';
 
-=======
-	import { Label, Input, Button, MultiSelect } from 'flowbite-svelte';
->>>>>>> 7433457cc53c661ca53b6909af53b806e13f8c1b
 	import Markdown from '$lib/widgets/markdown.svelte';
 	import Editor from '$lib/widgets/editor.svelte';
 	import type { PageData } from './$types';
 
 	let source = '';
-<<<<<<< HEAD
+
 	const handleSubmit = () => {
 		alert('Form submited.');
 		console.log(selectedCategory);
@@ -22,7 +19,7 @@
 		name: category.title, 
 		value: category.id 
 	}));
-=======
+
 
 	export let data: PageData;
 
@@ -31,7 +28,6 @@
 	};
 
 	let selected: { value: string; name: string }[] = [];
->>>>>>> 7433457cc53c661ca53b6909af53b806e13f8c1b
 </script>
 
 <section class="mx-5">
