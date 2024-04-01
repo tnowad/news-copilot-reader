@@ -7,8 +7,9 @@ from app.extensions import db
 
 if TYPE_CHECKING:
     from app.models.category import Category
-    from app.models.user import User
     from app.models.comment import Comment
+    from app.models.user import User
+    from app.models.view import View
 
 articles_categories_association_table = db.Table(
     "articles_categories",
@@ -36,6 +37,7 @@ class Article(db.Model):
     comments: Mapped[List["Comment"]] = relationship(
         "Comment", back_populates="article"
     )
+    views: Mapped[List["View"]] = relationship("View", back_populates="article")
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(

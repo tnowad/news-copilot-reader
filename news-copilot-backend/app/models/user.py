@@ -6,8 +6,9 @@ from app.extensions import bcrypt, db
 
 if TYPE_CHECKING:
     from app.models.article import Article
-    from app.models.role import Role
     from app.models.comment import Comment
+    from app.models.role import Role
+    from app.models.view import View
 
 users_roles_association_table = db.Table(
     "users_roles",
@@ -37,6 +38,8 @@ class User(db.Model):
     )
     articles: Mapped[List["Article"]] = relationship("Article", back_populates="author")
     comments: Mapped[List["Comment"]] = relationship("Comment", back_populates="author")
+
+    views: Mapped[List["View"]] = relationship("View", back_populates="user")
 
     def __init__(
         self,
