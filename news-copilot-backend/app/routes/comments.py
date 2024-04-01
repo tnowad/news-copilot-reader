@@ -1,14 +1,14 @@
+from datetime import datetime
 from http import HTTPStatus
 
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app.extensions import db
 from app.models.article import Article
 from app.models.comment import Comment
-from app.models.user import User
 from app.models.role import RoleEnum
-from datetime import datetime
+from app.models.user import User
 
 comments_bp = Blueprint("comments", __name__)
 

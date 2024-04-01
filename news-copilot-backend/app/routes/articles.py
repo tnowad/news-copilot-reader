@@ -147,6 +147,93 @@ def get_articles():
         )
 
 
+@articles_bp.route("/articles/<int:article_id>", methods=["GET"])
+def get_article(article_id):
+    if article_id is None:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.BAD_REQUEST,
+                    "message": "Article ID is required",
+                }
+            ),
+            HTTPStatus.BAD_REQUEST,
+        )
+
+    article = Article.query.get(article_id)
+    if article is None:
+        return (
+            jsonify(
+                {"statusCode": HTTPStatus.NOT_FOUND, "message": "Article not found"}
+            ),
+            HTTPStatus.NOT_FOUND,
+        )
+
+    response_data = {
+        "statusCode": HTTPStatus.OK,
+        "message": f"Get article with id {article_id} route",
+        "data": {
+            "article": {
+                "id": article.id,
+                "title": article.title,
+                "summary": article.summary,
+                "coverImage": article.cover_image,
+                "slug": article.slug,
+            }
+        },
+    }
+
+    style_param = request.args.get("style")
+    includes_param = request.args.getlist("includes")
+
+    if "categories" in includes_param:
+        response_data["data"]["article"]["categories"] = [
+            {
+                "id": category.id,
+                "title": category.title,
+                "slug": category.slug,
+            }
+            for category in article.categories
+        ]
+
+    if "author" in includes_param:
+        response_data["data"]["article"]["author"] = {
+            "id": article.author.id,
+            "email": article.author.email,
+            "displayName": article.author.display_name,
+            "avatarImage": article.author.avatar_image,
+        }
+
+    if "comments" in includes_param:
+        response_data["data"]["article"]["comments"] = [
+            {
+                "id": comment.id,
+                "content": comment.content,
+                "createdAt": comment.created_at,
+                "updatedAt": comment.updated_at,
+                "parentCommentId": comment.parent_id,
+                "author": {
+                    "id": comment.author.id,
+                    "email": comment.author.email,
+                    "displayName": comment.author.display_name,
+                    "avatarImage": comment.author.avatar_image,
+                },
+            }
+            for comment in article.comments
+        ]
+
+    if style_param == "full":
+        response_data["data"]["article"]["createdAt"] = article.created_at
+        response_data["data"]["article"]["updatedAt"] = article.updated_at
+        response_data["data"]["article"]["deletedAt"] = article.deleted_at
+        response_data["data"]["article"]["content"] = article.content
+
+    return (
+        jsonify(response_data),
+        HTTPStatus.OK,
+    )
+
+
 @jwt_required()
 @role_required([RoleEnum.ADMIN, RoleEnum.WRITER])
 def create_article():
@@ -377,92 +464,5 @@ def delete_article(article_id):
         jsonify(
             {"statusCode": HTTPStatus.OK, "message": "Article deleted successfully"}
         ),
-        HTTPStatus.OK,
-    )
-
-
-@articles_bp.route("/articles/<int:article_id>", methods=["GET"])
-def get_article(article_id):
-    if article_id is None:
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.BAD_REQUEST,
-                    "message": "Article ID is required",
-                }
-            ),
-            HTTPStatus.BAD_REQUEST,
-        )
-
-    article = Article.query.get(article_id)
-    if article is None:
-        return (
-            jsonify(
-                {"statusCode": HTTPStatus.NOT_FOUND, "message": "Article not found"}
-            ),
-            HTTPStatus.NOT_FOUND,
-        )
-
-    response_data = {
-        "statusCode": HTTPStatus.OK,
-        "message": f"Get article with id {article_id} route",
-        "data": {
-            "article": {
-                "id": article.id,
-                "title": article.title,
-                "summary": article.summary,
-                "coverImage": article.cover_image,
-                "slug": article.slug,
-            }
-        },
-    }
-
-    style_param = request.args.get("style")
-    includes_param = request.args.getlist("includes")
-
-    if "categories" in includes_param:
-        response_data["data"]["article"]["categories"] = [
-            {
-                "id": category.id,
-                "title": category.title,
-                "slug": category.slug,
-            }
-            for category in article.categories
-        ]
-
-    if "author" in includes_param:
-        response_data["data"]["article"]["author"] = {
-            "id": article.author.id,
-            "email": article.author.email,
-            "displayName": article.author.display_name,
-            "avatarImage": article.author.avatar_image,
-        }
-
-    if "comments" in includes_param:
-        response_data["data"]["article"]["comments"] = [
-            {
-                "id": comment.id,
-                "content": comment.content,
-                "createdAt": comment.created_at,
-                "updatedAt": comment.updated_at,
-                "parentCommentId": comment.parent_id,
-                "author": {
-                    "id": comment.author.id,
-                    "email": comment.author.email,
-                    "displayName": comment.author.display_name,
-                    "avatarImage": comment.author.avatar_image,
-                },
-            }
-            for comment in article.comments
-        ]
-
-    if style_param == "full":
-        response_data["data"]["article"]["createdAt"] = article.created_at
-        response_data["data"]["article"]["updatedAt"] = article.updated_at
-        response_data["data"]["article"]["deletedAt"] = article.deleted_at
-        response_data["data"]["article"]["content"] = article.content
-
-    return (
-        jsonify(response_data),
         HTTPStatus.OK,
     )

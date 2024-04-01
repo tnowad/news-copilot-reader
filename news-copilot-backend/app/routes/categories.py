@@ -1,12 +1,13 @@
 from http import HTTPStatus
+
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 
 from app.decorators.authorization import role_required
-from app.models.category import Category
-from app.models.role import RoleEnum
 from app.extensions import db
 from app.models.article import Article
+from app.models.category import Category
+from app.models.role import RoleEnum
 
 categories_bp = Blueprint("categories", __name__)
 
