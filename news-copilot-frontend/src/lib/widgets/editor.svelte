@@ -97,4 +97,4 @@
 	});
 </script>
 
-<div class="min-h-80" bind:this={editorElement} />
+<div class="h-[70vh]" bind:this={editorElement} />
