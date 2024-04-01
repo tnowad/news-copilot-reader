@@ -25,9 +25,13 @@ def get_comments():
         user_id = request.args.get("userId", type=int)
         article_id = request.args.get("articleId", type=int)
         search = request.args.get("search", type=str)
+        parent_id = request.args.get("parentId", type=int)
 
         query = Comment.query
         query = query.filter(Comment.deleted_at.is_(None))
+
+        if parent_id:
+            query = query.filter(Comment.parent_id == parent_id)  # type: ignore
 
         if user_id:
             query = query.filter(Comment.author_id == user_id)  # type: ignore
