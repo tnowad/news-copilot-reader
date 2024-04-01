@@ -199,7 +199,7 @@ def get_comment(comment_id):
                 "coverImage": comment.article.cover_image,
             }
 
-        if "childComment" in includes_param:
+        if "childComments" in includes_param and comment.child_comments:
             child_comments_data = []
             for child_comment in comment.child_comments:
                 child_comment_info = {
