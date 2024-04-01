@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from app.models.comment import Comment
     from app.models.role import Role
     from app.models.view import View
+    from app.models.bookmark import Bookmark
 
 users_roles_association_table = db.Table(
     "users_roles",
@@ -40,6 +41,9 @@ class User(db.Model):
     comments: Mapped[List["Comment"]] = relationship("Comment", back_populates="author")
 
     views: Mapped[List["View"]] = relationship("View", back_populates="user")
+    bookmarks: Mapped[List["Bookmark"]] = relationship(
+        "Bookmark", back_populates="user"
+    )
 
     def __init__(
         self,
