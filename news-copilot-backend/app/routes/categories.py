@@ -43,7 +43,7 @@ def get_category(category_id):
     if not category:
         return jsonify(
             {
-                "status": HTTPStatus.NOT_FOUND,
+                "statusCode": HTTPStatus.NOT_FOUND,
                 "message": "{category_id} not found",
                 "error": "{category_id} not found",
             }
@@ -58,7 +58,7 @@ def get_category(category_id):
                 }
             ]
         },
-        "status": HTTPStatus.OK,
+        "statusCode": HTTPStatus.OK,
         "message": f"Get category by id {category.id} successful",
     }
 
@@ -93,7 +93,7 @@ def create_category():
     db.session.add(category)
     db.session.commit()
     response_data = {
-        "status": HTTPStatus.CREATED,
+        "statusCode": HTTPStatus.CREATED,
         "message": "Category created successfully",
         "data": {
             "id": category.id,
@@ -118,7 +118,7 @@ def update_category(category_id):
     category.description = data.get("description", category.description)
     db.session.commit()
     response_data = {
-        "status": HTTPStatus.OK,
+        "statusCode": HTTPStatus.OK,
         "message": "Category updated successfully",
         "data": {
             "id": category.id,
