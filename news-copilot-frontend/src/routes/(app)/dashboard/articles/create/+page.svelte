@@ -4,7 +4,6 @@
 	import Editor from '$lib/widgets/editor.svelte';
 	import type { PageData } from './$types';
 
-	let source = '';
 	let content = '';
 	let coverImage = '';
 	let summary = '';
