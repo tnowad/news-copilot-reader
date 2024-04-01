@@ -67,6 +67,7 @@ def get_comments():
             comment_info = {
                 "id": comment.id,
                 "content": comment.content,
+                "parent_id": comment.parent_id,
                 "created_at": comment.created_at,
                 "updated_at": comment.updated_at,
             }
