@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Label, Input, Button } from 'flowbite-svelte';
+	import { Label, Input, Button, Select } from 'flowbite-svelte';
 
 	import Markdown from '$lib/widgets/markdown.svelte';
 	import Editor from '$lib/widgets/editor.svelte';
@@ -7,9 +7,15 @@
 	let source = '';
 	const handleSubmit = () => {
 		alert('Form submited.');
+		console.log(selectedCategory);
 	};
-
+	let selectedCategory: any;
+	
 	export let data: PageData;
+	const categoriesItems = data.categories.map((category) => ({
+		name: category.title, 
+		value: category.id 
+	}));
 </script>
 
 <section class="mx-5">
@@ -19,6 +25,14 @@
 			<div class="sm:col-span-2">
 				<Label for="name" class="mb-2">Title</Label>
 				<Input type="text" id="name" placeholder="Article Title" required />
+			</div>
+			<div class="sm:col-span-2">
+				<Label for="name" class="mb-2">Categories</Label>
+				<Select
+					id="select"
+					items={categoriesItems}
+					bind:value = {selectedCategory}
+				/>
 			</div>
 			<div class="sm:col-span-2">
 				<Label for="description" class="mb-2">Description</Label>
