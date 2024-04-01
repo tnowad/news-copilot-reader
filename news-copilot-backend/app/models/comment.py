@@ -18,6 +18,7 @@ class Comment(db.Model):
     content = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    deleted_at = Column(DateTime)
 
     author_id = db.Column(Integer, ForeignKey("users.id"))
     author: Mapped["User"] = relationship("User", back_populates="comments")
