@@ -69,13 +69,13 @@ def get_comments():
             comment_info = {
                 "id": comment.id,
                 "content": comment.content,
-                "parent_id": comment.parent_id,
-                "created_at": comment.created_at,
-                "updated_at": comment.updated_at,
+                "parentId": comment.parent_id,
+                "createdAt": comment.created_at,
+                "updatedAt": comment.updated_at,
             }
 
             if style == "full":
-                comment_info["deleted_at"] = comment.deleted_at
+                comment_info["deletedAt"] = comment.deleted_at
 
             if "author" in includes and comment.author:
                 comment_info["author"] = {
@@ -135,6 +135,120 @@ def get_comments():
         )
 
 
+@comments_bp.route("/comments/<int:comment_id>", methods=["GET"])
+def get_comment(comment_id):
+    try:
+        if comment_id is None:
+            return (
+                jsonify(
+                    {
+                        "statusCode": HTTPStatus.BAD_REQUEST,
+                        "message": "Comment ID is required",
+                    }
+                ),
+                HTTPStatus.BAD_REQUEST,
+            )
+
+        comment = Comment.query.get(comment_id)
+        if comment is None:
+            return (
+                jsonify(
+                    {
+                        "statusCode": HTTPStatus.NOT_FOUND,
+                        "message": "Comment not found",
+                        "error": f"Comment with id {comment_id} not found",
+                    }
+                ),
+                HTTPStatus.NOT_FOUND,
+            )
+
+        response_data = {
+            "statusCode": HTTPStatus.OK,
+            "message": f"Get comment with id {comment_id} route",
+            "data": {
+                "comment": {
+                    "id": comment.id,
+                    "content": comment.content,
+                    "parentId": comment.parent_id,
+                    "createdAt": comment.created_at,
+                    "updatedAt": comment.updated_at,
+                }
+            },
+        }
+
+        style_param = request.args.get("style")
+        includes_param = request.args.getlist("includes")
+
+        if style_param == "full":
+            response_data["data"]["comment"]["deletedAt"] = comment.deleted_at
+
+        if "author" in includes_param and comment.author:
+            response_data["data"]["comment"]["author"] = {
+                "id": comment.author.id,
+                "email": comment.author.email,
+                "displayName": comment.author.display_name,
+                "avatarImage": comment.author.avatar_image,
+            }
+
+        if "article" in includes_param and comment.article:
+            response_data["data"]["comment"]["article"] = {
+                "id": comment.article.id,
+                "title": comment.article.title,
+                "summary": comment.article.summary,
+                "createdAt": comment.article.created_at,
+                "coverImage": comment.article.cover_image,
+            }
+
+        if "childComment" in includes_param:
+            child_comments_data = []
+            for child_comment in comment.child_comments:
+                child_comment_info = {
+                    "id": child_comment.id,
+                    "content": child_comment.content,
+                    "parentId": child_comment.parent_id,
+                    "createdAt": child_comment.created_at,
+                    "updatedAt": child_comment.updated_at,
+                }
+
+                if style_param == "full":
+                    child_comment_info["deletedAt"] = child_comment.deleted_at
+
+                if "author" in includes_param and child_comment.author:
+                    child_comment_info["author"] = {
+                        "id": child_comment.author.id,
+                        "email": child_comment.author.email,
+                        "displayName": child_comment.author.display_name,
+                        "avatarImage": child_comment.author.avatar_image,
+                    }
+
+                if "article" in includes_param and child_comment.article:
+                    child_comment_info["article"] = {
+                        "id": child_comment.article.id,
+                        "title": child_comment.article.title,
+                        "summary": child_comment.article.summary,
+                        "createdAt": child_comment.article.created_at,
+                        "coverImage": child_comment.article.cover_image,
+                    }
+
+                child_comments_data.append(child_comment_info)
+
+            response_data["data"]["comment"]["childComments"] = child_comments_data
+
+        return jsonify(response_data), HTTPStatus.OK
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
+                    "message": "Internal Server Error",
+                    "error": str(e),
+                }
+            ),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
+
+
 @comments_bp.route("/comments", methods=["POST"])
 @jwt_required()
 def create_comment():
@@ -143,8 +257,8 @@ def create_comment():
         return jsonify({"message": "No data provided"}), HTTPStatus.BAD_REQUEST
 
     content = data.get("content")
-    author_id = data.get("author_id")
-    article_id = data.get("article_id")
+    author_id = data.get("authorId")
+    article_id = data.get("articleId")
 
     if not all([content, author_id, article_id]):
         return jsonify({"message": "Missing required fields"}), HTTPStatus.BAD_REQUEST
@@ -164,13 +278,13 @@ def create_comment():
             "comment": {
                 "id": comment.id,
                 "content": comment.content,
-                "created_at": comment.created_at,
-                "updated_at": comment.updated_at,
+                "createdAt": comment.created_at,
+                "updatedAt": comment.updated_at,
                 "author": {
                     "id": comment.author.id,
                     "email": comment.author.email,
-                    "display_name": comment.author.display_name,
-                    "avatar_image": comment.author.avatar_image,
+                    "displayName": comment.author.display_name,
+                    "avatarImage": comment.author.avatar_image,
                 },
             }
         },
@@ -230,8 +344,8 @@ def update_comment(comment_id):
                     "data": {
                         "id": comment.id,
                         "content": comment.content,
-                        "created_at": comment.created_at,
-                        "updated_at": comment.updated_at,
+                        "createdAt": comment.created_at,
+                        "updatedAt": comment.updated_at,
                     },
                 }
             ),
