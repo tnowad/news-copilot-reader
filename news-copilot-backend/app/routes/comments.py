@@ -1,12 +1,14 @@
 from http import HTTPStatus
 
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.extensions import db
 from app.models.article import Article
 from app.models.comment import Comment
 from app.models.user import User
+from app.models.role import RoleEnum
+from datetime import datetime
 
 comments_bp = Blueprint("comments", __name__)
 
@@ -215,8 +217,59 @@ def update_comment(comment_id):
 @comments_bp.route("/comments/<int:comment_id>", methods=["DELETE"])
 @jwt_required()
 def delete_comment(comment_id):
-    comment = Comment.query.get_or_404(comment_id)
-    db.session.delete(comment)
-    db.session.commit()
+    try:
+        comment = Comment.query.get(comment_id)
 
-    return jsonify({"message": "Comment deleted successfully"}), HTTPStatus.OK
+        if not comment:
+            return (
+                jsonify(
+                    {
+                        "statusCode": HTTPStatus.NOT_FOUND,
+                        "message": "Cannot delete comment",
+                        "error": f"Comment with id {comment_id} not found",
+                    }
+                ),
+                HTTPStatus.NOT_FOUND,
+            )
+
+        current_user = User.query.filter_by(email=get_jwt_identity()).first()
+
+        if not current_user or (
+            not any(role.name == RoleEnum.ADMIN for role in current_user.roles)
+            and current_user.id == comment.author_id
+        ):
+            return (
+                jsonify(
+                    {
+                        "statusCode": HTTPStatus.UNAUTHORIZED,
+                        "message": "You are not authorized to delete this comment",
+                        "error": "Unauthorized",
+                    }
+                ),
+                HTTPStatus.UNAUTHORIZED,
+            )
+
+        comment.deleted_at = datetime.now()
+        db.session.commit()
+
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.OK,
+                    "message": "Comment deleted successfully",
+                }
+            ),
+            HTTPStatus.OK,
+        )
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
+                    "message": "Internal Server Error",
+                    "error": str(e),
+                }
+            ),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
