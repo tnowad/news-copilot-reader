@@ -5,6 +5,7 @@ from faker import Faker
 from app.extensions import db
 from app.models.article import Article
 from app.models.category import Category
+from app.models.comment import Comment
 from app.models.role import Role, RoleEnum
 from app.models.user import User
 
@@ -130,6 +131,14 @@ def seed_articles():
                 category = Category.query.get(category_id)
                 if category:
                     article_entry.categories.append(category)
+
+            for _ in range(5):
+                comment = Comment(
+                    content=fake.paragraph(),
+                    author_id=1,
+                    article_id=article["id"],
+                )
+                db.session.add(comment)
 
         db.session.add(article_entry)
         db.session.commit()

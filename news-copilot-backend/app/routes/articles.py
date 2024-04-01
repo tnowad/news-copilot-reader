@@ -1,6 +1,6 @@
+from datetime import datetime
 from http import HTTPStatus
 from typing import List
-from datetime import datetime
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
@@ -72,22 +72,23 @@ def get_articles():
                 article_info["updatedAt"] = article.updated_at
                 article_info["deletedAt"] = article.deleted_at
 
-            # if "comments" in includes:
-            #     article_info["comments"] = [
-            #         {
-            #             "id": comment.id,
-            #             "content": comment.content,
-            #             "createdAt": comment.created_at,
-            #             "updatedAt": comment.updated_at,
-            #             "author": {
-            #                 "id": comment.author.id,
-            #                 "email": comment.author.email,
-            #                 "displayName": comment.author.display_name,
-            #                 "avatarImage": comment.author.avatar_image,
-            #             },
-            #         }
-            #         for comment in article.comments
-            #     ]
+            if "comments" in includes:
+                article_info["comments"] = [
+                    {
+                        "id": comment.id,
+                        "content": comment.content,
+                        "createdAt": comment.created_at,
+                        "updatedAt": comment.updated_at,
+                        "parentCommentId": comment.parent_id,
+                        "author": {
+                            "id": comment.author.id,
+                            "email": comment.author.email,
+                            "displayName": comment.author.display_name,
+                            "avatarImage": comment.author.avatar_image,
+                        },
+                    }
+                    for comment in article.comments
+                ]
 
             if "categories" in includes:
                 article_info["categories"] = [
@@ -437,22 +438,23 @@ def get_article(article_id):
             "avatarImage": article.author.avatar_image,
         }
 
-    # if "comments" in includes_param:
-    #     response_data["data"]["article"]["comments"] = [
-    #         {
-    #             "id": comment.id,
-    #             "content": comment.content,
-    #             "createdAt": comment.created_at,
-    #             "updatedAt": comment.updated_at,
-    #             "author": {
-    #                 "id": comment.author.id,
-    #                 "email": comment.author.email,
-    #                 "displayName": comment.author.display_name,
-    #                 "avatarImage": comment.author.avatar_image,
-    #             },
-    #         }
-    #         for comment in article.comments
-    #     ]
+    if "comments" in includes_param:
+        response_data["data"]["article"]["comments"] = [
+            {
+                "id": comment.id,
+                "content": comment.content,
+                "createdAt": comment.created_at,
+                "updatedAt": comment.updated_at,
+                "parentCommentId": comment.parent_id,
+                "author": {
+                    "id": comment.author.id,
+                    "email": comment.author.email,
+                    "displayName": comment.author.display_name,
+                    "avatarImage": comment.author.avatar_image,
+                },
+            }
+            for comment in article.comments
+        ]
 
     if style_param == "full":
         response_data["data"]["article"]["createdAt"] = article.created_at
