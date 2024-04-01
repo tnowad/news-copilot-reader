@@ -13,28 +13,108 @@ categories_bp = Blueprint("categories", __name__)
 
 @categories_bp.route("/categories", methods=["GET"])
 def get_categories():
-    categories = Category.query.all()
+    try:
+        page = request.args.get("page", type=int) or 1
+        limit = request.args.get("limit", type=int) or 10
+        sort_by = request.args.get("sortBy", type=str)
+        sort_order = request.args.get("sortOrder", type=str)
+        style = request.args.get("style", type=str)
+        includes = request.args.getlist("includes", type=str)
+        search = request.args.get("search", type=str)
 
-    return (
-        jsonify(
-            {
-                "statusCode": HTTPStatus.OK,
-                "data": {
-                    "categories": [
-                        {
-                            "id": category.id,
-                            "description": category.description,
-                            "slug": category.slug,
-                            "title": category.title,
-                        }
-                        for category in categories
-                    ]
-                },
-                "message": "Get all categories successful",
+        query = Category.query
+
+        if search:
+            query = query.filter(Category.title.ilike(f"%{search}%"))  # type: ignore
+
+        if sort_by and sort_order:
+            if sort_by == "title":
+                query = query.order_by(
+                    Category.title.asc()  # type: ignore
+                    if sort_order == "asc"
+                    else Category.title.desc()  # type: ignore
+                )
+            elif sort_by == "id":
+                query = query.order_by(
+                    Category.id.asc() if sort_order == "asc" else Category.id.desc()
+                )
+
+        if page and limit:
+            offset = (page - 1) * limit
+            query = query.offset(offset).limit(limit)
+
+        categories = query.all()
+
+        categories_data = []
+        for category in categories:
+            category_info = {
+                "id": category.id,
+                "title": category.title,
+                "slug": category.slug,
+                "description": category.description,
             }
-        ),
-        HTTPStatus.OK,
-    )
+
+            if style == "full":
+                category_info["articles"] = [
+                    {
+                        "id": article.id,
+                        "title": article.title,
+                        "summary": article.summary,
+                        "createdAt": article.created_at,
+                        "coverImage": article.cover_image,
+                    }
+                    for article in category.articles
+                ]
+
+            if "articles" in includes:
+                category_info["articles"] = [
+                    {
+                        "id": article.id,
+                        "title": article.title,
+                    }
+                    for article in category.articles
+                ]
+
+            categories_data.append(category_info)
+
+        metadata = {
+            "pagination": {
+                "offset": (page - 1) * limit if (page and limit) else None,
+                "limit": limit,
+                "previousOffset": (page - 2) * limit if page > 1 else None,
+                "nextOffset": page * limit if categories else None,
+                "currentPage": page if page else None,
+                "totalCount": query.count(),
+            },
+            "sortedBy": {
+                "name": sort_by,
+                "order": sort_order,
+            },
+            "style": style,
+        }
+
+        response_data = {
+            "statusCode": HTTPStatus.OK,
+            "message": "Get all categories route",
+            "data": {
+                "categories": categories_data,
+                "metadata": metadata,
+            },
+        }
+
+        return jsonify(response_data), HTTPStatus.OK
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
+                    "message": "Internal Server Error",
+                    "error": str(e),
+                }
+            ),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
 
 
 @categories_bp.route("/categories/<int:category_id>", methods=["GET"])
