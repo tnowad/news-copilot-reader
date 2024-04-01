@@ -8,14 +8,14 @@ from flask_jwt_extended import (
 )
 
 from app.decorators.authorization import role_required
+from app.extensions import db
 from app.models.role import RoleEnum
 from app.models.user import User
-from app.extensions import db
 
-user_bp = Blueprint("user", __name__, url_prefix="/users")
+users_bp = Blueprint("user", __name__)
 
 
-@user_bp.route("/profile", methods=["GET"])
+@users_bp.route("/users/profile", methods=["GET"])
 @jwt_required()
 @role_required([RoleEnum.USER, RoleEnum.ADMIN, RoleEnum.WRITER])
 def profile():
@@ -64,7 +64,7 @@ def profile():
     return jsonify(response_data), HTTPStatus.OK
 
 
-@user_bp.route("/profile", methods=["PUT"])
+@users_bp.route("/users/profile", methods=["PUT"])
 @jwt_required()
 def update_current_user_profile():
     current_user = User.query.filter_by(email=get_jwt_identity()).first()
