@@ -8,9 +8,10 @@
 	let coverImage = '';
 	let summary = '';
 
-
+	const handleSubmit = () => {};
 
 	let selected: { value: string; name: string }[] = [];
+	export let data: PageData;
 </script>
 
 <section class="mx-5">
