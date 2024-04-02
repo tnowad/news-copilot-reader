@@ -12,6 +12,7 @@
 
 	let selected: { value: string; name: string }[] = [];
 	export let data: PageData;
+	data.user.
 </script>
 
 <section class="mx-5">
