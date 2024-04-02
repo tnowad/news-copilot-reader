@@ -147,3 +147,97 @@ def update_current_user_profile():
         jsonify(response_data),
         HTTPStatus.OK,
     )
+
+
+@users_bp.route("/users/profile", methods=["DELETE"])
+@jwt_required()
+def delete_user_profile():
+    current_user = User.query.filter_by(email=get_jwt_identity()).first()
+
+    if not current_user:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.NOT_FOUND,
+                    "message": "User not found",
+                }
+            ),
+            HTTPStatus.NOT_FOUND,
+        )
+
+    db.session.delete(current_user)
+    db.session.commit()
+
+    response_data = {
+        "statusCode": HTTPStatus.OK,
+        "message": "User profile deleted successfully",
+    }
+
+    return jsonify(response_data), HTTPStatus.OK
+
+
+@users_bp.route("/users/profile", methods=["POST"])
+def create_user_profile():
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
+    display_name = data.get("displayName")
+    avatar_image = data.get("avatarImage")
+    phone_number = data.get("phoneNumber")
+    bio = data.get("bio")
+    birth_date = data.get("birthDate")
+
+    if not email:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.BAD_REQUEST,
+                    "message": "Email is required",
+                }
+            ),
+            HTTPStatus.BAD_REQUEST,
+        )
+
+    if User.query.filter_by(email=email).first():
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.BAD_REQUEST,
+                    "message": "Email is already registered",
+                }
+            ),
+            HTTPStatus.BAD_REQUEST,
+        )
+
+    new_user = User(
+        email=email,
+        password=password,
+        display_name=display_name,
+        avatar_image=avatar_image,
+        phone_number=phone_number,
+        bio=bio,
+        birth_date=datetime.strptime(birth_date, "%Y-%m-%d"),
+    )
+
+    db.session.add(new_user)
+    db.session.commit()
+
+    response_data = {
+        "statusCode": HTTPStatus.CREATED,
+        "message": "User profile created successfully",
+        "data": {
+            "user": {
+                "id": new_user.id,
+                "email": new_user.email,
+                "displayName": new_user.display_name,
+                "avatarImage": new_user.avatar_image,
+                "bio": new_user.bio,
+                "birthDate": new_user.birth_date,
+                "phoneNumber": new_user.phone_number,
+                "createdAt": datetime.strftime(new_user.created_at, "%Y-%m-%d"),
+                "updatedAt": datetime.strftime(new_user.updated_at, "%Y-%m-%d"),
+            }
+        },
+    }
+
+    return jsonify(response_data), HTTPStatus.CREATED
