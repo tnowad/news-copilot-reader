@@ -64,10 +64,10 @@ def profile():
     return jsonify(response_data), HTTPStatus.OK
 
 
-@users_bp.route("/users/profile", methods=["PUT"])
+@users_bp.route("/users/<int:user_id>", methods=["PUT"])
 @jwt_required()
-def update_current_user_profile():
-    current_user = User.query.filter_by(email=get_jwt_identity()).first()
+def update_user(user_id):
+    current_user = User.query.filter_by(id=user_id).first()
 
     if not current_user:
         return (
@@ -108,22 +108,18 @@ def update_current_user_profile():
     # Assign value and save
     if display_name is not None and current_user.display_name != display_name:
         current_user.display_name = display_name
-    if email is not None and not current_user.email != email:
-        current_user.email = email
-    if avatar_image is not None and not current_user.avatar_image != avatar_image:
+    if avatar_image is not None and current_user.avatar_image != avatar_image:
         current_user.avatar_image = avatar_image
-    if password is not None and not current_user.password != password:
-        current_user.password = password
-    if phone_number is not None and not current_user.phone_number != phone_number:
+    if phone_number is not None and current_user.phone_number != phone_number:
         current_user.phone_number = phone_number
-    if bio is not None and not current_user.bio != bio:
+    if bio is not None and current_user.bio != bio:
         current_user.bio = bio
-    if birth_date is not None and not current_user.birth_date != birth_date:
+    if birth_date is not None and current_user.birth_date != birth_date:
         current_user.birth_date = datetime.strptime(birth_date, "%Y-%m-%d")
 
     response_data = {
         "statusCode": HTTPStatus.OK,
-        "message": "Article updated successfully",
+        "message": "User profile updated successfully",
         "data": {
             "user": {
                 "id": current_user.id,
@@ -141,7 +137,6 @@ def update_current_user_profile():
     }
 
     db.session.commit()
-    db.session.close()
 
     return (
         jsonify(response_data),
@@ -149,10 +144,10 @@ def update_current_user_profile():
     )
 
 
-@users_bp.route("/users/profile", methods=["DELETE"])
+@users_bp.route("/users/<int:user_id>", methods=["DELETE"])
 @jwt_required()
-def delete_user_profile():
-    current_user = User.query.filter_by(email=get_jwt_identity()).first()
+def delete_user(user_id):
+    current_user = User.query.filter_by(id=user_id).first()
 
     if not current_user:
         return (
@@ -176,8 +171,8 @@ def delete_user_profile():
     return jsonify(response_data), HTTPStatus.OK
 
 
-@users_bp.route("/users/profile", methods=["POST"])
-def create_user_profile():
+@users_bp.route("/users", methods=["POST"])
+def create_user():
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
