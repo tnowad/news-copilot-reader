@@ -125,6 +125,10 @@ def get_articles():
             },
             "sortedBy": {"name": sort_by, "order": sort_order},
             "style": style,
+            "filters": {
+                "search": search,
+                "categoryIds": category_ids,
+            },
         }
 
         # Construct final response
