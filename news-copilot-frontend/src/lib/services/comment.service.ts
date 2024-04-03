@@ -2,24 +2,24 @@ import type { StatusCodes } from 'http-status-codes';
 import { defaultHeaders } from './config';
 import { API_URL } from '$env/static/private';
 type CreateCommentBody = {
-    content: string
-    author_id: number
-    article_id: number
+	content: string
+	author_id: number
+	article_id: number
 }
 type CreateCommentSuccessful = {
-    statuscode: StatusCodes.CREATED;
-    data: {
-        id: number;
-        content: string,
-        createdAt: string,
-        updatedAt: string,
-        author: {
-            id: number,
-            displayName: string,
-            avatarImage: string
-        };
-    };
-    message: string
+	statuscode: StatusCodes.CREATED;
+	data: {
+		id: number;
+		content: string,
+		createdAt: string,
+		updatedAt: string,
+		author: {
+			id: number,
+			displayName: string,
+			avatarImage: string
+		};
+	};
+	message: string
 }
 type CreateCommentPermissionDenied = {
 	statusCode: StatusCodes.FORBIDDEN;
@@ -35,27 +35,34 @@ type CreateCommentValidationFailed = {
 	statusCode: StatusCodes.UNPROCESSABLE_ENTITY;
 	message: string;
 	errors: {
-		field:  'content' | 'authorId' | 'articleId';
+		field: 'content' | 'authorId' | 'articleId';
 		message: string;
 	}[];
 };
 
-type CreateArticleResponse = Omit<Response, 'json'> & {
+type CreateCommentResponse = Omit<Response, 'json'> & {
 	json: () => Promise<
 		| CreateCommentSuccessful
 		| CreateCommentPermissionDenied
 		| CreateCommentValidationFailed
 		| CreateCommentServerError
-	>;  
+	>;
 };
 const createComment = async (body: CreateCommentBody, headers: HeadersInit = {}) => {
-
+	const url = new URL('/comments',API_URL);	
+	const requestInit: RequestInit = {
+		method: 'POST',
+		body : JSON.stringify(body),
+		headers: {...defaultHeaders , ...headers}
+	}
+	const response =  (await fetch(url, requestInit)) as CreateCommentResponse
+	return response.json()
 }
 
 
-const commentServerices ={
-createComment 
 
 
+const commentServerices = {
+	createComment
 }
 export default createComment
