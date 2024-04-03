@@ -162,9 +162,54 @@ const updateCurrentUser = async (body: UpdateCurrentUserProfileBody, headers: He
 	}
 };
 
+// TODO: GET ALL USERS
+type GetAllUsersSuccessful = {
+	statusCode: StatusCodes.OK;
+	data: {
+		users: [
+			{
+				id: number;
+				email: string;
+				displayName: string;
+				avatarImage: string;
+				bio?: string;
+				birthDate?: string;
+				phoneNumber?: string;
+				roles?: Role[];
+			}
+		];
+	};
+	message: string;
+};
+type GetALlUsersFailed = {
+	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
+	message: string;
+	error: string;
+};
+type getAllUsersResponse = Omit<Response, 'json'> & {
+	json: () => Promise<GetAllUsersSuccessful | GetALlUsersFailed>;
+};
+
+const getALlUsers = async (
+	headers: HeadersInit = {}
+): Promise<GetAllUsersSuccessful | GetALlUsersFailed> => {
+	try {
+		const url = new URL('/users', API_URL);
+		const requestInit: RequestInit = {
+			method: 'GET',
+			headers: { ...defaultHeaders, ...headers }
+		};
+		const response = (await fetch(url, requestInit)) as getAllUsersResponse;
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to get all users: ' + (error as Error).message);
+	}
+};
+
 const userService = {
 	getCurrentUserProfile,
-	updateCurrentUser
+	updateCurrentUser,
+	getALlUsers
 };
 
 export default userService;
