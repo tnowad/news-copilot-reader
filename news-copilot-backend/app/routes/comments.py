@@ -113,6 +113,12 @@ def get_comments():
                 "name": sort_by,
                 "order": sort_order,
             },
+            "filters": {
+                "articleId": article_id,
+                "userId": user_id,
+                "parentId": parent_id,
+                "search": search,
+            },
         }
 
         response_data = {
