@@ -22,7 +22,7 @@
 
 	{#if user.roles?.some((role) => role === 'USER')}
 		<DropdownItem href="/settings">Settings</DropdownItem>
-		<DropdownItem href="/bookmark">Bookmark</DropdownItem>
+		<DropdownItem href="/bookmarks">Bookmark</DropdownItem>
 	{/if}
 	<DropdownDivider />
 	<DropdownItem href="/sign-out">Sign out</DropdownItem>
