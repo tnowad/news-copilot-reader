@@ -33,3 +33,20 @@ export type Category = {
 
 	articles?: Article[];
 };
+
+export type Pagination = {
+	offset: number;
+	limit: number;
+	previousOffset: number;
+	nextOffset: number;
+	currentPage: number;
+	pageCount: number;
+	totalCount: number;
+};
+
+export type Style = 'compact' | 'full';
+
+export type Metadata = {
+	pagination?: Pagination;
+	style?: Style;
+};

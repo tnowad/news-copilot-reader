@@ -351,6 +351,10 @@ type GetAllArticlesSuccessful = {
 				order: 'asc' | 'desc';
 			};
 			style: 'compact' | 'full';
+			filters: {
+				search: string;
+				categoryIds: number[];
+			};
 		};
 	};
 	message: string;
