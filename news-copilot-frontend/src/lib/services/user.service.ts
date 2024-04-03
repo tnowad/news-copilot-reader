@@ -189,7 +189,6 @@ type GetALlUsersFailed = {
 type getAllUsersResponse = Omit<Response, 'json'> & {
 	json: () => Promise<GetAllUsersSuccessful | GetALlUsersFailed>;
 };
-
 const getALlUsers = async (
 	headers: HeadersInit = {}
 ): Promise<GetAllUsersSuccessful | GetALlUsersFailed> => {
@@ -206,10 +205,99 @@ const getALlUsers = async (
 	}
 };
 
+// TODO: DELETE USER
+type deleteUserSuccessful = {
+	statusCode: StatusCodes.OK;
+	message: string;
+};
+type deleteUserFailed = {
+	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
+	message: string;
+	error: string;
+};
+type deleteUserResponse = Omit<Response, 'json'> & {
+	json: () => Promise<deleteUserSuccessful | deleteUserFailed>;
+};
+const deleteUser = async (
+	id: number,
+	headers: HeadersInit = {}
+): Promise<deleteUserSuccessful | deleteUserFailed> => {
+	try {
+		const url = new URL(`/users/${id}`, API_URL);
+		const requestInit: RequestInit = {
+			method: 'DELETE',
+			headers: { ...defaultHeaders, ...headers }
+		};
+		const response = (await fetch(url, requestInit)) as deleteUserResponse;
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to delete user: ' + (error as Error).message);
+	}
+};
+
+// TODO: CREATE USER
+type User = {
+	id: number;
+	email: string;
+	displayName: string;
+	avatarImage: string;
+	bio?: string;
+	birthDate?: string;
+	phoneNumber?: string;
+	roles?: string[];
+};
+
+type CreateUserBody = {
+	email: string;
+	password: string;
+	displayName: string;
+	avatarImage?: string;
+	bio?: string;
+	birthDate?: string;
+	phoneNumber?: string;
+};
+
+type CreateUserSuccessful = {
+	statusCode: StatusCodes.CREATED;
+	message: string;
+	data: {
+		user: User;
+	};
+};
+
+type CreateUserBadRequest = {
+	statusCode: StatusCodes.BAD_REQUEST;
+	message: string;
+	error: string;
+};
+
+type CreateUserResponse = Omit<Response, 'json'> & {
+	json: () => Promise<CreateUserSuccessful | CreateUserBadRequest>;
+};
+
+const createUser = async (body: CreateUserBody, headers: HeadersInit = {}) => {
+	try {
+		const url = new URL('/users', API_URL);
+		const requestInit: RequestInit = {
+			method: 'POST',
+			body: JSON.stringify(body),
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as CreateUserResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to create user: ' + (error as Error).message);
+	}
+};
+
 const userService = {
 	getCurrentUserProfile,
 	updateCurrentUser,
-	getALlUsers
+	getALlUsers,
+	deleteUser,
+	createUser
 };
 
 export default userService;
