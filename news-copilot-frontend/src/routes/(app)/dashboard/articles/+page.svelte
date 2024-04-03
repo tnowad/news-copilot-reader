@@ -12,7 +12,8 @@
 		Dropdown,
 		DropdownItem,
 		Checkbox,
-		ButtonGroup
+		ButtonGroup,
+		Badge
 	} from 'flowbite-svelte';
 	import { Section } from 'flowbite-svelte-blocks';
 	// import paginationData from '../utils/advancedTable.json';
@@ -27,7 +28,7 @@
 
 	const paginationData = [];
 
-	let searchTerm = '';
+	let searchQuery = '';
 	let currentPosition = 0;
 	const itemsPerPage = 10;
 	const showPage = 5;
@@ -81,17 +82,19 @@
 
 	$: currentPageItems = paginationData.slice(currentPosition, currentPosition + itemsPerPage);
 	$: filteredItems = paginationData.filter(
-		(item) => item.product_name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
+		(item) => item.product_name.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1
 	);
 
 	export let data: PageData;
+
+	// $: console.log(data);
 </script>
 
 <Section sectionClass="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5" classDiv="max-w-none">
 	<TableSearch
 		placeholder="Search"
 		hoverable={true}
-		bind:inputValue={searchTerm}
+		bind:inputValue={searchQuery}
 		divClass="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden"
 		innerDivClass="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4"
 		searchClass="w-full md:w-1/2 relative"
@@ -102,7 +105,7 @@
 			class="flex w-full flex-shrink-0 flex-col items-stretch justify-end space-y-2 md:w-auto md:flex-row md:items-center md:space-x-3 md:space-y-0"
 		>
 			<Button>
-				<PlusOutline class="mr-2 h-3.5 w-3.5" />Add product
+				<PlusOutline class="mr-2 h-3.5 w-3.5" />Add article
 			</Button>
 			<Button color="alternative">Actions<ChevronDownOutline class="ml-2 h-3 w-3 " /></Button>
 			<Dropdown class="w-44 divide-y divide-gray-100">
@@ -130,28 +133,35 @@
 			</Dropdown>
 		</div>
 		<TableHead>
-			<TableHeadCell padding="px-4 py-3" scope="col">Product name</TableHeadCell>
-			<TableHeadCell padding="px-4 py-3" scope="col">Brand</TableHeadCell>
-			<TableHeadCell padding="px-4 py-3" scope="col">Category</TableHeadCell>
-			<TableHeadCell padding="px-4 py-3" scope="col">Price</TableHeadCell>
+			<TableHeadCell padding="px-4 py-3" scope="col">ID</TableHeadCell>
+			<TableHeadCell padding="px-4 py-3" scope="col">Title</TableHeadCell>
+			<TableHeadCell padding="px-4 py-3" scope="col">Author</TableHeadCell>
+			<TableHeadCell padding="px-4 py-3" scope="col">Categories</TableHeadCell>
+			<TableHeadCell padding="px-4 py-3" scope="col">Summary</TableHeadCell>
 		</TableHead>
 		<TableBody tableBodyClass="divide-y">
-			{#if searchTerm !== ''}
-				{#each filteredItems as item (item.id)}
-					<TableBodyRow>
-						<TableBodyCell tdClass="px-4 py-3">{item.product_name}</TableBodyCell>
-						<TableBodyCell tdClass="px-4 py-3">{item.brand}</TableBodyCell>
-						<TableBodyCell tdClass="px-4 py-3">{item.category}</TableBodyCell>
-						<TableBodyCell tdClass="px-4 py-3">{item.price}</TableBodyCell>
-					</TableBodyRow>
-				{/each}
+			{#if searchQuery !== ''}
+				<!-- {#each filteredItems as item (item.id)} -->
+				<!-- 	<TableBodyRow> -->
+				<!-- 		<TableBodyCell tdClass="px-4 py-3">{item.product_name}</TableBodyCell> -->
+				<!-- 		<TableBodyCell tdClass="px-4 py-3">{item.brand}</TableBodyCell> -->
+				<!-- 		<TableBodyCell tdClass="px-4 py-3">{item.category}</TableBodyCell> -->
+				<!-- 		<TableBodyCell tdClass="px-4 py-3">{item.price}</TableBodyCell> -->
+				<!-- 	</TableBodyRow> -->
+				<!---->
+				<!-- {/each} -->
 			{:else}
-				{#each currentPageItems as item (item.id)}
+				{#each data.articles as article (article.id)}
 					<TableBodyRow>
-						<TableBodyCell tdClass="px-4 py-3">{item.product_name}</TableBodyCell>
-						<TableBodyCell tdClass="px-4 py-3">{item.brand}</TableBodyCell>
-						<TableBodyCell tdClass="px-4 py-3">{item.category}</TableBodyCell>
-						<TableBodyCell tdClass="px-4 py-3">{item.price}</TableBodyCell>
+						<TableBodyCell tdClass="px-4 py-3">{article.id}</TableBodyCell>
+						<TableBodyCell tdClass="px-4 py-3">{article.title}</TableBodyCell>
+						<TableBodyCell tdClass="px-4 py-3">{article.author?.email}</TableBodyCell>
+						<TableBodyCell tdClass="px-4 py-3"
+							>{#each article.categories ?? [] as category (category.id)}
+								<Badge>{category.title}</Badge>
+							{/each}</TableBodyCell
+						>
+						<TableBodyCell tdClass="px-4 py-3">{article.summary}</TableBodyCell>
 					</TableBodyRow>
 				{/each}
 			{/if}
@@ -165,7 +175,9 @@
 				Showing
 				<span class="font-semibold text-gray-900 dark:text-white">{startRange}-{endRange}</span>
 				of
-				<span class="font-semibold text-gray-900 dark:text-white">{totalItems}</span>
+				<span class="font-semibold text-gray-900 dark:text-white"
+					>{data.metadata.pagination.totalCount}</span
+				>
 			</span>
 			<ButtonGroup>
 				<Button on:click={loadPreviousPage} disabled={currentPosition === 0}

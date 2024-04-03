@@ -48,6 +48,8 @@ def get_articles():
             elif sort_order == "asc":
                 query = query.order_by(Article.title.asc())  # pyright: ignore
 
+        total_articles = query.count()
+
         if page and limit:
             offset = (page - 1) * limit
             query = query.offset(offset).limit(limit)
@@ -118,8 +120,8 @@ def get_articles():
                 "previousOffset": (page - 2) * limit if page > 1 else None,
                 "nextOffset": page * limit if articles else None,
                 "currentPage": page if page else None,
-                "pageCount": query.count() // limit if page and limit else None,
-                "totalCount": query.count(),
+                "pageCount": total_articles // limit if page and limit else None,
+                "totalCount": total_articles,
             },
             "sortedBy": {"name": sort_by, "order": sort_order},
             "style": style,
