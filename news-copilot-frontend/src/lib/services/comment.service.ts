@@ -48,14 +48,85 @@ type CreateArticleResponse = Omit<Response, 'json'> & {
 		| CreateCommentServerError
 	>;  
 };
+
+
 const createComment = async (body: CreateCommentBody, headers: HeadersInit = {}) => {
+	try {
+		const url = new URL('/artciles', API_URL);
+		const requestInit: RequestInit = {
+			method: 'POST',
+			body: JSON.stringify(body),
+			headers: { ...defaultHeaders, ...headers }
+		};
+	
+			const response = (await fetch(url, requestInit)) as CreateArticleResponse;
+	
+			return response.json();
+		} catch (error) {
+			throw new Error('Failed to sign in: ' + (error as Error).message);
+		}
+	};
 
+
+const commentServerices = async (body: CreateCommentBody, headers: HeadersInit = {}) => {
+// createComment 
 }
 
 
-const commentServerices ={
-createComment 
-
-
-}
 export default createComment
+
+
+
+
+
+type DeleteCommentParams = {
+	id: number;
+};
+
+type DeleteCommentSuccessful = {
+	statusCode: StatusCodes.NO_CONTENT;
+	message: string;
+};
+
+type DeleteCommentPermissionDenied = {
+	statusCode: StatusCodes.FORBIDDEN;
+	message: string;
+	error: string;
+};
+
+// type DeleteCommentNotFound = {
+// 	statusCode: StatusCodes.NOT_FOUND;
+// 	message: string;
+// 	error: string;
+// };
+
+type DeleteCommentServerError = {
+	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
+	message: string;
+	error: string;
+};
+
+type DeleteCommentResponse = Omit<Response, 'json'> & {
+	json: () => Promise<
+		| DeleteCommentSuccessful
+		| DeleteCommentPermissionDenied
+		// | DeleteCommentNotFound
+		| DeleteCommentServerError
+	>;
+};
+
+const deleteArticle = async (params: DeleteCommentParams, headers: HeadersInit = {}) => {
+	try {
+		const url = new URL(`/articles/${params.id}`, API_URL);
+		const requestInit: RequestInit = {
+			method: 'DELETE',
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as DeleteCommentResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to delete article: ' + (error as Error).message);
+	}
+};
