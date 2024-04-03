@@ -51,15 +51,30 @@ type CreateCommentResponse = Omit<Response, 'json'> & {
 
 
 const createComment = async (body: CreateCommentBody, headers: HeadersInit = {}) => {
-	const url = new URL('/comments',API_URL);	
+	const url = new URL('/comments', API_URL);
 	const requestInit: RequestInit = {
 		method: 'POST',
-		body : JSON.stringify(body),
-		headers: {...defaultHeaders , ...headers}
+		body: JSON.stringify(body),
+		headers: { ...defaultHeaders, ...headers }
 	}
-	const response =  (await fetch(url, requestInit)) as CreateCommentResponse
+	const response = (await fetch(url, requestInit)) as CreateCommentResponse
 	return response.json()
 }
+type GetAllCommentSuccessful = {
+	statusCode: StatusCodes.ACCEPTED,
+	data: {
+		id: number,
+		content: string,
+		created_at: string,
+		updated_at: string,
+		author: {
+			id: number,
+			display_name: string,
+			display_image: string
+		};
+	}[];
+}
+
 
 
 
