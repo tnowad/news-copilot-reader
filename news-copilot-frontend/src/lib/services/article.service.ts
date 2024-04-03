@@ -18,6 +18,7 @@ type CreateArticleSuccessful = {
 			id: number;
 			title: string;
 			summary: string;
+			slug: string;
 			coverImage?: string;
 			content: string;
 			author: {
@@ -239,6 +240,7 @@ type GetArticleByIdSuccessful = {
 			summary: string;
 			coverImage?: string;
 			content: string;
+			slug: string;
 			author: {
 				id: number;
 				email: string;

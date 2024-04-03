@@ -13,16 +13,16 @@
 		<span class="block truncate text-sm font-medium">{user.email}</span>
 	</DropdownHeader>
 	{#if user.roles?.some((role) => role === 'ADMIN')}
-		<DropdownItem href="/admin">Admin Dashboard</DropdownItem>
+		<DropdownItem href="/dashboard">Admin Dashboard</DropdownItem>
 	{/if}
 	{#if user.roles?.some((role) => role === 'WRITER')}
-		<DropdownItem href="/writer">Writer Dashboard</DropdownItem>
+		<DropdownItem href="/dashboard">Writer Dashboard</DropdownItem>
 	{/if}
 	<DropdownItem href="/profile">Profile</DropdownItem>
 
 	{#if user.roles?.some((role) => role === 'USER')}
 		<DropdownItem href="/settings">Settings</DropdownItem>
-		<DropdownItem href="/bookmark">Bookmark</DropdownItem>
+		<DropdownItem href="/bookmarks">Bookmark</DropdownItem>
 	{/if}
 	<DropdownDivider />
 	<DropdownItem href="/sign-out">Sign out</DropdownItem>

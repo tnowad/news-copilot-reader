@@ -12,7 +12,7 @@
 		NavHamburger,
 		Navbar
 	} from 'flowbite-svelte';
-	import { ClipboardListSolid, ListSolid } from 'flowbite-svelte-icons';
+	import { BookOpenSolid, BookmarkSolid, CaretRightSolid, ClipboardListSolid, ListSolid, MessageCaptionSolid, UserAddSolid, UserCircleSolid } from 'flowbite-svelte-icons';
 	import {
 		AngleDownSolid,
 		AngleUpOutline,
@@ -22,6 +22,8 @@
 	import UserMenu from '$lib/widgets/user-menu.svelte';
 	import type { LayoutData } from './$types';
 	import UserSidebar from '$lib/widgets/user-sidebar.svelte';
+	import { Comment } from 'flowbite-svelte-blocks';
+	import ArticleSection from '$lib/widgets/article-section.svelte';
 	let drawerHidden = false;
 
 	const closeDrawer = () => {
@@ -46,14 +48,19 @@
 
 	let menuItems = [
 		{ name: 'Dashboard', icon: PieChartSolid, href: '/dashboard' },
-		{
-			name: 'Articles',
-			icon: TableColumnSolid,
+		{ name: 'Users',	icon: UserCircleSolid, href: '/dashboard/users'},
+		{ name: 'Categories', icon: TableColumnSolid, href: '/dashboard/catagories'},
+		{ name: 'Articles',	icon: BookOpenSolid,
 			children: {
-				'Manage Articles': '/writer/article',
-				Categories: '/writer/catagories'
+				'Create Articles': '/dashboard/articles/create'
 			}
-		}
+		},
+		{ name: 'Comments',	icon: MessageCaptionSolid,
+			children: {
+					'Create Comments': '/dashboard/comments/create'
+				}
+		},
+			
 	];
 
 	let dropdowns = Object.fromEntries(Object.keys(menuItems).map((x) => [x, false]));

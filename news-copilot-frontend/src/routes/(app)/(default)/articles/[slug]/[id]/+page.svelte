@@ -20,53 +20,12 @@
 		DotsHorizontalOutline
 	} from 'flowbite-svelte-icons';
 	import { CommentItem, Section } from 'flowbite-svelte-blocks';
-
-	const comments = [
-		{
-			id: 'comment1',
-			author: {
-				name: 'Michael Gough',
-				avatarImage: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
-			},
-			date: 'Feb. 8, 2022',
-			content:
-				'Very straight-to-point article. Really worth time reading. Thank you! But tools are just the instruments for the UX designers. The knowledge of the design tools are as important as the creation of the design strategy.',
-			childComments: [
-				{
-					id: 'reply1',
-					author: {
-						name: 'Jese Leos',
-						avatarImage: 'https://flowbite.com/docs/images/people/profile-picture-5.jpg'
-					},
-					date: 'Feb. 12, 2022',
-					content: 'Much appreciated! Glad you liked it ☺️'
-				}
-			]
-		},
-		{
-			id: 'comment2',
-			author: {
-				name: 'Bonnie Green',
-				avatarImage: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg'
-			},
-			date: 'Mar. 12, 2022',
-			content:
-				'The article covers the essentials, challenges, myths and stages the UX designer should consider while creating the design strategy.',
-			childComments: []
-		},
-		{
-			id: 'comment3',
-			author: {
-				name: 'Helene Engels',
-				avatarImage: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg'
-			},
-			date: 'Jun. 23, 2022',
-			content:
-				'Thanks for sharing this. I do came from the Backend development and explored some of the tools to design my Side Projects.',
-			childComments: []
-		}
-		// Add more comments and childComments here
-	];
+	let comments = [];
+	let commentContent = '';
+	$: comments = data.comments;
+	const postComment = () => {
+		alert(commentContent);
+	}
 	export let data: PageData;
 </script>
 
@@ -82,10 +41,10 @@
 		</Card>
 
 		<Section name="comment" sectionClass="mt-5" classDiv="max-w-none w-full px-0">
-			<form>
-				<Textarea class="mb-4" placeholder="Write a comment">
+			<form  action={`/articles/${data.article?.slug}/${data.article?.id}`} method="post">
+				<Textarea class="mb-4" placeholder="Write a comment" name="content" bind:vaule={commentContent}>
 					<div slot="footer" class="flex items-center justify-between">
-						<Button type="submit">Post comment</Button>
+						<Button type="submit" >Post comment</Button>
 						<Toolbar embedded>
 							<ToolbarButton name="Attach file"
 								><PaperClipOutline class="h-5 w-5 rotate-45" /></ToolbarButton
@@ -109,12 +68,12 @@
 					comment={{
 						id: comment.id,
 						commenter: {
-							name: comment.author.name,
+							name: comment.author.displayName,
 							profilePicture: comment.author.avatarImage
 						},
 						content: comment.content,
 						date: comment.date,
-						replies: comment.childComments.map((childComment) => {
+						replies: comment?.childComments?.map((childComment) => {
 							return {
 								id: childComment.id,
 								commenter: {
