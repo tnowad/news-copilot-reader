@@ -64,6 +64,34 @@ def profile():
     return jsonify(response_data), HTTPStatus.OK
 
 
+@users_bp.route("/users", methods=["GET"])
+@jwt_required()
+def getAllUsers():
+    users = User.query.all()
+    response_data = {
+        "statusCode": HTTPStatus.OK,
+        "message": "get all users successful",
+        "data": {
+            "users": [
+                {
+                    "id": user.id,
+                    "email": user.email,
+                    "displayName": user.display_name,
+                    "avatarImage": user.avatar_image,
+                    "bio": user.bio,
+                    "birthDate": datetime.strftime(user.birth_date, "%Y-%m-%d"),
+                    "phoneNumber": user.phone_number,
+                    "roles": [str(role.name) for role in user.roles],
+                    "createdAt": datetime.strftime(user.created_at, "%Y-%m-%d"),
+                    "updatedAt": datetime.strftime(user.updated_at, "%Y-%m-%d"),
+                }
+                for user in users
+            ]
+        },
+    }
+    return jsonify(response_data), HTTPStatus.OK
+
+
 @users_bp.route("/users/<int:user_id>", methods=["PUT"])
 @jwt_required()
 def update_user(user_id):
@@ -75,6 +103,7 @@ def update_user(user_id):
                 {
                     "statusCode": HTTPStatus.NOT_FOUND,
                     "message": "User not found",
+                    "error": "User not found",
                 }
             ),
             HTTPStatus.NOT_FOUND,
@@ -119,7 +148,7 @@ def update_user(user_id):
 
     response_data = {
         "statusCode": HTTPStatus.OK,
-        "message": "User profile updated successfully",
+        "message": "User updated successfully",
         "data": {
             "user": {
                 "id": current_user.id,
@@ -155,6 +184,7 @@ def delete_user(user_id):
                 {
                     "statusCode": HTTPStatus.NOT_FOUND,
                     "message": "User not found",
+                    "error": "User not found",
                 }
             ),
             HTTPStatus.NOT_FOUND,
@@ -188,6 +218,7 @@ def create_user():
                 {
                     "statusCode": HTTPStatus.BAD_REQUEST,
                     "message": "Email is required",
+                    "error": "Email is required",
                 }
             ),
             HTTPStatus.BAD_REQUEST,
