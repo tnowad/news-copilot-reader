@@ -131,7 +131,7 @@ const getAllComments = async (params: GetAllCommentsParams = {}, headers: Header
 		if (sortBy) queryParams.set('sortBy', sortBy);
 		if (sortOrder) queryParams.set('sortOrder', sortOrder);
 		if (style) queryParams.set('style', style);
-		if (articleID) queryParams.set('articleID', articleID.toString());
+		if (articleID) queryParams.set('articleId', articleID.toString());
 		if (includes) includes.forEach((param) => queryParams.append('includes', param));
 
 		url.search = queryParams.toString();
