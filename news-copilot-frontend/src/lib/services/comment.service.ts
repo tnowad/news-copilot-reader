@@ -158,9 +158,149 @@ type GetCommentByArticleIDServerError = {
 	message: string;
 	error: string;
 };
+type UpdateCommentBody = {
+	id: number;
+	content?: string;
+	authorId?: number;
+	articleId?: number;
+};
+
+type UpdateCommentSuccessful = {
+	statusCode: StatusCodes.OK;
+	message: string;
+	data: {
+		comment: {
+			id: number;
+			content: string;
+			createdAt: string;
+			updatedAt: string;
+			articleId: number;
+			author: {
+				id: number;
+				displayName: string;
+				avatarImage: string;
+			};
+		};
+	};
+};
+
+type UpdateCommentNotFound = {
+	statusCode: StatusCodes.NOT_FOUND;
+	message: string;
+	error: string;
+};
+
+type UpdateCommentResponse = Omit<Response, 'json'> & {
+	json: () => Promise<UpdateCommentSuccessful | UpdateCommentNotFound>;
+};
+
+const updateComment = async (body: UpdateCommentBody, headers: HeadersInit = {}) => {
+	try {
+		const url = new URL(`/comments/${body.id}`, API_URL);
+		const requestInit: RequestInit = {
+			method: 'PUT',
+			body: JSON.stringify(body),
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as UpdateCommentResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to update comment: ' + (error as Error).message);
+	}
+};
+
+type DeleteCommentParams = {
+	id: number;
+};
+
+type DeleteCommentSuccessful = {
+	statusCode: StatusCodes.NO_CONTENT;
+	message: string;
+};
+
+type DeleteCommentNotFound = {
+	statusCode: StatusCodes.NOT_FOUND;
+	message: string;
+	error: string;
+};
+
+type DeleteCommentResponse = Omit<Response, 'json'> & {
+	json: () => Promise<DeleteCommentSuccessful | DeleteCommentNotFound>;
+};
+
+const deleteComment = async (params: DeleteCommentParams, headers: HeadersInit = {}) => {
+	try {
+		const url = new URL(`/comments/${params.id}`, API_URL);
+		const requestInit: RequestInit = {
+			method: 'DELETE',
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as DeleteCommentResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to delete comment: ' + (error as Error).message);
+	}
+};
+
+type GetCommentByIdParams = {
+	id: number;
+};
+
+type GetCommentByIdSuccessful = {
+	statusCode: StatusCodes.OK;
+	message: string;
+	data: {
+		comment: {
+			id: number;
+			content: string;
+			createdAt: string;
+			updatedAt: string;
+			articleId: number;
+			author: {
+				id: number;
+				displayName: string;
+				avatarImage: string;
+			};
+		};
+	};
+};
+
+type GetCommentByIdNotFound = {
+	statusCode: StatusCodes.NOT_FOUND;
+	message: string;
+	error: string;
+};
+
+type GetCommentByIdResponse = Omit<Response, 'json'> & {
+	json: () => Promise<GetCommentByIdSuccessful | GetCommentByIdNotFound>;
+};
+
+const getCommentById = async (params: GetCommentByIdParams, headers: HeadersInit = {}) => {
+	try {
+		const url = new URL(`/comments/${params.id}`, API_URL);
+		const requestInit: RequestInit = {
+			method: 'GET',
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as GetCommentByIdResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to get comment by ID: ' + (error as Error).message);
+	}
+};
 
 const commentServerices = {
 	getAllComments,
-	createComment
+	createComment,
+	updateComment,
+	deleteComment,
+	getCommentById
 };
+
 export default commentServerices;
