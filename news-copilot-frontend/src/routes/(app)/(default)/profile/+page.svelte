@@ -43,7 +43,7 @@
 
 <section>
 	<div class="container mx-auto">
-		<div class="col-span-full xl:mb-0 mt-6">
+		<div class="col-span-full mt-6 xl:mb-0">
 			<Breadcrumb class="mb-6">
 				<BreadcrumbItem home>Home</BreadcrumbItem>
 				<BreadcrumbItem

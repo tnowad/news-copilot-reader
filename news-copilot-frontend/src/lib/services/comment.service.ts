@@ -2,25 +2,25 @@ import type { StatusCodes } from 'http-status-codes';
 import { defaultHeaders } from './config';
 import { API_URL } from '$env/static/private';
 type CreateCommentBody = {
-	content: string
-	authorId: number
-	articleId: number
-}
+	content: string;
+	authorId: number;
+	articleId: number;
+};
 type CreateCommentSuccessful = {
 	statuscode: StatusCodes.CREATED;
 	data: {
 		id: number;
-		content: string,
-		createdAt: string,
-		updatedAt: string,
+		content: string;
+		createdAt: string;
+		updatedAt: string;
 		author: {
-			id: number,
-			displayName: string,
-			avatarImage: string
+			id: number;
+			displayName: string;
+			avatarImage: string;
 		};
 	};
-	message: string
-}
+	message: string;
+};
 type CreateCommentPermissionDenied = {
 	statusCode: StatusCodes.FORBIDDEN;
 	message: string;
@@ -49,19 +49,16 @@ type CreateCommentResponse = Omit<Response, 'json'> & {
 	>;
 };
 
-
 const createComment = async (body: CreateCommentBody, headers: HeadersInit = {}) => {
 	const url = new URL('/comments', API_URL);
 	const requestInit: RequestInit = {
 		method: 'POST',
 		body: JSON.stringify(body),
 		headers: { ...defaultHeaders, ...headers }
-	}
-	const response = (await fetch(url, requestInit)) as CreateCommentResponse
-	return response.json()
-}
-
-
+	};
+	const response = (await fetch(url, requestInit)) as CreateCommentResponse;
+	return response.json();
+};
 
 type GetAllCommentSuccessful = {
 	statusCode: StatusCodes.OK;
@@ -71,7 +68,7 @@ type GetAllCommentSuccessful = {
 			content: string;
 			createdAt: string;
 			updatedAt: string;
-			articleID : number;
+			articleID: number;
 			author: {
 				id: number;
 				displayName: string;
@@ -99,13 +96,13 @@ type GetAllCommentSuccessful = {
 			};
 		};
 		message: string;
-	}
-}
+	};
+};
 type GetAllCommentsServerError = {
 	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
 	message: string;
 	error: string;
-}
+};
 type GetAllCommentsParams = {
 	page?: number;
 	search?: string;
@@ -113,16 +110,24 @@ type GetAllCommentsParams = {
 	limit?: number;
 	sortBy?: 'name' | 'title';
 	sortOrder?: 'asc' | 'desc';
-	style?: 'full',
-	includes?: 'author'[]
-
-}
+	style?: 'full';
+	includes?: 'author'[];
+};
 type GetAllCommentsRespone = Omit<Response, 'json'> & {
 	json: () => Promise<GetAllCommentSuccessful | GetAllCommentsServerError>;
-}
+};
 const getAllComments = async (params: GetAllCommentsParams = {}, headers: HeadersInit = {}) => {
 	try {
-		const { page, limit, search, sortBy, sortOrder, style, includes , articleId: articleID } = params;
+		const {
+			page,
+			limit,
+			search,
+			sortBy,
+			sortOrder,
+			style,
+			includes,
+			articleId: articleID
+		} = params;
 		const url = new URL('/comments', API_URL);
 		const queryParams = new URLSearchParams();
 		if (page) queryParams.set('page', page.toString());
@@ -147,16 +152,15 @@ const getAllComments = async (params: GetAllCommentsParams = {}, headers: Header
 	} catch (error) {
 		throw new Error('Failed to fetch articles: ' + (error as Error).message);
 	}
-}
+};
 type GetCommentByArticleIDServerError = {
-	statusCode : StatusCodes.INTERNAL_SERVER_ERROR;
-	message : string;
-	error:string;
-	
-}
+	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
+	message: string;
+	error: string;
+};
 
 const commentServerices = {
 	getAllComments,
 	createComment
-}
+};
 export default commentServerices;

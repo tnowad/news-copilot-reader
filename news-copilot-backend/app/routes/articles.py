@@ -239,10 +239,10 @@ def get_article(article_id):
         HTTPStatus.OK,
     )
 
+
 @articles_bp.route("/articles", methods=["POST"])
 @jwt_required()
 @role_required([RoleEnum.ADMIN, RoleEnum.WRITER])
-
 def create_article():
     current_user = User.query.filter_by(email=get_jwt_identity()).first_or_404()
 

@@ -12,7 +12,16 @@
 		NavHamburger,
 		Navbar
 	} from 'flowbite-svelte';
-	import { BookOpenSolid, BookmarkSolid, CaretRightSolid, ClipboardListSolid, ListSolid, MessageCaptionSolid, UserAddSolid, UserCircleSolid } from 'flowbite-svelte-icons';
+	import {
+		BookOpenSolid,
+		BookmarkSolid,
+		CaretRightSolid,
+		ClipboardListSolid,
+		ListSolid,
+		MessageCaptionSolid,
+		UserAddSolid,
+		UserCircleSolid
+	} from 'flowbite-svelte-icons';
 	import {
 		AngleDownSolid,
 		AngleUpOutline,
@@ -48,19 +57,22 @@
 
 	let menuItems = [
 		{ name: 'Dashboard', icon: PieChartSolid, href: '/dashboard' },
-		{ name: 'Users',	icon: UserCircleSolid, href: '/dashboard/users'},
-		{ name: 'Categories', icon: TableColumnSolid, href: '/dashboard/catagories'},
-		{ name: 'Articles',	icon: BookOpenSolid,
+		{ name: 'Users', icon: UserCircleSolid, href: '/dashboard/users' },
+		{ name: 'Categories', icon: TableColumnSolid, href: '/dashboard/catagories' },
+		{
+			name: 'Articles',
+			icon: BookOpenSolid,
 			children: {
 				'Create Articles': '/dashboard/articles/create'
 			}
 		},
-		{ name: 'Comments',	icon: MessageCaptionSolid,
+		{
+			name: 'Comments',
+			icon: MessageCaptionSolid,
 			children: {
-					'Create Comments': '/dashboard/comments/create'
-				}
-		},
-			
+				'Create Comments': '/dashboard/comments/create'
+			}
+		}
 	];
 
 	let dropdowns = Object.fromEntries(Object.keys(menuItems).map((x) => [x, false]));

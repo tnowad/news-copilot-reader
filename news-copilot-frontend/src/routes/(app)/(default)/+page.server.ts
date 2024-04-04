@@ -20,7 +20,7 @@ export const load: PageServerLoad = async (event) => {
 			}),
 			categoryService.getAllCategories({ limit: 10 })
 		]);
-		
+
 		const latestArticles =
 			latestArticleResponse.statusCode === StatusCodes.OK
 				? latestArticleResponse.data.articles

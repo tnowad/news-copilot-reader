@@ -25,7 +25,7 @@
 	$: comments = data.comments;
 	const postComment = () => {
 		alert(commentContent);
-	}
+	};
 	export let data: PageData;
 </script>
 
@@ -41,10 +41,15 @@
 		</Card>
 
 		<Section name="comment" sectionClass="mt-5" classDiv="max-w-none w-full px-0">
-			<form  action={`/articles/${data.article?.slug}/${data.article?.id}`} method="post">
-				<Textarea class="mb-4" placeholder="Write a comment" name="content" bind:vaule={commentContent}>
+			<form action={`/articles/${data.article?.slug}/${data.article?.id}`} method="post">
+				<Textarea
+					class="mb-4"
+					placeholder="Write a comment"
+					name="content"
+					bind:vaule={commentContent}
+				>
 					<div slot="footer" class="flex items-center justify-between">
-						<Button type="submit" >Post comment</Button>
+						<Button type="submit">Post comment</Button>
 						<Toolbar embedded>
 							<ToolbarButton name="Attach file"
 								><PaperClipOutline class="h-5 w-5 rotate-45" /></ToolbarButton

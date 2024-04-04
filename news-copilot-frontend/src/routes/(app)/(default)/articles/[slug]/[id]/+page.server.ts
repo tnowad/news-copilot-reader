@@ -16,9 +16,11 @@ export const load: PageServerLoad = async ({ params }) => {
 		articleId: id,
 		includes: ['author'],
 		limit: 1000
-	})
-	const article = articlesResponse.statusCode === StatusCodes.OK ? articlesResponse.data.article : null;
-	const comments = commentsResponse.statusCode === StatusCodes.OK ? commentsResponse.data.comments : [];
+	});
+	const article =
+		articlesResponse.statusCode === StatusCodes.OK ? articlesResponse.data.article : null;
+	const comments =
+		commentsResponse.statusCode === StatusCodes.OK ? commentsResponse.data.comments : [];
 	return {
 		article,
 		comments
@@ -29,26 +31,20 @@ export const actions = {
 	default: async (event) => {
 		const formData = await event.request.formData();
 		if (!event.locals.user) {
-			return
+			return;
 		}
 		const content = formData.get('content') as string;
 		const articleId = parseInt(event.params.id) as number;
-		const authorId = event.locals.user.id
+		const authorId = event.locals.user.id;
 		console.log(content);
 		console.log(articleId);
 		console.log(authorId);
-		
+
 		const commentsResponse = await commentsService.createComment(
 			{ content: content, authorId: authorId, articleId: articleId },
 			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
-		)
-		
-		console.log(commentsResponse)
+		);
 
+		console.log(commentsResponse);
 	}
-
-
-
-
-
-} satisfies Actions
+} satisfies Actions;
