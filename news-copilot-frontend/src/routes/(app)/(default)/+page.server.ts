@@ -20,11 +20,12 @@ export const load: PageServerLoad = async (event) => {
 			}),
 			categoryService.getAllCategories({ limit: 10 })
 		]);
-
+		
 		const latestArticles =
 			latestArticleResponse.statusCode === StatusCodes.OK
 				? latestArticleResponse.data.articles
 				: [];
+		console.log(latestArticles);
 		const hotArticles =
 			hotArticlesResponse.statusCode === StatusCodes.OK ? hotArticlesResponse.data.articles : [];
 		const categories =

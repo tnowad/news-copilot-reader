@@ -69,7 +69,7 @@ type CreateArticleResponse = Omit<Response, 'json'> & {
 
 const createArticle = async (body: CreateArticleBody, headers: HeadersInit = {}) => {
 	try {
-		const url = new URL('/dashboard/articles/create', API_URL);
+		const url = new URL('/articles', API_URL);
 		const requestInit: RequestInit = {
 			method: 'POST',
 			body: JSON.stringify(body),
