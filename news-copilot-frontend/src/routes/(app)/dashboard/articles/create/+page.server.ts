@@ -45,6 +45,7 @@ export const actions = {
 			 },
 			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
 		)
+	//The data is created but the response somehow doesnt work 
 	console.log('abc')
 	console.log(articleResponse)
 
