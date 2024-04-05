@@ -63,6 +63,7 @@
 			name: 'Articles',
 			icon: BookOpenSolid,
 			children: {
+				'Articles List': '/dashboard/articles',
 				'Create Articles': '/dashboard/articles/create'
 			}
 		},

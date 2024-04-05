@@ -163,6 +163,16 @@ const updateCurrentUser = async (body: UpdateCurrentUserProfileBody, headers: He
 };
 
 // TODO: GET ALL USERS
+type GetAllUsersParams = {
+	page?: number;
+	limit?: number;
+	search?: string;
+	sortBy?: 'id' | 'email' | 'displayName' | 'phoneNumber' ;
+	sortOrder?: 'asc' | 'desc';
+	style?: 'compact' | 'full';
+	includes?: ('roles')[];
+};
+
 type GetAllUsersSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
@@ -186,22 +196,38 @@ type GetALlUsersFailed = {
 	message: string;
 	error: string;
 };
-type getAllUsersResponse = Omit<Response, 'json'> & {
+type GetAllUsersResponse = Omit<Response, 'json'> & {
 	json: () => Promise<GetAllUsersSuccessful | GetALlUsersFailed>;
 };
-const getALlUsers = async (
+const getAllUsers = async (
+	params: GetAllUsersParams = {},
 	headers: HeadersInit = {}
 ): Promise<GetAllUsersSuccessful | GetALlUsersFailed> => {
 	try {
+		const { page, limit, search, sortBy, sortOrder, style, includes } = params;
 		const url = new URL('/users', API_URL);
+		const queryParams = new URLSearchParams();
+
+		if (page) queryParams.set('page', page.toString());
+		if (limit) queryParams.set('limit', limit.toString());
+		if (search) queryParams.set('search', search);
+		if (sortBy) queryParams.set('sortBy', sortBy);
+		if (sortOrder) queryParams.set('sortOrder', sortOrder);
+		if (style) queryParams.set('style', style);
+		if (includes) includes.forEach((param) => queryParams.append('includes', param));
+
+		url.search = queryParams.toString();
+
 		const requestInit: RequestInit = {
 			method: 'GET',
 			headers: { ...defaultHeaders, ...headers }
 		};
-		const response = (await fetch(url, requestInit)) as getAllUsersResponse;
+
+		const response = (await fetch(url, requestInit)) as GetAllUsersResponse;
+
 		return response.json();
 	} catch (error) {
-		throw new Error('Failed to get all users: ' + (error as Error).message);
+		throw new Error('Failed to fetch articles: ' + (error as Error).message);
 	}
 };
 
@@ -295,7 +321,7 @@ const createUser = async (body: CreateUserBody, headers: HeadersInit = {}) => {
 const userService = {
 	getCurrentUserProfile,
 	updateCurrentUser,
-	getALlUsers,
+	getAllUsers,
 	deleteUser,
 	createUser
 };

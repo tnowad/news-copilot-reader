@@ -263,6 +263,7 @@ const getCategoryById = async (params: GetCategoryByIdParams, headers: HeadersIn
 type GetAllCategoriesParams = {
 	page?: number;
 	limit?: number;
+	search?: string;
 	includes?: 'description'[];
 	sortBy?: 'title' | 'slug';
 	sortOrder?: 'asc' | 'desc';
@@ -293,6 +294,10 @@ type GetAllCategoriesSuccessful = {
 				order: 'asc' | 'desc';
 			};
 			style: 'compact' | 'full';
+			filters: {
+				search: string;
+				categoryIds: number[];
+			};
 		};
 	};
 	message: string;
@@ -310,12 +315,13 @@ type GetAllCategoriesResponse = Omit<Response, 'json'> & {
 
 const getAllCategories = async (params: GetAllCategoriesParams = {}, headers: HeadersInit = {}) => {
 	try {
-		const { page, limit, includes, sortBy, sortOrder, style } = params;
+		const { page, limit, search, includes, sortBy, sortOrder, style } = params;
 		const url = new URL('/categories', API_URL);
 		const queryParams = new URLSearchParams();
 
 		if (page) queryParams.set('page', page.toString());
 		if (limit) queryParams.set('limit', limit.toString());
+		if (search) queryParams.set('search', search);
 		if (includes) includes.forEach((param) => queryParams.append('includes', param));
 		if (sortBy) queryParams.set('sortBy', sortBy);
 		if (sortOrder) queryParams.set('sortOrder', sortOrder);
