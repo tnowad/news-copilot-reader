@@ -167,10 +167,10 @@ type GetAllUsersParams = {
 	page?: number;
 	limit?: number;
 	search?: string;
-	sortBy?: 'id' | 'email' | 'displayName' | 'phoneNumber' ;
+	sortBy?: 'id' | 'email' | 'displayName' | 'phoneNumber';
 	sortOrder?: 'asc' | 'desc';
 	style?: 'compact' | 'full';
-	includes?: ('roles')[];
+	includes?: 'roles'[];
 };
 
 type GetAllUsersSuccessful = {

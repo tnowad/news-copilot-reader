@@ -11,19 +11,19 @@ export const load: PageServerLoad = async (event) => {
 	const accessToken = event.cookies.get('accessToken');
 	const usersResponse = await userService.getAllUsers(
 		{
-		includes: ['roles'],
-		id: id,
-		limit: limit,
-		search: search
-	},{
-		Authorization: `Bearer ${accessToken}`
-	});
+			includes: ['roles'],
+			id: id,
+			limit: limit,
+			search: search
+		},
+		{
+			Authorization: `Bearer ${accessToken}`
+		}
+	);
 	console.log(usersResponse);
 
-
 	return {
-		users: usersResponse.statusCode === StatusCodes.OK ? usersResponse.data.users : [],
+		users: usersResponse.statusCode === StatusCodes.OK ? usersResponse.data.users : []
 		// metadata: usersResponse.statusCode === StatusCodes.OK ? usersResponse.data.metadata : null
-
 	};
 };

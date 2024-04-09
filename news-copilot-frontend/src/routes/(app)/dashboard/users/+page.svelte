@@ -125,8 +125,7 @@
 							<TableBodyCell tdClass="px-4 py-3">{user.displayName}</TableBodyCell>
 						</a>
 						<TableBodyCell tdClass="px-4 py-3">{user.email}</TableBodyCell>
-						<TableBodyCell tdClass="px-4 py-3">{user.phoneNumber}</TableBodyCell
-						>
+						<TableBodyCell tdClass="px-4 py-3">{user.phoneNumber}</TableBodyCell>
 						<TableBodyCell tdClass="px-4 py-3">{user.bio}</TableBodyCell>
 					</TableBodyRow>
 				{/each}

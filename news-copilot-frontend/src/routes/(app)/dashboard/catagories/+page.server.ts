@@ -14,7 +14,9 @@ export const load = async (event) => {
 	console.log(categoriesResponse.data);
 
 	return {
-		categories: categoriesResponse.statusCode === StatusCodes.OK ? categoriesResponse.data.categories : [],
-		metadata: categoriesResponse.statusCode === StatusCodes.OK ? categoriesResponse.data.metadata : null
+		categories:
+			categoriesResponse.statusCode === StatusCodes.OK ? categoriesResponse.data.categories : [],
+		metadata:
+			categoriesResponse.statusCode === StatusCodes.OK ? categoriesResponse.data.metadata : null
 	};
 };
