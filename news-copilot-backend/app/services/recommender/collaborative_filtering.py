@@ -1,3 +1,4 @@
+import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
 
@@ -19,17 +20,37 @@ class CollaborativeFilteringRecommender:
                 "The train method must be called before recommend_articles."
             )
 
+        if user_id not in self.user_item_matrix.index:
+            return []
+
+        if np.sum(self.user_item_matrix.loc[user_id]) == 0:
+            return []
+
         user_views = self.user_item_matrix.loc[user_id].values.reshape(1, -1)
-        similarity_matrix = cosine_similarity(user_views, self.user_item_matrix)
-        sim_scores = list(enumerate(similarity_matrix[0]))
-        sim_scores_sorted = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+        similarity_scores = cosine_similarity(user_views, self.user_item_matrix)
+        sim_scores_sorted = sorted(
+            enumerate(similarity_scores[0]), key=lambda x: x[1], reverse=True
+        )
+
         user_articles = self.user_item_matrix.columns
         recommended_articles = []
-        for i in range(1, len(sim_scores_sorted)):
-            similar_user_id = sim_scores_sorted[i][0]
+
+        for similar_user_id, similarity_score in sim_scores_sorted:
+            print(similar_user_id, similarity_score)
+            if len(recommended_articles) >= num_recommendations:
+                break
+
+            if similar_user_id == user_id:
+                continue
+
             similar_user_views = self.user_item_matrix.loc[similar_user_id]
+
             for article_id, view_count in similar_user_views.iteritems():
-                if view_count > 0 and article_id not in user_articles:
+                if (
+                    view_count > 0
+                    and article_id not in user_articles
+                    and article_id not in recommended_articles
+                ):
                     recommended_articles.append(article_id)
-                if len(recommended_articles) >= num_recommendations:
-                    return recommended_articles
+
+        return recommended_articles[:num_recommendations]
