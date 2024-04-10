@@ -6,15 +6,29 @@
 </script>
 
 <section>
-	<form>
+	<form action={`/dashboard/categories/${data.category?.id}`} method="post">
 		<div class="mb-4 grid gap-4 sm:grid-cols-2">
 			<div>
 				<Label for="name" class="mb-2">Title</Label>
-				<Input type="text" id="title" placeholder="" value={data.category?.title} required />
+				<Input
+					type="text"
+					id="title"
+					placeholder=""
+					value={data.category?.title}
+					required
+					name="title"
+				/>
 			</div>
 			<div>
 				<Label for="brand" class="mb-2">Slug</Label>
-				<Input type="text" id="slug" placeholder="" value={data.category?.slug} required />
+				<Input
+					type="text"
+					id="slug"
+					placeholder=""
+					value={data.category?.slug}
+					required
+					name="slug"
+				/>
 			</div>
 			<div class="sm:col-span-2">
 				<Label for="description" class="mb-2">Description</Label>
