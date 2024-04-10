@@ -2,6 +2,7 @@ import type { Actions, PageServerLoad } from './$types';
 import articleService from '$lib/services/article.service';
 import { StatusCodes } from 'http-status-codes';
 import commentsService from '$lib/services/comment.service';
+import viewService from '$lib/services/view.service';
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const id = parseInt(params.id);
 
@@ -20,7 +21,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const recommendArticlesResponse = await articleService.getRecommendArticles({
 		userId: locals.user?.id,
 		articleId: id,
-		limit: 5,
+		limit: 12,
 		includes: ['author', 'categories']
 	});
 
@@ -39,7 +40,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	};
 };
 export const actions = {
-	default: async (event) => {
+	createComment: async (event) => {
 		const formData = await event.request.formData();
 		if (!event.locals.user) {
 			return;
@@ -57,5 +58,12 @@ export const actions = {
 		);
 
 		console.log(commentsResponse);
+	},
+	markViewed: async (event) => {
+		const articleId = parseInt(event.params.id);
+		await viewService.markArticleViewed(
+			{ articleId: articleId },
+			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
+		);
 	}
 } satisfies Actions;

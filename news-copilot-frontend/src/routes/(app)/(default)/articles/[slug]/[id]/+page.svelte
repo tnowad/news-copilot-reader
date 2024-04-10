@@ -21,6 +21,7 @@
 		DotsHorizontalOutline
 	} from 'flowbite-svelte-icons';
 	import { CommentItem, Section } from 'flowbite-svelte-blocks';
+	import { onMount } from 'svelte';
 	let comments = [];
 	let commentContent = '';
 	$: comments = data.comments;
@@ -28,6 +29,36 @@
 		alert(commentContent);
 	};
 	export let data: PageData;
+
+	const markArticleViewed = async () => {
+		const formData = new FormData();
+		formData.append('articleId', data.article?.id);
+
+		const options = {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			},
+			body: formData
+		};
+
+		try {
+			const response = await fetch(
+				`/articles/${data.article?.slug}/${data.article?.id}?/markViewed`,
+				options
+			);
+			if (response.ok) {
+				console.log('Article marked as viewed');
+			} else {
+				console.error('Failed to mark article as viewed');
+			}
+		} catch (error) {
+			console.error('Error marking article as viewed:', error);
+		}
+	};
+	onMount(() => {
+		markArticleViewed();
+	});
 </script>
 
 <section>
@@ -43,7 +74,10 @@
 
 		<ArticleSection title="Recommend for you" articles={data.recommendArticles} />
 		<Section name="comment" sectionClass="mt-5" classDiv="max-w-none w-full px-0">
-			<form action={`/articles/${data.article?.slug}/${data.article?.id}`} method="post">
+			<form
+				action={`/articles/${data.article?.slug}/${data.article?.id}?/createComment`}
+				method="post"
+			>
 				<Textarea
 					class="mb-4"
 					placeholder="Write a comment"
