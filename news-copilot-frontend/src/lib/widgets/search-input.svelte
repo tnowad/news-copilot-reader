@@ -120,7 +120,7 @@
 	{/each}
 	<slot name="footer">
 		<div class="flex justify-end">
-			<Button href={`/search?q=${query}`} on:click={toggleSearchModal}
+			<Button href={`/search?search=${query}`} on:click={toggleSearchModal}
 				>Show more <ArrowRightOutline class="ml-2 h-5 w-5" /></Button
 			>
 		</div>

@@ -1,6 +1,9 @@
 <script lang="ts">
+	import type { PageData } from './$types';
+	export let data: PageData;
+	import ArticleSection from '$lib/widgets/article-section.svelte';
 </script>
 
 <div>
-	<h1>Articles Page</h1>
+	<ArticleSection title="Displaying search results" articles={data.articles} />
 </div>
