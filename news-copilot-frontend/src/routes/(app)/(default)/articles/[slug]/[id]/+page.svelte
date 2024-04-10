@@ -57,6 +57,13 @@
 		<!-- <div class="flex justify-center"> -->
 		<!-- 	<Img src={data.article?.coverImage} alt={data.article?.title} imgClass="rounded-md" /> -->
 		<!-- </div> -->
+		<form
+			action={`/articles/${data.article?.slug}/${data.article?.id}?/bookmarkArticle`}
+			method="post"
+		>
+			<input type="hidden" name="category-id" value={data.article?.id} />
+			<Button type="submit">Bookmark</Button>
+		</form>
 		<Card size="none" shadow={false}>
 			<Markdown source={data.article?.content} />
 		</Card>

@@ -65,5 +65,12 @@ export const actions = {
 			{ articleId: articleId },
 			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
 		);
+	},
+	bookmarkArticle: async (event) => {
+		const articleId = parseInt(event.params.id);
+		await viewService.markArticleViewed(
+			{ articleId: articleId },
+			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
+		);
 	}
 } satisfies Actions;
