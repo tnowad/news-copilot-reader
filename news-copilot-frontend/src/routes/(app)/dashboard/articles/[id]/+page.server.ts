@@ -1,50 +1,53 @@
-import articleService from '$lib/services/article.service';
+import categoryService from '$lib/services/category.service';
 import { StatusCodes } from 'http-status-codes';
-import commentsService from '$lib/services/comment.service';
-import authService from '$lib/services/auth.service';
-import type { PageServerLoad, Actions } from '../../../(default)/articles/[slug]/[id]/$types';
+import type { Actions } from '../$types';
+import type { PageServerLoad } from '../$types';
+import artcileService from '$lib/services/article.service';
+
 export const load: PageServerLoad = async (event) => {
-	const id = parseInt(event.params.id);
-
-	const articlesResponse = await articleService.getArticleById({
-		id: id,
-		includes: ['author', 'categories', 'comments'],
-		style: 'full'
+	const categoriesResponse = await categoryService.getAllCategories({
+		limit: 100,
+		style: 'compact',
+		sortBy: 'title'
 	});
 
-	const commentsResponse = await commentsService.getAllComments({
-		articleId: id,
-		includes: ['author'],
-		limit: 1000
-	});
-	const article =
-		articlesResponse.statusCode === StatusCodes.OK ? articlesResponse.data.article : null;
-	const comments =
-		commentsResponse.statusCode === StatusCodes.OK ? commentsResponse.data.comments : [];
 	return {
-		article,
-		comments
-		// commentsMetadata: commentsResponse.statusCode === StatusCodes.OK ? commentsResponse.data.metadata : null
+		categories:
+			categoriesResponse.statusCode === StatusCodes.OK ? categoriesResponse.data.categories : [],
+		user: event.locals.user
 	};
 };
 export const actions = {
-	default: async (event: any) => {
+	default: async (event) => {
 		const formData = await event.request.formData();
 		if (!event.locals.user) {
 			return;
 		}
-		const content = formData.get('content') as string;
-		const articleId = parseInt(event.params?.id) as number;
+		const articleTitle = formData.get('title') as string;
 		const authorId = event.locals.user.id;
-		console.log(content);
-		console.log(articleId);
+		const summary = formData.get('summary') as string;
+		const category = formData.getAll('category') as unknown as number[];
+		const coverImage = formData.get('coverImage') as string;
+		const content = formData.get('content') as string;
+		console.log(articleTitle);
 		console.log(authorId);
-
-		const commentsResponse = await commentsService.createComment(
-			{ content: content, authorId: authorId, articleId: articleId },
+		console.log(summary);
+		console.log(category);
+		console.log(coverImage);
+		console.log(content);
+		const articleResponse = await artcileService.createArticle(
+			{
+				title: articleTitle,
+				summary: summary,
+				coverImage: coverImage,
+				content: content,
+				authorId: authorId,
+				categoryIds: category
+			},
 			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
 		);
-
-		console.log(commentsResponse);
+		//The data is created but the response somehow doesnt work
+		console.log('abc');
+		console.log(articleResponse);
 	}
 } satisfies Actions;
