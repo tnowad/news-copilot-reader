@@ -16,7 +16,7 @@
 
 <section class="mx-5">
 	<h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Update Article</h2>
-	<form action="/dashboard/articles/create" method="post">
+	<form action={`/dashboard/articles/${data.article?.id}`} method="post">
 		<div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
 			<div class="sm:col-span-2">
 				<Label for="name" class="mb-2">Title</Label>
