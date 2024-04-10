@@ -118,7 +118,7 @@
 				{#each data.categories as categories (categories.id)}
 					<TableBodyRow>
 						<TableBodyCell tdClass="px-4 py-3">{categories.id}</TableBodyCell>
-						<a href={`/dashboard/articles/${categories.id}`}>
+						<a href={`/dashboard/categories/${categories.id}`}>
 							<TableBodyCell tdClass="px-4 py-3">{categories.title}</TableBodyCell>
 						</a>
 						<TableBodyCell tdClass="px-4 py-3">{categories.slug}</TableBodyCell>
