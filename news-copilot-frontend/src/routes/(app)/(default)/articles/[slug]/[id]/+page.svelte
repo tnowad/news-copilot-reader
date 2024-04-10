@@ -10,7 +10,6 @@
 		Button,
 		Card,
 		Heading,
-		Img,
 		Dropdown,
 		DropdownItem
 	} from 'flowbite-svelte';
@@ -31,30 +30,20 @@
 	export let data: PageData;
 
 	const markArticleViewed = async () => {
-		const formData = new FormData();
-		formData.append('articleId', data.article?.id);
+		if (!data.article?.id) {
+			return;
+		}
 
-		const options = {
+		const formData = new FormData();
+		formData.append('articleId', data.article.id);
+
+		fetch(`/articles/${data.article?.slug}/${data.article?.id}?/markViewed`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded'
 			},
 			body: formData
-		};
-
-		try {
-			const response = await fetch(
-				`/articles/${data.article?.slug}/${data.article?.id}?/markViewed`,
-				options
-			);
-			if (response.ok) {
-				console.log('Article marked as viewed');
-			} else {
-				console.error('Failed to mark article as viewed');
-			}
-		} catch (error) {
-			console.error('Error marking article as viewed:', error);
-		}
+		});
 	};
 	onMount(() => {
 		markArticleViewed();
