@@ -9,7 +9,6 @@ export const load = async (event: any) => {
 		page: page,
 		limit: limit
 	});
-	console.log(commentsResponse?.data);
 	return {
 		comments: commentsResponse.statusCode === StatusCodes.OK ? commentsResponse.data.comments : [],
 		metadata: commentsResponse.statusCode === StatusCodes.OK ? commentsResponse.data.metadata : null

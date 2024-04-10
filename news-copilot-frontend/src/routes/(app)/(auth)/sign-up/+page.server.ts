@@ -30,19 +30,17 @@ export const actions = {
 
 		switch (response.statusCode) {
 			case StatusCodes.CREATED:
-				console.log('Sign up successful');
+
 				event.cookies.set('refreshToken', response.data.token.refreshToken, { path: '/' });
 				event.cookies.set('accessToken', response.data.token.accessToken, { path: '/' });
 				break;
 			case StatusCodes.CONFLICT:
 			case StatusCodes.BAD_REQUEST:
-				console.log('Sign in failed');
+
 				break;
 			case StatusCodes.UNPROCESSABLE_ENTITY:
-				console.log('Sign in validation failed');
 				break;
 			default:
-				console.log('Unknown status code');
 		}
 
 		return response;

@@ -27,8 +27,6 @@
 	import { browser } from '$app/environment';
 
 	export let data: PageData;
-	$: console.log();
-
 	let page = +(data.metadata?.pagination.currentPage ?? 1);
 	let limit = +(data.metadata?.pagination.limit ?? 10);
 	let searchQuery = data.metadata?.filters.search ?? '';

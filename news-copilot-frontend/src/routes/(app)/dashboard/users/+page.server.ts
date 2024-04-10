@@ -20,7 +20,6 @@ export const load: PageServerLoad = async (event) => {
 			Authorization: `Bearer ${accessToken}`
 		}
 	);
-	console.log(usersResponse);
 
 	return {
 		users: usersResponse.statusCode === StatusCodes.OK ? usersResponse.data.users : []
