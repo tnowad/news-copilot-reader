@@ -30,23 +30,23 @@
 			</div>
 		{:else}
 			{#each articles ?? [] as article}
-				<a href={`/articles/${article.slug}/${article.id}`}>
-					<ArticleWrapper
-						articleClass="p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700 h-full flex flex-col"
-					>
-						<ArticleHead divClass="">
-							<Img imgClass="h-48 w-full object-cover rounded-md" src={article.coverImage} />
-							{#if article.categories}
-								<div class="mt-2 flex flex-wrap gap-1">
-									{#each article.categories as category}
-										<Badge>
-											{category.title.toUpperCase()}
-										</Badge>
-									{/each}
-								</div>
-							{/if}
-						</ArticleHead>
+				<ArticleWrapper
+					articleClass="p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700 h-full flex flex-col"
+				>
+					<ArticleHead divClass="">
+						<Img imgClass="h-48 w-full object-cover rounded-md" src={article.coverImage} />
+						{#if article.categories}
+							<div class="mt-2 flex flex-wrap gap-1">
+								{#each article.categories as category}
+									<Badge>
+										{category.title.toUpperCase()}
+									</Badge>
+								{/each}
+							</div>
+						{/if}
+					</ArticleHead>
 
+					<a href={`/articles/${article.slug}/${article.id}`}>
 						<ArticleBody
 							h2Class="flex-grow mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
 						>
@@ -57,28 +57,28 @@
 								</p>
 							</svelte:fragment>
 						</ArticleBody>
+					</a>
 
-						<ArticleAuthor>
-							<div slot="author" class="flex space-x-5">
-								<Avatar
-									class="h-10 w-10"
-									src={article.author?.avatarImage}
-									alt={article.author?.displayName}
-								/>
-								<div class="flex flex-col">
-									<h4 class="text-sm font-bold dark:text-white">
-										{article.author?.displayName}
-									</h4>
-									{#if article.createdAt}
-										<p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-											{new Date(article.createdAt).toLocaleDateString()}
-										</p>
-									{/if}
-								</div>
+					<ArticleAuthor>
+						<div slot="author" class="flex space-x-5">
+							<Avatar
+								class="h-10 w-10"
+								src={article.author?.avatarImage}
+								alt={article.author?.displayName}
+							/>
+							<div class="flex flex-col">
+								<h4 class="text-sm font-bold dark:text-white">
+									{article.author?.displayName}
+								</h4>
+								{#if article.createdAt}
+									<p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+										{new Date(article.createdAt).toLocaleDateString()}
+									</p>
+								{/if}
 							</div>
-						</ArticleAuthor>
-					</ArticleWrapper>
-				</a>
+						</div>
+					</ArticleAuthor>
+				</ArticleWrapper>
 			{/each}
 		{/if}
 	</BlogBodyWrapper>
