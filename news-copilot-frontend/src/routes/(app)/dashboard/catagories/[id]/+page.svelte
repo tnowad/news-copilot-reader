@@ -4,8 +4,6 @@
 	import { ArrowRightOutline } from 'flowbite-svelte-icons';
 	import { PageData } from '../../../(default)/categories/[slug]/[id]/$types';
 	export let data: PageData;
-
-	$: console.log(data);
 </script>
 
 <div>

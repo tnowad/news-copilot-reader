@@ -6,8 +6,6 @@
 
 	export let data: PageData;
 	export let form: ActionData;
-
-	$: console.log({ form, data });
 </script>
 
 <Section name="login" sectionClass="w-full md:w-[500px]">
@@ -37,7 +35,7 @@
 				<p class="text-sm font-light text-gray-500 dark:text-gray-400">
 					Don’t have an account yet? <a
 						href="/sign-up"
-						class="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</a
+						class="text-primary-600 dark:text-primary-500 font-medium hover:underline">Sign up</a
 					>
 				</p>
 			</form>

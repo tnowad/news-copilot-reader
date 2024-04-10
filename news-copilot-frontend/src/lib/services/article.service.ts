@@ -480,7 +480,7 @@ const getRecommendArticles = async (
 		if (userId) queryParams.set('userId', userId.toString());
 		if (limit) queryParams.set('limit', limit.toString());
 		if (style) queryParams.set('style', style);
-		console.log(params);
+
 
 		if (includes) includes.forEach((param) => queryParams.append('includes', param));
 

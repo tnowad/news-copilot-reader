@@ -4,8 +4,6 @@
 	import { Card, Button, Pagination } from 'flowbite-svelte';
 	import { ArrowRightOutline } from 'flowbite-svelte-icons';
 	export let data: PageData;
-
-	$: console.log(data);
 </script>
 
 <div>

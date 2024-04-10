@@ -22,7 +22,6 @@
 	onMount(async () => {
 		self.MonacoEnvironment = {
 			getWorker(workerId, label) {
-				console.log(workerId, label);
 				return new editorWorker();
 			}
 		};
@@ -43,7 +42,6 @@
 
 		editor.onDidChangeModelContent((e) => {
 			for (const change of e.changes) {
-				console.log(change);
 			}
 			content = editor.getValue();
 		});
