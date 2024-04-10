@@ -34,15 +34,16 @@ export const actions = {
 		const category = formData.getAll('category') as unknown as number[];
 		const coverImage = formData.get('coverImage') as string;
 		const content = formData.get('content') as string;
-
-		const articleResponse = await artcileService.createArticle(
+		const id = event.params.id as unknown as number;
+		const articleResponse = await artcileService.updateArticle(
 			{
+				id: id,
 				title: articleTitle,
 				summary: summary,
 				coverImage: coverImage,
 				content: content,
 				authorId: authorId,
-				categoryIds: category
+				categoryIds: category,
 			},
 			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
 		);
