@@ -299,7 +299,27 @@ def create_article():
         "statusCode": HTTPStatus.CREATED,
         "message": "Article created successfully",
         "data": {
-            "article": article,
+            "article": {
+                "id": article.id,
+                "title": article.title,
+                "summary": article.summary,
+                "coverImage": article.cover_image,
+                "slug": article.slug,
+                "author": {
+                    "id": article.author.id,
+                    "email": article.author.email,
+                    "displayName": article.author.display_name,
+                    "avatarImage": article.author.avatar_image,
+                },
+                "categories": [
+                    {
+                        "id": category.id,
+                        "title": category.title,
+                        "slug": category.slug,
+                    }
+                    for category in article.categories
+                ],
+            },
         },
     }
 
