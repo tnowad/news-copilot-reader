@@ -9,7 +9,9 @@ export const load = async (event) => {
 	const categoriesResponse = await categoryService.getAllCategories({
 		includes: ['description'],
 		page: page,
-		limit: limit
+		limit: limit,
+		search: search
+
 	});
 
 	return {

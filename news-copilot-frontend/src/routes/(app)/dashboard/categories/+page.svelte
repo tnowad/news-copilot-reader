@@ -85,27 +85,7 @@
 				</Button> -->
 				<Button color="alternative">Actions<ChevronDownOutline class="ml-2 h-3 w-3 " /></Button>
 				<Dropdown class="w-44 divide-y divide-gray-100">
-					<DropdownItem>Mass Edit</DropdownItem>
-					<DropdownItem>Delete all</DropdownItem>
-				</Dropdown>
-				<Button color="alternative">Filter<FilterSolid class="ml-2 h-3 w-3 " /></Button>
-				<Dropdown class="w-48 space-y-2 p-3 text-sm">
-					<h6 class="mb-3 text-sm font-medium text-gray-900 dark:text-white">Choose brand</h6>
-					<li>
-						<Checkbox>Apple (56)</Checkbox>
-					</li>
-					<li>
-						<Checkbox>Microsoft (16)</Checkbox>
-					</li>
-					<li>
-						<Checkbox>Razor (49)</Checkbox>
-					</li>
-					<li>
-						<Checkbox>Nikon (12)</Checkbox>
-					</li>
-					<li>
-						<Checkbox>BenQ (74)</Checkbox>
-					</li>
+					<DropdownItem><a href="/dashboard/categories/create">Create category</a></DropdownItem>
 				</Dropdown>
 			</div>
 			<TableHead>
@@ -122,7 +102,6 @@
 							<TableBodyCell tdClass="px-4 py-3">{categories.title}</TableBodyCell>
 						</a>
 						<TableBodyCell tdClass="px-4 py-3">{categories.slug}</TableBodyCell>
-						<TableBodyCell tdClass="px-4 py-3"></TableBodyCell>
 						<TableBodyCell tdClass="px-4 py-3">{categories.description}</TableBodyCell>
 					</TableBodyRow>
 				{/each}
