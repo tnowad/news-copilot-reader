@@ -36,21 +36,18 @@ class CollaborativeFilteringRecommender:
         recommended_articles = []
 
         for similar_user_id, similarity_score in sim_scores_sorted:
-            print(similar_user_id, similarity_score)
             if len(recommended_articles) >= num_recommendations:
                 break
 
-            if similar_user_id == user_id:
+            if similar_user_id == 0 or similar_user_id == user_id:
                 continue
 
             similar_user_views = self.user_item_matrix.loc[similar_user_id]
 
-            for article_id, view_count in similar_user_views.iteritems():
-                if (
-                    view_count > 0
-                    and article_id not in user_articles
-                    and article_id not in recommended_articles
-                ):
-                    recommended_articles.append(article_id)
+            for article_id in similar_user_views.index:
+                print(
+                    f"Article ID: {article_id}, Similar User ID: {similar_user_id}, Similarity Score: {similarity_score}"
+                )
+                recommended_articles.append(article_id)
 
         return recommended_articles[:num_recommendations]
