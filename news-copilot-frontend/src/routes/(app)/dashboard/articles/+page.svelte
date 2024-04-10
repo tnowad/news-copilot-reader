@@ -30,7 +30,7 @@
 
 	let page = +(data.metadata?.pagination.currentPage ?? 1);
 	let limit = +(data.metadata?.pagination.limit ?? 10);
-	let searchQuery = data.metadata?.filters.search ?? '';
+	let searchQuery = data.metadata?.filters?.search ?? '';
 
 	const gotoPage = (
 		nextPage: number = page,
