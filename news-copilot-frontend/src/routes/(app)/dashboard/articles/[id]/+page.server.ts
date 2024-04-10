@@ -1,7 +1,7 @@
 import categoryService from '$lib/services/category.service';
 import { StatusCodes } from 'http-status-codes';
-import type { Actions } from '../$types';
-import type { PageServerLoad } from '../$types';
+import type { Actions } from './$types';
+import type { PageServerLoad } from './$types';
 import artcileService from '$lib/services/article.service';
 
 export const load: PageServerLoad = async (event) => {
@@ -10,11 +10,16 @@ export const load: PageServerLoad = async (event) => {
 		style: 'compact',
 		sortBy: 'title'
 	});
+	const articleResponse = await artcileService.getArticleById({
+		id: +event.params.id,
+		style: 'full',
+		includes: ['categories']
+	});
 
 	return {
 		categories:
 			categoriesResponse.statusCode === StatusCodes.OK ? categoriesResponse.data.categories : [],
-		user: event.locals.user
+		article: articleResponse.statusCode === StatusCodes.OK ? articleResponse.data.article : null
 	};
 };
 export const actions = {

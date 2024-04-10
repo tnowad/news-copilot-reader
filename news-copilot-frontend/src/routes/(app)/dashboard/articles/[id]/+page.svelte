@@ -2,23 +2,31 @@
 	import { Label, Input, Button, MultiSelect, Textarea } from 'flowbite-svelte';
 	import Markdown from '$lib/widgets/markdown.svelte';
 	import Editor from '$lib/widgets/editor.svelte';
-	import type { PageData } from './$types';
-	let content = '';
-	let coverImage = '';
-	let summary = '';
-	const handleSubmit = () => {};
 
-	let selected: { value: string; name: string }[] = [];
-	export let data: PageData;
+	export let data;
+
+	let coverImage = data.article?.coverImage;
+	let content = data.article?.content;
+	let selectedCategories: number[] = data.article?.categories.map((category) => category.id) ?? [];
+	let categories = data.categories.map((category) => ({
+		value: category.id,
+		name: category.slug
+	}));
 </script>
 
 <section class="mx-5">
-	<h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Add a new Article</h2>
+	<h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Update Article</h2>
 	<form action="/dashboard/articles/create" method="post">
 		<div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
 			<div class="sm:col-span-2">
 				<Label for="name" class="mb-2">Title</Label>
-				<Input type="text" name="title" placeholder="Article Title" required />
+				<Input
+					type="text"
+					name="title"
+					placeholder="Article Title"
+					required
+					value={data.article?.title}
+				/>
 			</div>
 			<div class="sm:col-span-2">
 				<Label for="cover-image" class="mb-2">Cover Image</Label>
@@ -42,14 +50,7 @@
 			</div>
 			<div class="col-span-full">
 				<Label for="categories" class="mb-2">Categories</Label>
-				<MultiSelect
-					name="category"
-					items={data.categories.map((category) => ({
-						value: category.id,
-						name: category.slug
-					}))}
-					bind:selected
-				/>
+				<MultiSelect name="category" items={categories} bind:value={selectedCategories} />
 			</div>
 			<div class="sm:col-span-2">
 				<Label for="summary" class="mb-2">Summary</Label>
@@ -58,12 +59,12 @@
 					name="summary"
 					id="summary"
 					placeholder="Summary"
-					bind:value={summary}
+					value={data.article?.summary}
 				/>
 			</div>
 			<div class="sm:col-span-2">
 				<Label for="description" class="mb-2">Content</Label>
-				<Editor bind:source={content} />
+				<Editor bind:content />
 				<input type="hidden" name="content" bind:value={content} />
 			</div>
 			<Button type="submit" class="w-32">Add product</Button>

@@ -6,11 +6,10 @@
 	let editorElement: HTMLDivElement;
 	let editor: monaco.editor.IStandaloneCodeEditor;
 	let model: monaco.editor.ITextModel;
-	export let source = '';
+	export let content = '';
 
 	function loadCode(code: string, language: string) {
 		model = monaco.editor.createModel(code, language);
-
 		editor.setModel(model);
 	}
 
@@ -27,47 +26,6 @@
 				return new editorWorker();
 			}
 		};
-
-		monaco.languages.registerInlineCompletionsProvider('markdown', {
-			provideInlineCompletions: async function (model, position, context, token) {
-				console.log('provideInlineCompletions', model, position, context, token);
-				const response = await generateTextService.generateText(
-					editor.getValue().split('\n').reverse().pop() ?? ''
-				);
-
-				return Promise.resolve({
-					items: [
-						{
-							label: '',
-							sortText: '',
-							insertText: response.generatedText
-						},
-						{
-							label: '',
-							sortText: '',
-							insertText:
-								'Thủ tướng: Sớm nâng hạng thị trường chứng khoán Việt Nam lên thị trường mới nổi'
-						}
-					]
-				});
-			},
-			freeInlineCompletions(arg) {}
-		});
-		monaco.languages.registerCompletionItemProvider('markdown', {
-			triggerCharacters: [' '],
-			provideCompletionItems: async function (model, position) {
-				console.log('provideCompletionItems', model, position);
-				return {
-					suggestions: [
-						{
-							insertText: 'insertText',
-							sortText: 'sortText',
-							label: 'label'
-						}
-					]
-				};
-			}
-		});
 		editor = monaco.editor.create(editorElement, {
 			automaticLayout: true,
 			// theme: 'vs-dark',
@@ -83,12 +41,15 @@
 			}
 		});
 
-		editor.onDidChangeModelContent(() => {
-			source = editor.getValue();
-			source = source;
+		editor.onDidChangeModelContent((e) => {
+			for (const change of e.changes) {
+				console.log(change);
+			}
+			content = editor.getValue();
 		});
 
-		loadCode('# News Copilot\n', 'markdown');
+		// Load initial content
+		loadCode(content, 'markdown');
 	});
 
 	onDestroy(() => {
