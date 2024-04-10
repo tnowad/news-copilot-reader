@@ -10,7 +10,6 @@
 		Button,
 		Card,
 		Heading,
-		Img,
 		Dropdown,
 		DropdownItem
 	} from 'flowbite-svelte';
@@ -21,6 +20,7 @@
 		DotsHorizontalOutline
 	} from 'flowbite-svelte-icons';
 	import { CommentItem, Section } from 'flowbite-svelte-blocks';
+	import { onMount } from 'svelte';
 	let comments = [];
 	let commentContent = '';
 	$: comments = data.comments;
@@ -28,6 +28,26 @@
 		alert(commentContent);
 	};
 	export let data: PageData;
+
+	const markArticleViewed = async () => {
+		if (!data.article?.id) {
+			return;
+		}
+
+		const formData = new FormData();
+		formData.append('articleId', data.article.id);
+
+		fetch(`/articles/${data.article?.slug}/${data.article?.id}?/markViewed`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			},
+			body: formData
+		});
+	};
+	onMount(() => {
+		markArticleViewed();
+	});
 </script>
 
 <section>
@@ -37,13 +57,23 @@
 		<!-- <div class="flex justify-center"> -->
 		<!-- 	<Img src={data.article?.coverImage} alt={data.article?.title} imgClass="rounded-md" /> -->
 		<!-- </div> -->
+		<form
+			action={`/articles/${data.article?.slug}/${data.article?.id}?/bookmarkArticle`}
+			method="post"
+		>
+			<input type="hidden" name="category-id" value={data.article?.id} />
+			<Button type="submit">Bookmark</Button>
+		</form>
 		<Card size="none" shadow={false}>
 			<Markdown source={data.article?.content} />
 		</Card>
 
 		<ArticleSection title="Recommend for you" articles={data.recommendArticles} />
 		<Section name="comment" sectionClass="mt-5" classDiv="max-w-none w-full px-0">
-			<form action={`/articles/${data.article?.slug}/${data.article?.id}`} method="post">
+			<form
+				action={`/articles/${data.article?.slug}/${data.article?.id}?/createComment`}
+				method="post"
+			>
 				<Textarea
 					class="mb-4"
 					placeholder="Write a comment"
