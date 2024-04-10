@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import { Modal } from 'flowbite-svelte';
 	import Markdown from '$lib/widgets/markdown.svelte';
 	import ArticleSection from '$lib/widgets/article-section.svelte';
 
@@ -23,7 +24,6 @@
 	} from 'flowbite-svelte-icons';
 	import { CommentItem, Section } from 'flowbite-svelte-blocks';
 	import { onMount } from 'svelte';
-	import type commentServerices from '$lib/services/comment.service';
 	let comments = [];
 	let commentContent = '';
 	$: comments = data.comments;
@@ -32,6 +32,8 @@
 	};
 
 	let commentEditingId: data | null;
+	let commentDeleteId: data | null;
+	let defaultModal = false;
 
 	export let data: PageData;
 
@@ -158,7 +160,11 @@
 										}}>Edit</DropdownItem
 									>
 
-									<DropdownItem>Remove</DropdownItem>
+									<DropdownItem
+										on:click={() => {
+											commentDeleteId = comment.id;
+										}}>Remove</DropdownItem
+									>
 								{/if}
 								<DropdownItem>Report</DropdownItem>
 							</Dropdown>
@@ -190,6 +196,25 @@
 											</Toolbar>
 										</div>
 									</Textarea>
+								</form>
+							{/if}
+
+							{#if comment.id == commentDeleteId}
+								<form
+									action={`/articles/${data.article?.slug}/${data.article?.id}?/createComment`}
+									method="post"
+								>
+									<Button on:click={() => (defaultModal = true)}>Remove comment ??</Button>
+									<Modal title="Terms of Service" bind:open={defaultModal} autoclose>
+										<p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
+											You can't unchange this action, if you agree click "I accept". If not, click
+											"Decline"
+										</p>
+										<svelte:fragment slot="footer">
+											<Button on:click={() => alert('Handle "success"')}>I accept</Button>
+											<Button color="alternative">Decline</Button>
+										</svelte:fragment>
+									</Modal>
 								</form>
 							{/if}
 						</svelte:fragment>
