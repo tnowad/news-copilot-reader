@@ -3,7 +3,6 @@ from http import HTTPStatus
 from flask import Blueprint, jsonify, request
 
 from app.models.article import Article
-from app.services.recommender.recommender import hybrid_recommender
 
 recommendations_bp = Blueprint("recommendations", __name__)
 
@@ -15,6 +14,8 @@ def get_recommendations_articles():
     limit = request.args.get("limit", type=int) or 10
     style = request.args.get("style", type=str) or "compact"
     includes = request.args.getlist("includes", type=str)
+
+    from app.services.recommender.recommender import hybrid_recommender
 
     recommendations_data = hybrid_recommender.recommend_articles(
         user_id, article_id, limit

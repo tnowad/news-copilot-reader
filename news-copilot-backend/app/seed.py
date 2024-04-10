@@ -107,7 +107,7 @@ def seed_articles():
             "cover_image": "https://i.pravatar.cc/150?img=4",
             "summary": fake.paragraph(),
             "slug": fake.slug(),
-            "content": fake.text(),
+            "content": "".join(fake.text() for _ in range(100)),
             "category_ids": fake.random_elements(
                 elements=range(10), length=3, unique=True
             ),

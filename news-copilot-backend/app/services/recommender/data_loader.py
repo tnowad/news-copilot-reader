@@ -1,9 +1,9 @@
 import pandas as pd
-from app.models.article import Article
-from app.models.view import View
 
 
 def load_articles():
+    from app.models.article import Article
+
     articles = Article.query.all()
 
     articles_df = pd.DataFrame(
@@ -18,6 +18,8 @@ def load_articles():
 
 
 def load_views():
+    from app.models.view import View
+
     views = View.query.all()
 
     views_df = pd.DataFrame(
