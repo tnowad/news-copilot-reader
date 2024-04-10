@@ -1,41 +1,27 @@
-<script context="module" lang="ts">
-	import { load } from './+page.ts'; // Importing load function from your router file
-
-	export async function loadPage({ request }) {
-		return load(request); // Calling the load function to fetch comments
-	}
-</script>
-
 <script lang="ts">
-	export let comments = [];
-	export let metadata = null;
+	import { Section } from 'flowbite-svelte-blocks';
+	import { Button, Input, Label, Select, Textarea } from 'flowbite-svelte';
 
-	function nextPage() {
-		// Navigate to the next page
-		// You need to implement your own navigation logic
-	}
-
-	function previousPage() {
-		// Navigate to the previous page
-		// You need to implement your own navigation logic
-	}
+	export let data;
 </script>
 
-<main>
-	<section>
-		<h2>Comments</h2>
-		<ul>
-			{#each comments as comment}
-				<li>{comment.content} - {comment.author.name}</li>
-			{/each}
-		</ul>
-	</section>
-
-	<section>
-		<p>Page: {metadata?.currentPage}/{metadata?.totalPages}</p>
-		<button on:click={previousPage} disabled={metadata?.currentPage === 1}>Previous</button>
-		<button on:click={nextPage} disabled={metadata?.currentPage === metadata?.totalPages}
-			>Next</button
-		>
-	</section>
-</main>
+<section>
+	<form>
+		<div class="mb-4 grid gap-4 sm:grid-cols-2">
+			<div class="sm:col-span-2">
+				<Label for="description" class="mb-2">Description</Label>
+				<Textarea
+					id="description"
+					placeholder="Your description here"
+					rows="4"
+					name="description"
+					required
+					value={data.comment?.content}
+				/>
+			</div>
+			<div class="flex items-center space-x-4">
+				<Button type="submit" class="w-64">Update Comment</Button>
+			</div>
+		</div>
+	</form>
+</section>
