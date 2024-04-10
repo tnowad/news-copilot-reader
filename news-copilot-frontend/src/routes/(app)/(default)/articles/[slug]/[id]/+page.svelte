@@ -53,15 +53,21 @@
 </script>
 
 <section>
-	<div class="col-span-full ml-6 mt-6 xl:mb-0">
-		<Breadcrumb class="mb-6">
-			<BreadcrumbItem home>Home</BreadcrumbItem>
-			<BreadcrumbItem
-				class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
-				href="/curd/users">Article</BreadcrumbItem
-			>
-		</Breadcrumb>
+	<div class="container">
+		<div class="col-span-full mt-6 xl:mb-0">
+			<Breadcrumb class="mb-6">
+				<BreadcrumbItem home>Home</BreadcrumbItem>
+				<BreadcrumbItem
+					class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
+					href="/curd/users">Article</BreadcrumbItem
+				>
+				<BreadcrumbItem>{data.article?.title}</BreadcrumbItem>
+			</Breadcrumb>
+		</div>
 	</div>
+</section>
+
+<section>
 	<div class="container mx-auto">
 		<Heading class="text-center">{data.article?.title}</Heading>
 
