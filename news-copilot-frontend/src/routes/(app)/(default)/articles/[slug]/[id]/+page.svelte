@@ -8,6 +8,8 @@
 		ToolbarButton,
 		Textarea,
 		Button,
+		Breadcrumb,
+		BreadcrumbItem,
 		Card,
 		Heading,
 		Dropdown,
@@ -51,12 +53,34 @@
 </script>
 
 <section>
+	<div class="container">
+		<div class="col-span-full mt-6 xl:mb-0">
+			<Breadcrumb class="mb-6">
+				<BreadcrumbItem home>Home</BreadcrumbItem>
+				<BreadcrumbItem
+					class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
+					href="/curd/users">Article</BreadcrumbItem
+				>
+				<BreadcrumbItem>{data.article?.title}</BreadcrumbItem>
+			</Breadcrumb>
+		</div>
+	</div>
+</section>
+
+<section>
 	<div class="container mx-auto">
 		<Heading class="text-center">{data.article?.title}</Heading>
 
 		<!-- <div class="flex justify-center"> -->
 		<!-- 	<Img src={data.article?.coverImage} alt={data.article?.title} imgClass="rounded-md" /> -->
 		<!-- </div> -->
+		<form
+			action={`/articles/${data.article?.slug}/${data.article?.id}?/bookmarkArticle`}
+			method="post"
+		>
+			<input type="hidden" name="category-id" value={data.article?.id} />
+			<Button type="submit">Bookmark</Button>
+		</form>
 		<Card size="none" shadow={false}>
 			<Markdown source={data.article?.content} />
 		</Card>

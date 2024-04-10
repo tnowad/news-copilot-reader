@@ -12,7 +12,7 @@ export const load = async (event) => {
 		limit: limit,
 		search: search
 	});
-	console.log(articlesResponse.data);
+
 
 	return {
 		articles: articlesResponse.statusCode === StatusCodes.OK ? articlesResponse.data.articles : [],

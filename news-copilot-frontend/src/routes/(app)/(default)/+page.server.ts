@@ -31,7 +31,7 @@ export const load: PageServerLoad = async (event) => {
 			latestArticleResponse.statusCode === StatusCodes.OK
 				? latestArticleResponse.data.articles
 				: [];
-		console.log(latestArticles);
+
 		const hotArticles =
 			hotArticlesResponse.statusCode === StatusCodes.OK ? hotArticlesResponse.data.articles : [];
 		const categories =

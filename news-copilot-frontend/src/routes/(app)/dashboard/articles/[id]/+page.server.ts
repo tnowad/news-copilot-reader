@@ -34,12 +34,7 @@ export const actions = {
 		const category = formData.getAll('category') as unknown as number[];
 		const coverImage = formData.get('coverImage') as string;
 		const content = formData.get('content') as string;
-		console.log(articleTitle);
-		console.log(authorId);
-		console.log(summary);
-		console.log(category);
-		console.log(coverImage);
-		console.log(content);
+
 		const articleResponse = await artcileService.createArticle(
 			{
 				title: articleTitle,
@@ -51,8 +46,5 @@ export const actions = {
 			},
 			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
 		);
-		//The data is created but the response somehow doesnt work
-		console.log('abc');
-		console.log(articleResponse);
 	}
 } satisfies Actions;

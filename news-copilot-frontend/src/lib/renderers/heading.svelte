@@ -1,8 +1,6 @@
 <script lang="ts">
 	export let depth: number;
 	export let text: string;
-
-	// console.log("DATA", depth);
 </script>
 
 {#if depth == 1}

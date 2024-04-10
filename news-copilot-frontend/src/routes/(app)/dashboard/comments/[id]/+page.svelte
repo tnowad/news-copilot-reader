@@ -13,13 +13,11 @@
 	function nextPage() {
 		// Navigate to the next page
 		// You need to implement your own navigation logic
-		console.log('Next page');
 	}
 
 	function previousPage() {
 		// Navigate to the previous page
 		// You need to implement your own navigation logic
-		console.log('Previous page');
 	}
 </script>
 

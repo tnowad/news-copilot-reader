@@ -51,18 +51,15 @@ export const actions = {
 
 		switch (response.statusCode) {
 			case StatusCodes.OK:
-				console.log('Profile update successful');
+
 				break;
 			case StatusCodes.NOT_FOUND:
 			case StatusCodes.FORBIDDEN:
-				console.log('Profile update failed');
+
 				break;
 			case StatusCodes.UNPROCESSABLE_ENTITY:
-				console.log('Profile update validation failed');
 				break;
 			default:
-				console.log('Unknown status code');
-				console.log(response);
 		}
 
 		return response;

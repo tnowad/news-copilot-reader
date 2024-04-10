@@ -48,9 +48,6 @@ export const actions = {
 		const content = formData.get('content') as string;
 		const articleId = parseInt(event.params.id) as number;
 		const authorId = event.locals.user.id;
-		console.log(content);
-		console.log(articleId);
-		console.log(authorId);
 
 		const commentsResponse = await commentsService.createComment(
 			{ content: content, authorId: authorId, articleId: articleId },
@@ -60,6 +57,13 @@ export const actions = {
 		console.log(commentsResponse);
 	},
 	markViewed: async (event) => {
+		const articleId = parseInt(event.params.id);
+		await viewService.markArticleViewed(
+			{ articleId: articleId },
+			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
+		);
+	},
+	bookmarkArticle: async (event) => {
 		const articleId = parseInt(event.params.id);
 		await viewService.markArticleViewed(
 			{ articleId: articleId },
