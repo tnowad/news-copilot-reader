@@ -2,8 +2,7 @@ import type { Actions, PageServerLoad } from './$types';
 import articleService from '$lib/services/article.service';
 import { StatusCodes } from 'http-status-codes';
 import commentsService from '$lib/services/comment.service';
-import authService from '$lib/services/auth.service';
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, locals }) => {
 	const id = parseInt(params.id);
 
 	const articlesResponse = await articleService.getArticleById({
@@ -17,13 +16,25 @@ export const load: PageServerLoad = async ({ params }) => {
 		includes: ['author'],
 		limit: 1000
 	});
+
+	const recommendArticlesResponse = await articleService.getRecommendArticles({
+		userId: locals.user?.id,
+		articleId: id,
+		limit: 5,
+		includes: ['author', 'categories']
+	});
+
 	const article =
 		articlesResponse.statusCode === StatusCodes.OK ? articlesResponse.data.article : null;
 	const comments =
 		commentsResponse.statusCode === StatusCodes.OK ? commentsResponse.data.comments : [];
 	return {
 		article,
-		comments
+		comments,
+		recommendArticles:
+			recommendArticlesResponse.statusCode === StatusCodes.OK
+				? recommendArticlesResponse.data.articles
+				: []
 		// commentsMetadata: commentsResponse.statusCode === StatusCodes.OK ? commentsResponse.data.metadata : null
 	};
 };

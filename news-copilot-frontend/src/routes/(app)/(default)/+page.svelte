@@ -6,6 +6,7 @@
 </script>
 
 <div>
+	<ArticleSection title="Recommend for you" articles={data.recommendArticles} />
 	<ArticleSection title="Hot News" articles={data.hotArticles} />
 	<ArticleSection title="Latest News" articles={data.latestArticles} />
 

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import Markdown from '$lib/widgets/markdown.svelte';
+	import ArticleSection from '$lib/widgets/article-section.svelte';
 
 	import {
 		Toolbar,
@@ -40,6 +41,7 @@
 			<Markdown source={data.article?.content} />
 		</Card>
 
+		<ArticleSection title="Recommend for you" articles={data.recommendArticles} />
 		<Section name="comment" sectionClass="mt-5" classDiv="max-w-none w-full px-0">
 			<form action={`/articles/${data.article?.slug}/${data.article?.id}`} method="post">
 				<Textarea

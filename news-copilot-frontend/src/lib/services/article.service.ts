@@ -402,12 +402,110 @@ const getAllArticles = async (params: GetAllArticlesParams = {}, headers: Header
 	}
 };
 
+type GetRecommendArticlesParams = {
+	limit?: number;
+	articleId?: number;
+	userId?: number;
+	style?: 'compact' | 'full';
+	includes?: ('author' | 'categories')[];
+};
+
+type GetRecommendArticlesSuccessful = {
+	statusCode: StatusCodes.OK;
+	data: {
+		articles: {
+			id: number;
+			title: string;
+			summary: string;
+			coverImage?: string;
+			content: string;
+			slug: string;
+
+			author: {
+				id: number;
+				email: string;
+				displayName: string;
+				avatarImage: string;
+			};
+			categories: {
+				id: number;
+				title: string;
+				slug: string;
+			}[];
+		}[];
+		metadata: {
+			pagination: {
+				offset: number;
+				limit: number;
+				previousOffset: number;
+				nextOffset: number;
+				currentPage: number;
+				pageCount: number;
+				totalCount: number;
+			};
+			sortedBy: {
+				name: 'title' | 'date';
+				order: 'asc' | 'desc';
+			};
+			style: 'compact' | 'full';
+			filters: {
+				search: string;
+				categoryIds: number[];
+			};
+		};
+	};
+	message: string;
+};
+
+type GetRecommendArticlesServerError = {
+	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
+	message: string;
+	error: string;
+};
+
+type GetRecommendArticlesResponse = Omit<Response, 'json'> & {
+	json: () => Promise<GetRecommendArticlesSuccessful | GetRecommendArticlesServerError>;
+};
+
+const getRecommendArticles = async (
+	params: GetRecommendArticlesParams = {},
+	headers: HeadersInit = {}
+) => {
+	try {
+		const { limit, userId, articleId, style, includes } = params;
+		const url = new URL('/recommendations/articles', API_URL);
+		const queryParams = new URLSearchParams();
+
+		if (articleId) queryParams.set('articleId', articleId.toString());
+		if (userId) queryParams.set('userId', userId.toString());
+		if (limit) queryParams.set('limit', limit.toString());
+		if (style) queryParams.set('style', style);
+		console.log(params);
+
+		if (includes) includes.forEach((param) => queryParams.append('includes', param));
+
+		url.search = queryParams.toString();
+
+		const requestInit: RequestInit = {
+			method: 'GET',
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as GetRecommendArticlesResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to fetch articles: ' + (error as Error).message);
+	}
+};
+
 const artcileService = {
 	createArticle,
 	updateArticle,
 	deleteArticle,
 	getArticleById,
-	getAllArticles
+	getAllArticles,
+	getRecommendArticles
 };
 
 export default artcileService;
