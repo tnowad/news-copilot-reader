@@ -47,18 +47,22 @@ def create_bookmark():
 
 @bookmarks_bp.route("/bookmarks", methods=["GET"])
 @jwt_required()
+@role_required([RoleEnum.ADMIN])
 def get_bookmarks():
     try:
-        current_user = User.query.filter_by(email=get_jwt_identity()).first_or_404()
+        current_user_email = get_jwt_identity()
+        current_user = User.query.filter_by(email=current_user_email).first_or_404()
 
-        if current_user.role == RoleEnum.ADMIN:
+        if RoleEnum.ADMIN in [role for role in current_user.roles]:
             bookmarks = Bookmark.query.all()
         else:
             bookmarks = Bookmark.query.filter_by(user_id=current_user.id).all()
+
         article_id = request.args.get("articleId", type=int)
         limit = request.args.get("limit", type=int) or 10
         style = request.args.get("style", type=str) or "compact"
         includes = request.args.getlist("includes", type=str)
+
         bookmark_data = []
         for bookmark in bookmarks:
             bookmark_info = {
@@ -74,12 +78,12 @@ def get_bookmarks():
                     "content": bookmark.article.content if style == "full" else None,
                     "updatedAt": (
                         bookmark.article.updated_at.isoformat()
-                        if style == "full"
+                        if style == "full" and bookmark.article.updated_at
                         else None
                     ),
                     "deletedAt": (
                         bookmark.article.deleted_at.isoformat()
-                        if style == "full"
+                        if style == "full" and bookmark.article.deleted_at
                         else None
                     ),
                     "comments": (
@@ -136,7 +140,7 @@ def get_bookmarks():
             "style": style,
             "includes": includes,
             "filters": {
-                "userId": current_user.id,  # Change from user_id to current_user.id
+                "userId": current_user.id,
                 "articleId": article_id,
             },
         }
@@ -160,8 +164,11 @@ def get_bookmarks():
 @jwt_required()
 def get_bookmark_by_id(bookmark_id):
     try:
-        user_id = get_jwt_identity()
-        bookmark = Bookmark.query.filter_by(id=bookmark_id, user_id=user_id).first()
+        current_user_email = get_jwt_identity()
+        current_user = User.query.filter_by(email=current_user_email).first_or_404()
+        bookmark = Bookmark.query.filter_by(
+            id=bookmark_id, user_id=current_user.id
+        ).first()
 
         if not bookmark:
             return (
@@ -184,15 +191,26 @@ def get_bookmark_by_id(bookmark_id):
                 "slug": bookmark.article.slug,
                 "createdAt": bookmark.article.created_at.isoformat(),
                 "content": bookmark.article.content,
-                "updatedAt": bookmark.article.updated_at.isoformat(),
-                "deletedAt": bookmark.article.deleted_at.isoformat(),
-                # Assuming you want to include comments, categories, and author information
+                "updatedAt": (
+                    bookmark.article.updated_at.isoformat()
+                    if bookmark.article.updated_at
+                    else None
+                ),
+                "deletedAt": (
+                    bookmark.article.deleted_at.isoformat()
+                    if bookmark.article.deleted_at
+                    else None
+                ),
                 "comments": [
                     {
                         "id": comment.id,
                         "content": comment.content,
                         "createdAt": comment.created_at.isoformat(),
-                        "updatedAt": comment.updated_at.isoformat(),
+                        "updatedAt": (
+                            comment.updated_at.isoformat()
+                            if comment.updated_at
+                            else None
+                        ),
                         "parentCommentId": comment.parent_id,
                         "author": {
                             "id": comment.author.id,
