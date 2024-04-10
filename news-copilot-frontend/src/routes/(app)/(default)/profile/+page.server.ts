@@ -51,11 +51,9 @@ export const actions = {
 
 		switch (response.statusCode) {
 			case StatusCodes.OK:
-
 				break;
 			case StatusCodes.NOT_FOUND:
 			case StatusCodes.FORBIDDEN:
-
 				break;
 			case StatusCodes.UNPROCESSABLE_ENTITY:
 				break;

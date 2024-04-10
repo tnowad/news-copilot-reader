@@ -82,7 +82,7 @@
 	data-collapse-toggle="mobile-menu-3"
 	aria-controls="mobile-menu-3"
 	aria-expanded="false"
-	class="me-1 rounded-lg p-2.5 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 lg:hidden dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+	class="me-1 rounded-lg p-2.5 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700 lg:hidden"
 	on:click={toggleSearchModal}
 >
 	<SearchOutline class="h-5 w-5" />

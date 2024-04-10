@@ -13,7 +13,6 @@ export const load = async (event) => {
 		search: search
 	});
 
-
 	return {
 		articles: articlesResponse.statusCode === StatusCodes.OK ? articlesResponse.data.articles : [],
 		metadata: articlesResponse.statusCode === StatusCodes.OK ? articlesResponse.data.metadata : null

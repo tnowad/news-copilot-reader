@@ -26,18 +26,14 @@ export const actions = {
 
 		switch (response.statusCode) {
 			case StatusCodes.OK:
-
 				event.cookies.set('refreshToken', response.data.token.refreshToken, { path: '/' });
 				event.cookies.set('accessToken', response.data.token.accessToken, { path: '/' });
 				break;
 			case StatusCodes.UNAUTHORIZED:
-
 				break;
 			case StatusCodes.UNPROCESSABLE_ENTITY:
-
 				break;
 			default:
-
 		}
 
 		return response;

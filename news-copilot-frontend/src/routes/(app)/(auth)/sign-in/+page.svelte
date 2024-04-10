@@ -35,7 +35,7 @@
 				<p class="text-sm font-light text-gray-500 dark:text-gray-400">
 					Don’t have an account yet? <a
 						href="/sign-up"
-						class="text-primary-600 dark:text-primary-500 font-medium hover:underline">Sign up</a
+						class="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</a
 					>
 				</p>
 			</form>

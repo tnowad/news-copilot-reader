@@ -113,7 +113,7 @@ def seed_articles():
             ),
             "author_id": 1,
         }
-        for i in range(100)
+        for i in range(1, 101)
     ]
 
     for article in articles:

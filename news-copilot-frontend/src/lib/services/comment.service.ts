@@ -111,7 +111,7 @@ type GetAllCommentsParams = {
 	sortBy?: 'name' | 'title';
 	sortOrder?: 'asc' | 'desc';
 	style?: 'full';
-	includes?: 'author'[];
+	includes?: ('author' | 'article')[];
 };
 type GetAllCommentsRespone = Omit<Response, 'json'> & {
 	json: () => Promise<GetAllCommentSuccessful | GetAllCommentsServerError>;
