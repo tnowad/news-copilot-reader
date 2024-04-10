@@ -82,7 +82,7 @@
 				class="flex w-full flex-shrink-0 flex-col items-stretch justify-end space-y-2 md:w-auto md:flex-row md:items-center md:space-x-3 md:space-y-0"
 			>
 				<Button href="/dashboard/articles/create">
-					<PlusOutline class="mr-2 h-3.5 w-3.5" />Add article
+					<PlusOutline class="mr-2 h-3.5 w-3.5" />Add comment
 				</Button>
 				<Button color="alternative">Actions<ChevronDownOutline class="ml-2 h-3 w-3 " /></Button>
 				<Dropdown class="w-44 divide-y divide-gray-100">
@@ -90,40 +90,25 @@
 					<DropdownItem>Delete all</DropdownItem>
 				</Dropdown>
 				<Button color="alternative">Filter<FilterSolid class="ml-2 h-3 w-3 " /></Button>
-				<Dropdown class="w-48 space-y-2 p-3 text-sm">
-					<h6 class="mb-3 text-sm font-medium text-gray-900 dark:text-white">Choose brand</h6>
-					<li>
-						<Checkbox>Apple (56)</Checkbox>
-					</li>
-					<li>
-						<Checkbox>Microsoft (16)</Checkbox>
-					</li>
-					<li>
-						<Checkbox>Razor (49)</Checkbox>
-					</li>
-					<li>
-						<Checkbox>Nikon (12)</Checkbox>
-					</li>
-					<li>
-						<Checkbox>BenQ (74)</Checkbox>
-					</li>
-				</Dropdown>
+				<Dropdown class="w-48 space-y-2 p-3 text-sm">Filter</Dropdown>
 			</div>
 			<TableHead>
 				<TableHeadCell padding="px-4 py-3" scope="col">ID</TableHeadCell>
-				<TableHeadCell padding="px-4 py-3" scope="col">Title</TableHeadCell>
 				<TableHeadCell padding="px-4 py-3" scope="col">Author</TableHeadCell>
-				<TableHeadCell padding="px-4 py-3" scope="col">Categories</TableHeadCell>
-				<TableHeadCell padding="px-4 py-3" scope="col">Summary</TableHeadCell>
+				<TableHeadCell padding="px-4 py-3" scope="col">Content</TableHeadCell>
+				<TableHeadCell padding="px-4 py-3" scope="col">Article Title</TableHeadCell>
 			</TableHead>
 			<TableBody tableBodyClass="divide-y">
 				{#each data.comments as comment (comment.id)}
 					<TableBodyRow>
 						<TableBodyCell tdClass="px-4 py-3">{comment.id}</TableBodyCell>
-						<a href={`/dashboard/comments/${comment.id}`}>
+						<a href={`/dashboard/users/${comment.author.id}`}>
 							<TableBodyCell tdClass="px-4 py-3">{comment.author?.email}</TableBodyCell>
 						</a>
 						<TableBodyCell tdClass="px-4 py-3">{comment.content}</TableBodyCell>
+						<a href={`/dashboard/articles/${comment.article?.id}`}>
+							<TableBodyCell tdClass="px-4 py-3">{comment.article?.title}</TableBodyCell>
+						</a>
 					</TableBodyRow>
 				{/each}
 			</TableBody>

@@ -13,6 +13,7 @@ export const load = async (event) => {
 		limit: limit,
 		search: search
 	});
+	console.log(commentsResponse.data.comments);
 
 	return {
 		comments: commentsResponse.statusCode === StatusCodes.OK ? commentsResponse.data.comments : [],
