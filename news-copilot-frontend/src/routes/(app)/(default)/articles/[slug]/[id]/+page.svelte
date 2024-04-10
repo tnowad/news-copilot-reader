@@ -11,6 +11,7 @@
 		Button,
 		Breadcrumb,
 		BreadcrumbItem,
+		Img,
 		Card,
 		Heading,
 		Dropdown,
@@ -64,7 +65,7 @@
 			<Breadcrumb class="mb-6">
 				<BreadcrumbItem home>Home</BreadcrumbItem>
 				<BreadcrumbItem
-					class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
+					class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
 					href="/curd/users">Article</BreadcrumbItem
 				>
 				<BreadcrumbItem>{data.article?.title}</BreadcrumbItem>
@@ -75,20 +76,24 @@
 
 <section>
 	<div class="container mx-auto">
-		<Heading class="text-center">{data.article?.title}</Heading>
-
-		<!-- <div class="flex justify-center"> -->
-		<!-- 	<Img src={data.article?.coverImage} alt={data.article?.title} imgClass="rounded-md" /> -->
-		<!-- </div> -->
-		<form
-			action={`/articles/${data.article?.slug}/${data.article?.id}?/bookmarkArticle`}
-			method="post"
-		>
-			<input type="hidden" name="category-id" value={data.article?.id} />
-			<Button type="submit">Bookmark</Button>
-		</form>
 		<Card size="none" shadow={false}>
-			<Markdown source={data.article?.content} />
+			<Heading class="text-center">{data.article?.title}</Heading>
+			<form
+				action={`/articles/${data.article?.slug}/${data.article?.id}?/bookmarkArticle`}
+				method="post"
+			>
+				<input type="hidden" name="category-id" value={data.article?.id} />
+				<Button type="submit">Bookmark</Button>
+			</form>
+			<div>Author Image and name</div>
+			<div>Summary</div>
+
+			<div class="flex justify-center">
+				<Img src={data.article?.coverImage} alt={data.article?.title} imgClass="rounded-md" />
+			</div>
+			<div>
+				<Markdown source={data.article?.content} />
+			</div>
 		</Card>
 
 		<ArticleSection title="Recommend for you" articles={data.recommendArticles} />

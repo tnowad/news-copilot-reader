@@ -43,7 +43,7 @@ export const actions = {
 				coverImage: coverImage,
 				content: content,
 				authorId: authorId,
-				categoryIds: category,
+				categoryIds: category
 			},
 			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
 		);

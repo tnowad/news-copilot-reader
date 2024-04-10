@@ -47,13 +47,13 @@
 			<Breadcrumb class="mb-6">
 				<BreadcrumbItem home>Home</BreadcrumbItem>
 				<BreadcrumbItem
-					class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
+					class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
 					href="/curd/users">Users</BreadcrumbItem
 				>
 				<BreadcrumbItem>Settings</BreadcrumbItem>
 			</Breadcrumb>
 
-			<Heading tag="h1" class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
+			<Heading tag="h1" class="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">
 				User settings
 			</Heading>
 		</div>
@@ -61,11 +61,11 @@
 		<div class="grid grid-cols-1 gap-2 xl:grid-cols-12 xl:gap-3.5">
 			<Card
 				size="none"
-				class="block shadow-sm sm:flex sm:space-x-4 sm:py-6 xl:col-span-4 xl:block xl:space-x-0 2xl:flex 2xl:space-x-4"
+				class="2xl:flex 2xl:space-x-4 block shadow-sm sm:flex sm:space-x-4 sm:py-6 xl:col-span-4 xl:block xl:space-x-0"
 				horizontal
 			>
 				<Avatar
-					class="mb-4 h-28 w-28 overflow-hidden rounded-lg sm:mb-0 xl:mb-4 2xl:mb-0"
+					class="2xl:mb-0 mb-4 h-28 w-28 overflow-hidden rounded-lg sm:mb-0 xl:mb-4"
 					size="none"
 					rounded
 				>

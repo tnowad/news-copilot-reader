@@ -29,8 +29,6 @@ export const load: PageServerLoad = async (event: any) => {
 	};
 };
 
-
-
 export const actions = {
 	default: async (event) => {
 		const formData = await event.request.formData();
@@ -43,16 +41,16 @@ export const actions = {
 		const despriction = formData.get('description') as string;
 		const categoryId = event.params.id as unknown as number;
 
-		const categoriesResponse = await categoryService.updateCategory({
-			id: categoryId,
-			slug: categoriesSlug,
-			title: categoriesTitle,
-			description: despriction
-		}, { Authorization: `Bearer ${event.cookies.get('accessToken')}` }
-
+		const categoriesResponse = await categoryService.updateCategory(
+			{
+				id: categoryId,
+				slug: categoriesSlug,
+				title: categoriesTitle,
+				description: despriction
+			},
+			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
 		);
 
-		console.log(categoriesResponse)
-
+		console.log(categoriesResponse);
 	}
 } satisfies Actions;

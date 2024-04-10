@@ -11,7 +11,6 @@ export const load = async (event) => {
 		page: page,
 		limit: limit,
 		search: search
-
 	});
 
 	return {
