@@ -23,12 +23,16 @@
 	} from 'flowbite-svelte-icons';
 	import { CommentItem, Section } from 'flowbite-svelte-blocks';
 	import { onMount } from 'svelte';
+	import type commentServerices from '$lib/services/comment.service';
 	let comments = [];
 	let commentContent = '';
 	$: comments = data.comments;
 	const postComment = () => {
 		alert(commentContent);
 	};
+
+	let commentEditingId: data | null;
+
 	export let data: PageData;
 
 	const markArticleViewed = async () => {
@@ -109,7 +113,7 @@
 					</div>
 				</Textarea>
 			</form>
-			<p class="ms-auto text-xs text-gray-500 dark:text-gray-400">
+			<p class="mb-6 ms-auto text-xs text-gray-500 dark:text-gray-400">
 				Remember, contributions to this article should follow our
 				<a href="/" class="text-blue-600 hover:underline dark:text-blue-500">
 					Community Guidelines
@@ -118,39 +122,79 @@
 			</p>
 
 			{#each comments as comment, i}
-				<CommentItem
-					comment={{
-						id: comment.id,
-						commenter: {
-							name: comment.author.displayName,
-							profilePicture: comment.author.avatarImage
-						},
-						content: comment.content,
-						date: comment.date,
-						replies: comment?.childComments?.map((childComment) => {
-							return {
-								id: childComment.id,
-								commenter: {
-									name: childComment.author.name,
-									profilePicture: childComment.author.avatarImage
-								},
-								content: childComment.content,
-								date: childComment.date
-							};
-						})
-					}}
-					}
-					articleClass={i !== 0 ? 'border-t border-gray-200 dark:border-gray-700 rounded-none' : ''}
-				>
-					<svelte:fragment slot="dropdownMenu">
-						<DotsHorizontalOutline class="dots-menu dark:text-white" />
-						<Dropdown triggeredBy=".dots-menu">
-							<DropdownItem>Edit</DropdownItem>
-							<DropdownItem>Remove</DropdownItem>
-							<DropdownItem>Report</DropdownItem>
-						</Dropdown>
-					</svelte:fragment>
-				</CommentItem>
+				{#key comment.id}
+					<CommentItem
+						comment={{
+							id: comment.id,
+							commenter: {
+								name: comment.author.displayName,
+								profilePicture: comment.author.avatarImage
+							},
+							content: comment.content,
+							date: comment.date,
+							replies: comment?.childComments?.map((childComment) => {
+								return {
+									id: childComment.id,
+									commenter: {
+										name: childComment.author.name,
+										profilePicture: childComment.author.avatarImage
+									},
+									content: childComment.content,
+									date: childComment.date
+								};
+							})
+						}}
+						articleClass={i !== 0
+							? 'border-t border-gray-200 dark:border-gray-700 rounded-none'
+							: ''}
+					>
+						<svelte:fragment slot="dropdownMenu">
+							<DotsHorizontalOutline class="dots-menu dark:text-white" />
+							<Dropdown triggeredBy=".dots-menu">
+								{#if data.user?.id == comment.author.id}
+									<DropdownItem
+										on:click={() => {
+											commentEditingId = comment.id;
+										}}>Edit</DropdownItem
+									>
+
+									<DropdownItem>Remove</DropdownItem>
+								{/if}
+								<DropdownItem>Report</DropdownItem>
+							</Dropdown>
+						</svelte:fragment>
+						<svelte:fragment slot="reply">
+							{#if comment.id == commentEditingId}
+								<form
+									action={`/articles/${data.article?.slug}/${data.article?.id}?/createComment`}
+									method="post"
+								>
+									<Textarea
+										class="mb-4"
+										placeholder="Write a comment"
+										name="content"
+										bind:vaule={commentContent}
+									>
+										<div slot="footer" class="flex items-center justify-between">
+											<Button type="submit">Post comment</Button>
+											<Toolbar embedded>
+												<ToolbarButton name="Attach file"
+													><PaperClipOutline class="h-5 w-5 rotate-45" /></ToolbarButton
+												>
+												<ToolbarButton name="Embed map"
+													><MapPinAltSolid class="h-5 w-5" /></ToolbarButton
+												>
+												<ToolbarButton name="Upload image"
+													><ImageOutline class="h-5 w-5" /></ToolbarButton
+												>
+											</Toolbar>
+										</div>
+									</Textarea>
+								</form>
+							{/if}
+						</svelte:fragment>
+					</CommentItem>
+				{/key}
 			{/each}
 		</Section>
 	</div>
