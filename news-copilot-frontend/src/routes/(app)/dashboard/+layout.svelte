@@ -58,7 +58,15 @@
 	let menuItems = [
 		{ name: 'Dashboard', icon: PieChartSolid, href: '/dashboard' },
 		{ name: 'Users', icon: UserCircleSolid, href: '/dashboard/users' },
-		{ name: 'Categories', icon: TableColumnSolid, href: '/dashboard/categories' },
+		{
+			name: 'Categories',
+			icon: TableColumnSolid,
+			href: '/dashboard/categories',
+			children: {
+				'Categories List': '/dashboard/categories',
+				'Create Category': '/dashboard/categories/create'
+			}
+		},
 		{
 			name: 'Articles',
 			icon: BookOpenSolid,
