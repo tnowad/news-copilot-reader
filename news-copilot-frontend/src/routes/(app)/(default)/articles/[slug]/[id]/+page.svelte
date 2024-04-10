@@ -8,6 +8,8 @@
 		ToolbarButton,
 		Textarea,
 		Button,
+		Breadcrumb,
+		BreadcrumbItem,
 		Card,
 		Heading,
 		Dropdown,
@@ -51,6 +53,15 @@
 </script>
 
 <section>
+	<div class="col-span-full ml-6 mt-6 xl:mb-0">
+		<Breadcrumb class="mb-6">
+			<BreadcrumbItem home>Home</BreadcrumbItem>
+			<BreadcrumbItem
+				class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
+				href="/curd/users">Article</BreadcrumbItem
+			>
+		</Breadcrumb>
+	</div>
 	<div class="container mx-auto">
 		<Heading class="text-center">{data.article?.title}</Heading>
 

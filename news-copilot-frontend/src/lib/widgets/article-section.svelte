@@ -37,7 +37,7 @@
 						<ArticleHead divClass="">
 							<Img imgClass="h-48 w-full object-cover rounded-md" src={article.coverImage} />
 							{#if article.categories}
-								<div class="mt-2 flex flex-wrap space-x-2">
+								<div class="mt-2 flex flex-wrap gap-1">
 									{#each article.categories as category}
 										<Badge>
 											{category.title.toUpperCase()}
