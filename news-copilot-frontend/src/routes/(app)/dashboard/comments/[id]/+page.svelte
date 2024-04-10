@@ -10,6 +10,7 @@
 		<div class="mb-4 grid gap-4 sm:grid-cols-2">
 			<div class="sm:col-span-2">
 				<Label for="description" class="mb-2">Description</Label>
+				<input type="hidden" name="id" value={data.comment?.id} />
 				<Textarea
 					id="description"
 					placeholder="Your description here"

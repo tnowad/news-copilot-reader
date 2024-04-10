@@ -3,7 +3,7 @@
 	import { Modal } from 'flowbite-svelte';
 	import Markdown from '$lib/widgets/markdown.svelte';
 	import ArticleSection from '$lib/widgets/article-section.svelte';
-
+	import { Avatar, DropdownHeader, DropdownDivider, Tooltip } from 'flowbite-svelte';
 	import {
 		Toolbar,
 		ToolbarButton,
@@ -62,7 +62,7 @@
 	<div class="container">
 		<div class="col-span-full mt-6 xl:mb-0">
 			<Breadcrumb class="mb-6">
-				<BreadcrumbItem home>Home</BreadcrumbItem>
+				<BreadcrumbItem href="../">Home</BreadcrumbItem>
 				<BreadcrumbItem
 					class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
 					href="/curd/users">Article</BreadcrumbItem
@@ -90,6 +90,26 @@
 		<Card size="none" shadow={false}>
 			<Markdown source={data.article?.content} />
 		</Card>
+
+		<a href={`/users/${data.article?.author.id}`}>
+			<div class="mt-6 flex space-x-4 rtl:space-x-reverse">
+				<Avatar
+					class="h-10 w-10"
+					src={data.article?.author.avatarImage}
+					alt={data.article?.author.displayName}
+				/>
+				<div class="flex flex-col">
+					<h4 class="text-sm font-bold dark:text-white">
+						{data.article?.author?.displayName}
+					</h4>
+					{#if data.article?.createdAt}
+						<p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+							{new Date(data.article?.createdAt).toLocaleDateString()}
+						</p>
+					{/if}
+				</div>
+			</div>
+		</a>
 
 		<ArticleSection title="Recommend for you" articles={data.recommendArticles} />
 		<Section name="comment" sectionClass="mt-5" classDiv="max-w-none w-full px-0">
@@ -172,14 +192,14 @@
 						<svelte:fragment slot="reply">
 							{#if comment.id == commentEditingId}
 								<form
-									action={`/articles/${data.article?.slug}/${data.article?.id}?/createComment`}
+									action={`/articles/${data.article?.slug}/${data.article?.id}?/updateComment`}
 									method="post"
 								>
 									<Textarea
 										class="mb-4"
 										placeholder="Write a comment"
 										name="content"
-										bind:vaule={commentContent}
+										value={comment.value}
 									>
 										<div slot="footer" class="flex items-center justify-between">
 											<Button type="submit">Post comment</Button>
@@ -201,7 +221,7 @@
 
 							{#if comment.id == commentDeleteId}
 								<form
-									action={`/articles/${data.article?.slug}/${data.article?.id}?/createComment`}
+									action={`/articles/${data.article?.slug}/${data.article?.id}?/updateComment`}
 									method="post"
 								>
 									<Button on:click={() => (defaultModal = true)}>Remove comment ??</Button>
