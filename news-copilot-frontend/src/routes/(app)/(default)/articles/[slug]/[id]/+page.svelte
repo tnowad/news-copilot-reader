@@ -65,7 +65,7 @@
 			<Breadcrumb class="mb-6">
 				<BreadcrumbItem href="../">Home</BreadcrumbItem>
 				<BreadcrumbItem
-					class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
+					class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
 					href="/curd/users">Article</BreadcrumbItem
 				>
 				<BreadcrumbItem>{data.article?.title}</BreadcrumbItem>
@@ -78,43 +78,47 @@
 	<div class="container mx-auto">
 		<Card size="none" shadow={false}>
 			<Heading class="text-center">{data.article?.title}</Heading>
-			<form
-				action={`/articles/${data.article?.slug}/${data.article?.id}?/bookmarkArticle`}
-				method="post"
-			>
-				<input type="hidden" name="category-id" value={data.article?.id} />
-				<Button type="submit">Bookmark</Button>
-			</form>
-			<div>Author Image and name</div>
-			<div>Summary</div>
 
-			<div class="flex justify-center">
+			<div class="my-6 flex justify-center">
 				<Img src={data.article?.coverImage} alt={data.article?.title} imgClass="rounded-md" />
 			</div>
 			<div>
 				<Markdown source={data.article?.content} />
 			</div>
-		</Card>
 
-		<a href={`/users/${data.article?.author.id}`}>
-			<div class="mt-6 flex space-x-4 rtl:space-x-reverse">
-				<Avatar
-					class="h-10 w-10"
-					src={data.article?.author.avatarImage}
-					alt={data.article?.author.displayName}
-				/>
-				<div class="flex flex-col">
-					<h4 class="text-sm font-bold dark:text-white">
-						{data.article?.author?.displayName}
-					</h4>
-					{#if data.article?.createdAt}
-						<p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-							{new Date(data.article?.createdAt).toLocaleDateString()}
-						</p>
-					{/if}
+			<div class="m-3 flex items-center justify-between">
+				<a href={`/users/${data.article?.author.id}`}>
+					<div class="flex space-x-4 rtl:space-x-reverse">
+						<Avatar
+							class="h-10 w-10"
+							src={data.article?.author.avatarImage}
+							alt={data.article?.author.displayName}
+						/>
+						<div class="flex flex-col">
+							<h4 class="text-sm font-bold dark:text-white">
+								{data.article?.author?.displayName}
+							</h4>
+							{#if data.article?.createdAt}
+								<p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+									{new Date(data.article?.createdAt).toLocaleDateString()}
+								</p>
+							{/if}
+						</div>
+					</div>
+				</a>
+				<div class="mt-3 text-center">
+					<form
+						action={`/articles/${data.article?.slug}/${data.article?.id}?/bookmarkArticle`}
+						method="post"
+					>
+						<input type="hidden" name="category-id" value={data.article?.id} />
+						<Button type="submit">Bookmark</Button>
+					</form>
+					<div>Author Image and name</div>
+					<!-- <div>Summary</div> -->
 				</div>
 			</div>
-		</a>
+		</Card>
 
 		<ArticleSection title="Recommend for you" articles={data.recommendArticles} />
 		<Section name="comment" sectionClass="mt-5" classDiv="max-w-none w-full px-0">
