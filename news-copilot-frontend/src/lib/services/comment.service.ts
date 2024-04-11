@@ -108,7 +108,7 @@ type GetAllCommentsParams = {
 	search?: string;
 	articleId?: number;
 	limit?: number;
-	sortBy?: 'name' | 'title';
+	sortBy?: 'name' | 'title' | 'createdAt';
 	sortOrder?: 'asc' | 'desc';
 	style?: 'full';
 	includes?: ('author' | 'article')[];

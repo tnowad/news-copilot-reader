@@ -12,7 +12,10 @@
 		Checkbox,
 		ButtonGroup,
 		Badge,
-		Input
+		Input,
+		Modal,
+		Radio,
+		Select
 	} from 'flowbite-svelte';
 	import { Section } from 'flowbite-svelte-blocks';
 	import {
@@ -64,6 +67,16 @@
 	$: debounce(() => {
 		gotoPage(page, limit, searchQuery);
 	}, 100);
+	let formModal = false;
+	let sortOrderOptions = [
+		{ value: 'dsc', name: 'Descend' },
+		{ value: 'asc', name: 'Ascend' }
+	];
+	let sortByOptions = [
+		{ value: 'author', name: 'Author' },
+		{ value: 'createdAt', name: 'Date' }
+	];
+	let selected: any;
 </script>
 
 <Section sectionClass="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5" classDiv="max-w-none">
@@ -89,8 +102,37 @@
 					<DropdownItem>Mass Edit</DropdownItem>
 					<DropdownItem>Delete all</DropdownItem>
 				</Dropdown>
-				<Button color="alternative">Filter<FilterSolid class="ml-2 h-3 w-3 " /></Button>
-				<Dropdown class="w-48 space-y-2 p-3 text-sm">Filter</Dropdown>
+				<Button on:click={() => (formModal = true)} color="alternative"
+					>Filter<FilterSolid class="ml-2 h-3 w-3 " /></Button
+				>
+				<Modal bind:open={formModal} size="xs" autoclose={false} class="w-full">
+					<form
+						class="flex flex-col space-y-6"
+						action="/dashboard/comments"
+						tabindex="-1"
+						aria-hidden="true"
+						method="post"
+					>
+						<h3 class="text-xl font-medium text-gray-900 dark:text-white">Filters</h3>
+						<div>Sort Order</div>
+						<div class="grid grid-cols-2 gap-2 md:grid-cols-3">
+							<Select
+								class="mt-2"
+								items={sortOrderOptions}
+								bind:value={selected}
+								name="sortOrder"
+							/>
+						</div>
+						<!--<div>Sort By</div>
+						<div class="grid grid-cols-2 gap-2 md:grid-cols-3">
+							<Select class="mt-2" items={sortByOptions} bind:value={selected} name="sortBy" />
+						</div>-->
+						<div class="flex items-center space-x-4 rounded-b dark:border-gray-600">
+							<Button type="submit">Apply</Button>
+							<Button color="light">Reset</Button>
+						</div>
+					</form>
+				</Modal>
 			</div>
 			<TableHead>
 				<TableHeadCell padding="px-4 py-3" scope="col">ID</TableHeadCell>
