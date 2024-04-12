@@ -1,36 +1,48 @@
 from flask import Blueprint, request, jsonify
+from app.extensions import cache
+from http import HTTPStatus
+from app.services.generation.text_generation import text_generation_pipeline
 
 generation_bp = Blueprint("generation", __name__)
 
 
-def generate_text_gpt2(prompt):
-    from transformers import GPT2LMHeadModel, GPT2Tokenizer
+@cache.memoize(timeout=300)
+def generate_text_cached(prompt, max_length=100, temperature=0.9, top_k=20):
+    data = text_generation_pipeline(
+        prompt, max_length=max_length, temperature=temperature, top_k=top_k
+    )
 
-    model_name = "gpt2"
-    tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-    model = GPT2LMHeadModel.from_pretrained(model_name)
-
-    input_ids = tokenizer.encode(prompt, return_tensors="pt")
-    output = model.generate(input_ids, max_length=50, num_return_sequences=1)
-    generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
-    return generated_text
+    return data[0].get("generated_text")  # type: ignore
 
 
-@generation_bp.route("/fill_mask", methods=["POST"])
-def fill_mask():
-    data = request.json
-    text = data.get("text", "")
-    if not text:
-        return jsonify({"error": "Text field is required"}), 400
-    filled_text = generate_text_gpt2(text)
-    return jsonify({"filled_text": filled_text})
-
-
-@generation_bp.route("/generate_text", methods=["POST"])
+@generation_bp.route("/generate-text", methods=["POST"])
 def generate_text():
-    data = request.json
-    prompt = data.get("prompt", "")
-    if not prompt:
-        return jsonify({"error": "Prompt field is required"}), 400
-    generated_text = generate_text_gpt2(prompt)
-    return jsonify({"generated_text": generated_text})
+    try:
+        prompt = request.get_json().get("prompt")
+        max_length = request.get_json().get("maxLength", 10)
+        temperature = request.get_json().get("temperature", 0.1)
+        top_k = request.get_json().get("topK", 20)
+
+        generated_text = generate_text_cached(prompt, max_length, temperature, top_k)
+
+        response_data = {
+            "statusCode": HTTPStatus.OK,
+            "message": "Text generated successfully",
+            "data": {
+                "generatedText": generated_text,
+            },
+        }
+
+        return jsonify(response_data), HTTPStatus.OK
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
+                    "message": "Internal Server Error",
+                    "error": str(e),
+                }
+            ),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
