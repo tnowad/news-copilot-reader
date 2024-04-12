@@ -1,20 +1,31 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import normalize
 
 
 class CollaborativeFilteringRecommender:
     def __init__(self):
         self.user_item_matrix = None
+        self.user_similarity_matrix = None
 
     def load_user_item_matrix(self, views_df):
         self.user_item_matrix = views_df.pivot_table(
             index="user_id", columns="article_id", aggfunc="size", fill_value=0
         )
+        self.user_similarity_matrix = self._compute_user_similarity_matrix()
+
+    def _compute_user_similarity_matrix(self):
+        user_views_normalized = normalize(self.user_item_matrix.values)  # type: ignore
+        similarity_matrix = cosine_similarity(user_views_normalized)
+        np.fill_diagonal(similarity_matrix, 0)  # Set self-similarity to 0
+        return similarity_matrix
 
     def train(self, views_df):
         self.load_user_item_matrix(views_df)
 
-    def recommend_articles(self, user_id, num_recommendations=5):
+    def recommend_articles(
+        self, user_id, num_recommendations=5, similarity_threshold=0.5
+    ):
         if self.user_item_matrix is None:
             raise Exception(
                 "The train method must be called before recommend_articles."
@@ -23,31 +34,15 @@ class CollaborativeFilteringRecommender:
         if user_id not in self.user_item_matrix.index:
             return []
 
-        if np.sum(self.user_item_matrix.loc[user_id]) == 0:
+        user_index = self.user_item_matrix.index.get_loc(user_id)
+        user_similarities = self.user_similarity_matrix[user_index]  # type: ignore
+        similar_users = np.where(user_similarities > similarity_threshold)[0]
+
+        if len(similar_users) == 0:
             return []
 
-        user_views = self.user_item_matrix.loc[user_id].values.reshape(1, -1)
-        similarity_scores = cosine_similarity(user_views, self.user_item_matrix)
-        sim_scores_sorted = sorted(
-            enumerate(similarity_scores[0]), key=lambda x: x[1], reverse=True
-        )
+        item_scores = np.sum(self.user_item_matrix.values[similar_users], axis=0)
+        item_scores[user_index] = 0
+        top_item_indices = np.argsort(item_scores)[::-1][:num_recommendations]
 
-        user_articles = self.user_item_matrix.columns
-        recommended_articles = []
-
-        for similar_user_id, similarity_score in sim_scores_sorted:
-            if len(recommended_articles) >= num_recommendations:
-                break
-
-            if similar_user_id == 0 or similar_user_id == user_id:
-                continue
-
-            similar_user_views = self.user_item_matrix.loc[similar_user_id]
-
-            for article_id in similar_user_views.index:
-                print(
-                    f"Article ID: {article_id}, Similar User ID: {similar_user_id}, Similarity Score: {similarity_score}"
-                )
-                recommended_articles.append(article_id)
-
-        return recommended_articles[:num_recommendations]
+        return self.user_item_matrix.columns[top_item_indices].tolist()
