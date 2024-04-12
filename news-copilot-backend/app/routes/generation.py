@@ -1,13 +1,14 @@
 from flask import Blueprint, request, jsonify
 from app.extensions import cache
 from http import HTTPStatus
-from app.services.generation.text_generation import text_generation_pipeline
 
 generation_bp = Blueprint("generation", __name__)
 
 
 @cache.memoize(timeout=300)
 def generate_text_cached(prompt, max_length=100, temperature=0.9, top_k=20):
+    from app.services.generation.text_generation import text_generation_pipeline
+
     data = text_generation_pipeline(
         prompt, max_length=max_length, temperature=temperature, top_k=top_k
     )
