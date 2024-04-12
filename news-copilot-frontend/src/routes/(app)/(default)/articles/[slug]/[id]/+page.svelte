@@ -65,7 +65,7 @@
 			<Breadcrumb class="mb-6">
 				<BreadcrumbItem href="../">Home</BreadcrumbItem>
 				<BreadcrumbItem
-					class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
+					class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
 					href="/curd/users">Article</BreadcrumbItem
 				>
 				<BreadcrumbItem>{data.article?.title}</BreadcrumbItem>

@@ -5,10 +5,8 @@ import { StatusCodes } from 'http-status-codes';
 import type { Actions } from './$types';
 
 export const load = async (event) => {
-
-	if (!event.locals.user.roles?.some(role => role == 'ADMIN')) {
+	if (!event.locals.user.roles?.some((role) => role == 'ADMIN')) {
 		redirect(StatusCodes.TEMPORARY_REDIRECT, '/');
-
 	}
 
 	const page = parseInt(event.url.searchParams.get('page') ?? 1);
@@ -39,11 +37,12 @@ export const actions = {
 		console.log(sortOrder);
 
 		const commentsResponse = await commentServerices.getAllComments({
-			sortOrder: sortOrder === "asc" || sortOrder === "desc" ? sortOrder : undefined, sortBy: "createdAt"
-
+			sortOrder: sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : undefined,
+			sortBy: 'createdAt'
 		});
 		console.log(commentsResponse.data.comments);
-		return { comments: commentsResponse.statusCode === StatusCodes.OK ? commentsResponse.data.comments : [] }
-
+		return {
+			comments: commentsResponse.statusCode === StatusCodes.OK ? commentsResponse.data.comments : []
+		};
 	}
 } satisfies Actions;
