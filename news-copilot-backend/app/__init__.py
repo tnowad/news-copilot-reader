@@ -3,7 +3,7 @@ from datetime import timedelta
 from flask import Flask
 from flask_migrate import Migrate
 
-from app.extensions import db, jwt
+from app.extensions import cache, db, jwt
 from app.seed import seed_database
 
 migrate = Migrate()
@@ -21,6 +21,7 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     migrate.init_app(app, db, render_as_batch=True)
+    cache.init_app(app)
 
     with app.app_context():
         from .routes import routes_bp

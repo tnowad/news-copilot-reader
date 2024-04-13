@@ -1,15 +1,22 @@
-from transformers import (
-    AutoTokenizer,
-    AutoModelForTokenClassification,
-    TokenClassificationPipeline,
-)
+from transformers import AutoTokenizer, AutoModelForCausalLM, AutoConfig
+import torch
 
-tokenizer = AutoTokenizer.from_pretrained("KoichiYasuoka/bert-base-vietnamese-upos")
-model = AutoModelForTokenClassification.from_pretrained(
-    "KoichiYasuoka/bert-base-vietnamese-upos"
+saved_model_dir = "news-copilot-gpt"
+tokenizer = AutoTokenizer.from_pretrained(saved_model_dir)
+config = AutoConfig.from_pretrained(saved_model_dir)
+config.pad_token_id = config.eos_token_id
+model = AutoModelForCausalLM.from_pretrained(saved_model_dir, config=config)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+prompt = "Tiềm năng của trí tuệ nhân tạo"  # your input sentence
+input_ids = tokenizer(prompt, return_tensors="pt")["input_ids"].to(device)
+max_length = 100
+gen_tokens = model.generate(
+    input_ids,
+    max_length=max_length,
+    do_sample=True,
+    temperature=0.1,
+    top_k=3,
 )
-pipeline = TokenClassificationPipeline(
-    tokenizer=tokenizer, model=model, aggregation_strategy="simple"
-)
-nlp = lambda x: [(x[t["start"] : t["end"]], t["entity_group"]) for t in pipeline(x)]
-print(nlp("Hai cái đầu thì tốt hơn một."))
+gen_text = tokenizer.batch_decode(gen_tokens)[0]
+print("Generated text:", gen_text)

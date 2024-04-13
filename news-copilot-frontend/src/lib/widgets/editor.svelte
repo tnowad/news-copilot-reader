@@ -2,6 +2,8 @@
 	import { onDestroy, onMount } from 'svelte';
 	import * as monaco from 'monaco-editor';
 	import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+	import generateService from '$lib/services/generate.service';
+	import { StatusCodes } from 'http-status-codes';
 
 	let editorElement: HTMLDivElement;
 	let editor: monaco.editor.IStandaloneCodeEditor;
@@ -13,11 +15,13 @@
 		editor.setModel(model);
 	}
 
-	const generateTextService = {
-		generateText: async (text: string) => {
-			return { generatedText: text + ' là người kinh doanh.' };
-		}
-	};
+	async function generateText(text: string) {
+		const response = await generateService.generateText({
+			prompt: text,
+			maxLength: text.length + 10
+		});
+		return response;
+	}
 
 	onMount(async () => {
 		self.MonacoEnvironment = {
@@ -25,9 +29,43 @@
 				return new editorWorker();
 			}
 		};
+
+		monaco.languages.registerInlineCompletionsProvider('markdown', {
+			provideInlineCompletions: async function (model, position, context, token) {
+				const result = await generateText(model.getValue());
+				switch (result.statusCode) {
+					case StatusCodes.OK:
+						console.log({
+							model: model.getValue(),
+							result: result.data.generatedText,
+							modelLength: model.getValue().length,
+							resultLength: result.data.generatedText.length
+						});
+
+						return Promise.resolve({
+							items: [
+								{
+									insertText: result.data.generatedText.slice(model.getValue().length),
+									range: new monaco.Range(
+										position.lineNumber,
+										position.column,
+										position.lineNumber,
+										position.column
+									)
+								}
+							]
+						});
+					default:
+						return Promise.resolve({
+							items: []
+						});
+				}
+			},
+			freeInlineCompletions(arg) {}
+		});
+
 		editor = monaco.editor.create(editorElement, {
 			automaticLayout: true,
-			// theme: 'vs-dark',
 			inlineSuggest: {
 				enabled: true,
 				showToolbar: 'onHover',
