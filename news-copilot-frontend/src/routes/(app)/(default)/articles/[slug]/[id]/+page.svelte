@@ -114,8 +114,6 @@
 						<input type="hidden" name="category-id" value={data.article?.id} />
 						<Button type="submit">Bookmark</Button>
 					</form>
-					<div>Author Image and name</div>
-					<!-- <div>Summary</div> -->
 				</div>
 			</div>
 		</Card>
