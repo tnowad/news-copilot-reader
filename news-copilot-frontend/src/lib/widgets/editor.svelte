@@ -18,7 +18,8 @@
 	async function generateText(text: string) {
 		const response = await generateService.generateText({
 			prompt: text,
-			maxLength: text.length + 10
+			maxLength: text.length + 10,
+			temperature: 0.9
 		});
 		return response;
 	}
@@ -32,7 +33,7 @@
 
 		monaco.languages.registerInlineCompletionsProvider('markdown', {
 			provideInlineCompletions: async function (model, position, context, token) {
-				const result = await generateText(model.getValue());
+				const result = await generateText(model.getValue().slice(0, model.getOffsetAt(position)));
 				switch (result.statusCode) {
 					case StatusCodes.OK:
 						console.log({
