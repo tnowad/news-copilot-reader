@@ -10,8 +10,21 @@ from app.models.article import Article
 from app.models.bookmark import Bookmark
 from app.models.user import User
 from app.models.role import RoleEnum
+from sqlalchemy import and_
 
 bookmarks_bp = Blueprint("bookmarks", __name__)
+
+
+# Error handling for "Bookmark not found" error
+@bookmarks_bp.errorhandler(404)
+def not_found_error(error):
+    return jsonify({"error": "Bookmark not found"}), HTTPStatus.NOT_FOUND
+
+
+# Error handling for generic internal server errors
+@bookmarks_bp.errorhandler(Exception)
+def internal_error(error):
+    return jsonify({"error": "Internal Server Error"}), HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 @bookmarks_bp.route("/bookmarks", methods=["POST"])
@@ -24,17 +37,17 @@ def create_bookmark():
     user_id = current_user.id
 
     if not User.query.get(user_id):
-        return jsonify({"message": "User not found"}), HTTPStatus.NOT_FOUND
+        return jsonify({"error": "User not found"}), HTTPStatus.NOT_FOUND
 
     article = Article.query.get(article_id)
     if not article:
-        return jsonify({"message": "Article not found"}), HTTPStatus.NOT_FOUND
+        return jsonify({"error": "Article not found"}), HTTPStatus.NOT_FOUND
 
     existing_bookmark = Bookmark.query.filter_by(
         article_id=article_id, user_id=user_id
     ).first()
     if existing_bookmark:
-        return jsonify({"message": "Bookmark already exists"}), HTTPStatus.BAD_REQUEST
+        return jsonify({"error": "Bookmark already exists"}), HTTPStatus.BAD_REQUEST
 
     bookmark = Bookmark(
         article_id=article_id, user_id=user_id, created_at=datetime.now()
@@ -74,15 +87,17 @@ def get_bookmarks():
                     "summary": bookmark.article.summary,
                     "coverImage": bookmark.article.cover_image,
                     "slug": bookmark.article.slug,
-                    "createdAt": bookmark.article.created_at.isoformat(),
+                    "createdAt": bookmark.article.created_at.strftime(
+                        "%Y-%m-%dT%H:%M:%S"
+                    ),
                     "content": bookmark.article.content if style == "full" else None,
                     "updatedAt": (
-                        bookmark.article.updated_at.isoformat()
+                        bookmark.article.updated_at.strftime("%Y-%m-%dT%H:%M:%S")
                         if style == "full" and bookmark.article.updated_at
                         else None
                     ),
                     "deletedAt": (
-                        bookmark.article.deleted_at.isoformat()
+                        bookmark.article.deleted_at.strftime("%Y-%m-%dT%H:%M:%S")
                         if style == "full" and bookmark.article.deleted_at
                         else None
                     ),
@@ -91,8 +106,12 @@ def get_bookmarks():
                             {
                                 "id": comment.id,
                                 "content": comment.content,
-                                "createdAt": comment.created_at.isoformat(),
-                                "updatedAt": comment.updated_at.isoformat(),
+                                "createdAt": comment.created_at.strftime(
+                                    "%Y-%m-%dT%H:%M:%S"
+                                ),
+                                "updatedAt": comment.updated_at.strftime(
+                                    "%Y-%m-%dT%H:%M:%S"
+                                ),
                                 "parentCommentId": comment.parent_id,
                                 "author": {
                                     "id": comment.author.id,
@@ -129,7 +148,7 @@ def get_bookmarks():
                         else None
                     ),
                 },
-                "created_at": bookmark.created_at.isoformat(),
+                "created_at": bookmark.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
             }
             bookmark_data.append(bookmark_info)
 
@@ -155,7 +174,7 @@ def get_bookmarks():
 
     except Exception as e:
         return (
-            jsonify({"message": "Internal Server Error", "error": str(e)}),
+            jsonify({"error": "Internal Server Error", "error_detail": str(e)}),
             HTTPStatus.INTERNAL_SERVER_ERROR,
         )
 
@@ -168,17 +187,7 @@ def get_bookmark_by_id(bookmark_id):
         current_user = User.query.filter_by(email=current_user_email).first_or_404()
         bookmark = Bookmark.query.filter_by(
             id=bookmark_id, user_id=current_user.id
-        ).first()
-
-        if not bookmark:
-            return (
-                jsonify(
-                    {
-                        "message": "Bookmark not found or does not belong to the current user"
-                    }
-                ),
-                HTTPStatus.NOT_FOUND,
-            )
+        ).first_or_404()
 
         bookmark_info = {
             "id": bookmark.id,
@@ -189,15 +198,15 @@ def get_bookmark_by_id(bookmark_id):
                 "summary": bookmark.article.summary,
                 "coverImage": bookmark.article.cover_image,
                 "slug": bookmark.article.slug,
-                "createdAt": bookmark.article.created_at.isoformat(),
+                "createdAt": bookmark.article.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
                 "content": bookmark.article.content,
                 "updatedAt": (
-                    bookmark.article.updated_at.isoformat()
+                    bookmark.article.updated_at.strftime("%Y-%m-%dT%H:%M:%S")
                     if bookmark.article.updated_at
                     else None
                 ),
                 "deletedAt": (
-                    bookmark.article.deleted_at.isoformat()
+                    bookmark.article.deleted_at.strftime("%Y-%m-%dT%H:%M:%S")
                     if bookmark.article.deleted_at
                     else None
                 ),
@@ -205,9 +214,9 @@ def get_bookmark_by_id(bookmark_id):
                     {
                         "id": comment.id,
                         "content": comment.content,
-                        "createdAt": comment.created_at.isoformat(),
+                        "createdAt": comment.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
                         "updatedAt": (
-                            comment.updated_at.isoformat()
+                            comment.updated_at.strftime("%Y-%m-%dT%H:%M:%S")
                             if comment.updated_at
                             else None
                         ),
@@ -236,27 +245,96 @@ def get_bookmark_by_id(bookmark_id):
                     "avatarImage": bookmark.article.author.avatar_image,
                 },
             },
-            "created_at": bookmark.created_at.isoformat(),
+            "created_at": bookmark.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
         }
         return jsonify({"bookmark": bookmark_info}), HTTPStatus.OK
 
     except Exception as e:
         return (
-            jsonify({"message": "Internal Server Error", "error": str(e)}),
+            jsonify({"error": "Internal Server Error", "error_detail": str(e)}),
             HTTPStatus.INTERNAL_SERVER_ERROR,
         )
 
 
-@bookmarks_bp.route("/bookmarks/<int:bookmark_id>", methods=["DELETE"])
+@bookmarks_bp.route("/bookmarks/check-marked", methods=["POST"])
 @jwt_required()
-def delete_bookmark(bookmark_id):
-    user_id = get_jwt_identity()
+def check_marked():
+    try:
+        data = request.get_json()
+        article_ids = data.get("article_ids", [])
+        current_user_email = get_jwt_identity()
+        current_user = User.query.filter_by(email=current_user_email).first_or_404()
+        user_id = current_user.id
 
-    bookmark = Bookmark.query.filter_by(id=bookmark_id, user_id=user_id).first()
-    if not bookmark:
-        return jsonify({"message": "Bookmark not found"}), HTTPStatus.NOT_FOUND
+        marked_article = Bookmark.query.filter(
+            Bookmark.article.id.in_(article_ids), user_id == user_id
+        ).first_or_404()
 
-    db.session.delete(bookmark)
-    db.session.commit()
+        bookmark_info = {
+            "id": marked_article.id,
+            "user_id": marked_article.user_id,
+            "article": {
+                "id": marked_article.article.id,
+                "title": marked_article.article.title,
+                "summary": marked_article.article.summary,
+                "coverImage": marked_article.article.cover_image,
+                "slug": marked_article.article.slug,
+                "createdAt": marked_article.article.created_at.strftime(
+                    "%Y-%m-%dT%H:%M:%S"
+                ),
+                "content": marked_article.article.content,
+                "updatedAt": (
+                    marked_article.article.updated_at.strftime("%Y-%m-%dT%H:%M:%S")
+                    if marked_article.article.updated_at
+                    else None
+                ),
+                "deletedAt": (
+                    marked_article.article.deleted_at.strftime("%Y-%m-%dT%H:%M:%S")
+                    if marked_article.article.deleted_at
+                    else None
+                ),
+                "comments": [
+                    {
+                        "id": comment.id,
+                        "content": comment.content,
+                        "createdAt": comment.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
+                        "updatedAt": (
+                            comment.updated_at.strftime("%Y-%m-%dT%H:%M:%S")
+                            if comment.updated_at
+                            else None
+                        ),
+                        "parentCommentId": comment.parent_id,
+                        "author": {
+                            "id": comment.author.id,
+                            "email": comment.author.email,
+                            "displayName": comment.author.display_name,
+                            "avatarImage": comment.author.avatar_image,
+                        },
+                    }
+                    for comment in marked_article.article.comments
+                ],
+                "categories": [
+                    {
+                        "id": category.id,
+                        "title": category.title,
+                        "slug": category.slug,
+                    }
+                    for category in marked_article.article.categories
+                ],
+                "author": {
+                    "id": marked_article.article.author.id,
+                    "email": marked_article.article.author.email,
+                    "displayName": marked_article.article.author.display_name,
+                    "avatarImage": marked_article.article.author.avatar_image,
+                },
+            },
+            "created_at": marked_article.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
+        }
 
-    return jsonify({"message": "Bookmark deleted successfully"}), HTTPStatus.OK
+        return jsonify({"bookmark": bookmark_info}), HTTPStatus.OK
+
+    except Exception as e:
+        return (
+            jsonify({"error": "Internal Server Error", "error_detail": str(e)}),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
