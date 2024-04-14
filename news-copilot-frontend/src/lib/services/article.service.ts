@@ -1,6 +1,7 @@
 import type { StatusCodes } from 'http-status-codes';
 import { defaultHeaders } from './config';
 import { API_URL } from '$env/static/private';
+import type { Article } from './types';
 
 type CreateArticleBody = {
 	title: string;
@@ -14,25 +15,7 @@ type CreateArticleBody = {
 type CreateArticleSuccessful = {
 	statusCode: StatusCodes.CREATED;
 	data: {
-		article: {
-			id: number;
-			title: string;
-			summary: string;
-			slug: string;
-			coverImage?: string;
-			content: string;
-			author: {
-				id: number;
-				email: string;
-				displayName: string;
-				avatar: string;
-			};
-			categories: {
-				id: number;
-				title: string;
-				slug: string;
-			}[];
-		};
+		article: Article;
 	};
 	message: string;
 };
@@ -97,24 +80,7 @@ type UpdateArticleBody = {
 type UpdateArticleSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
-		article: {
-			id: number;
-			title: string;
-			summary: string;
-			coverImage?: string;
-			content: string;
-			author: {
-				id: number;
-				email: string;
-				displayName: string;
-				avatar: string;
-			};
-			categories: {
-				id: number;
-				title: string;
-				slug: string;
-			}[];
-		};
+		article: Article;
 	};
 	message: string;
 };
@@ -234,25 +200,7 @@ type GetArticleByIdParams = {
 type GetArticleByIdSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
-		article: {
-			id: number;
-			title: string;
-			summary: string;
-			coverImage?: string;
-			content: string;
-			slug: string;
-			author: {
-				id: number;
-				email: string;
-				displayName: string;
-				avatarImage: string;
-			};
-			categories: {
-				id: number;
-				title: string;
-				slug: string;
-			}[];
-		};
+		article: Article;
 	};
 	message: string;
 };
@@ -318,26 +266,7 @@ type GetAllArticlesParams = {
 type GetAllArticlesSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
-		articles: {
-			id: number;
-			title: string;
-			summary: string;
-			coverImage?: string;
-			content: string;
-			slug: string;
-
-			author: {
-				id: number;
-				email: string;
-				displayName: string;
-				avatarImage: string;
-			};
-			categories: {
-				id: number;
-				title: string;
-				slug: string;
-			}[];
-		}[];
+		articles: Article[];
 		metadata: {
 			pagination: {
 				offset: number;
@@ -413,26 +342,7 @@ type GetRecommendArticlesParams = {
 type GetRecommendArticlesSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
-		articles: {
-			id: number;
-			title: string;
-			summary: string;
-			coverImage?: string;
-			content: string;
-			slug: string;
-
-			author: {
-				id: number;
-				email: string;
-				displayName: string;
-				avatarImage: string;
-			};
-			categories: {
-				id: number;
-				title: string;
-				slug: string;
-			}[];
-		}[];
+		articles: Article[];
 		metadata: {
 			pagination: {
 				offset: number;
