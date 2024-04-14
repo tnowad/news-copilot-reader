@@ -1,22 +1,41 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, AutoConfig
 import torch
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
 
-saved_model_dir = "news-copilot-gpt"
-tokenizer = AutoTokenizer.from_pretrained(saved_model_dir)
-config = AutoConfig.from_pretrained(saved_model_dir)
-config.pad_token_id = config.eos_token_id
-model = AutoModelForCausalLM.from_pretrained(saved_model_dir, config=config)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
-prompt = "Tiềm năng của trí tuệ nhân tạo"  # your input sentence
-input_ids = tokenizer(prompt, return_tensors="pt")["input_ids"].to(device)
+
+tokenizer = GPT2Tokenizer.from_pretrained("danghuy1999/gpt2-viwiki")
+model = GPT2LMHeadModel.from_pretrained("danghuy1999/gpt2-viwiki").to(device)
+
+text = "Github là gì?"
+input_ids = tokenizer.encode(text, return_tensors="pt").to(device)
 max_length = 100
-gen_tokens = model.generate(
+
+sample_outputs = model.generate(
     input_ids,
-    max_length=max_length,
+    pad_token_id=tokenizer.eos_token_id,
+    temperature=0.7,
     do_sample=True,
-    temperature=0.1,
-    top_k=3,
+    max_length=max_length,
+    min_length=max_length,
+    top_k=40,
+    num_beams=5,
+    early_stopping=True,
+    no_repeat_ngram_size=2,
+    num_return_sequences=3,
 )
-gen_text = tokenizer.batch_decode(gen_tokens)[0]
-print("Generated text:", gen_text)
+
+for i, sample_output in enumerate(sample_outputs):
+    print(
+        ">> Generated text {}\n\n{}".format(
+            i + 1, tokenizer.decode(sample_output.tolist())
+        )
+    )
+    print("\n---")
+
+
+save_directory = "news-copilot-viwiki"
+
+model.save_pretrained(save_directory)
+tokenizer.save_pretrained(save_directory)
+
+print("Model and tokenizer saved to:", save_directory)
