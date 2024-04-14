@@ -1,6 +1,7 @@
 import { API_URL } from '$env/static/private';
 import type { StatusCodes } from 'http-status-codes';
 import { defaultHeaders } from './config';
+import type { Category } from './types';
 
 type CreateCategoryBody = {
 	title: string;
@@ -11,12 +12,7 @@ type CreateCategoryBody = {
 type CreateCategorySuccessful = {
 	statusCode: StatusCodes.CREATED;
 	data: {
-		category: {
-			id: number;
-			title: string;
-			slug: string;
-			description?: string;
-		};
+		category: Category;
 	};
 	message: string;
 };
@@ -78,12 +74,7 @@ type UpdateCategoryBody = {
 type UpdateCategorySuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
-		category: {
-			id: number;
-			title: string;
-			slug: string;
-			description?: string;
-		};
+		category: Category;
 	};
 	message: string;
 };
@@ -203,12 +194,7 @@ type GetCategoryByIdParams = {
 type GetCategoryByIdSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
-		category: {
-			id: number;
-			title: string;
-			slug: string;
-			description?: string;
-		};
+		category: Category;
 	};
 	message: string;
 };
@@ -273,12 +259,7 @@ type GetAllCategoriesParams = {
 type GetAllCategoriesSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
-		categories: {
-			id: number;
-			title: string;
-			slug: string;
-			description?: string;
-		}[];
+		categories: Category[];
 		metadata: {
 			pagination: {
 				offset: number;
