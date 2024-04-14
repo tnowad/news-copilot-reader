@@ -8,6 +8,7 @@
 	let coverImage = data.article?.coverImage;
 	let content = data.article?.content;
 	let selectedCategories: number[] = data.article?.categories.map((category) => category.id) ?? [];
+	console.log(data);
 	let categories = data.categories.map((category) => ({
 		value: category.id,
 		name: category.slug
