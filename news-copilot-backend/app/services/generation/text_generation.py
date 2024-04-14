@@ -2,7 +2,9 @@ from transformers import pipeline
 
 try:
     text_generation_pipeline = pipeline(
-        "text-generation", model="news-copilot-gpt", tokenizer="news-copilot-gpt"
+        "text-generation",
+        model="imthanhlv/gpt2news",
+        tokenizer="imthanhlv/gpt2news",
     )
 except Exception as e:
     print("Failed to load text generation pipeline: ", e)
