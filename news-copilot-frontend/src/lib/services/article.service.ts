@@ -245,7 +245,7 @@ type GetArticleByIdSuccessful = {
 				id: number;
 				email: string;
 				displayName: string;
-				avatar: string;
+				avatarImage: string;
 			};
 			categories: {
 				id: number;

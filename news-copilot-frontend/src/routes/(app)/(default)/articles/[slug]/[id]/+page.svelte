@@ -3,7 +3,7 @@
 	import { Modal } from 'flowbite-svelte';
 	import Markdown from '$lib/widgets/markdown.svelte';
 	import ArticleSection from '$lib/widgets/article-section.svelte';
-	import { Avatar, DropdownHeader, DropdownDivider, Tooltip } from 'flowbite-svelte';
+	import { Avatar } from 'flowbite-svelte';
 	import {
 		Toolbar,
 		ToolbarButton,
@@ -25,15 +25,9 @@
 	} from 'flowbite-svelte-icons';
 	import { CommentItem, Section } from 'flowbite-svelte-blocks';
 	import { onMount } from 'svelte';
-	let comments = [];
-	let commentContent = '';
-	$: comments = data.comments;
-	const postComment = () => {
-		alert(commentContent);
-	};
 
-	let commentEditingId: data | null;
-	let commentDeleteId: data | null;
+	let commentEditingId: number | null;
+	let commentDeleteId: number | null;
 	let defaultModal = false;
 
 	export let data: PageData;
@@ -44,7 +38,7 @@
 		}
 
 		const formData = new FormData();
-		formData.append('articleId', data.article.id);
+		formData.append('articleId', data.article.id as unknown as string);
 
 		fetch(`/articles/${data.article?.slug}/${data.article?.id}?/markViewed`, {
 			method: 'POST',
@@ -60,7 +54,7 @@
 			return;
 		}
 		const formData = new FormData();
-		formData.append('article_id', data.article.id);
+		formData.append('article_id', data.article.id as unknown as string);
 		formData.append('slug', data.article.slug);
 
 		fetch(`/articles/${data.article.slug}/${data.article.id}?/bookmarkArticle`, {
@@ -143,21 +137,9 @@
 				action={`/articles/${data.article?.slug}/${data.article?.id}?/createComment`}
 				method="post"
 			>
-				<Textarea
-					class="mb-4"
-					placeholder="Write a comment"
-					name="content"
-					bind:vaule={commentContent}
-				>
+				<Textarea class="mb-4" placeholder="Write a comment" name="content">
 					<div slot="footer" class="flex items-center justify-between">
 						<Button type="submit">Post comment</Button>
-						<Toolbar embedded>
-							<ToolbarButton name="Attach file"
-								><PaperClipOutline class="h-5 w-5 rotate-45" /></ToolbarButton
-							>
-							<ToolbarButton name="Embed map"><MapPinAltSolid class="h-5 w-5" /></ToolbarButton>
-							<ToolbarButton name="Upload image"><ImageOutline class="h-5 w-5" /></ToolbarButton>
-						</Toolbar>
 					</div>
 				</Textarea>
 			</form>
@@ -169,103 +151,92 @@
 				.
 			</p>
 
-			{#each comments as comment, i}
-				{#key comment.id}
-					<CommentItem
-						comment={{
-							id: comment.id,
-							commenter: {
-								name: comment.author.displayName,
-								profilePicture: comment.author.avatarImage
-							},
-							content: comment.content,
-							date: comment.date,
-							replies: comment?.childComments?.map((childComment) => {
-								return {
-									id: childComment.id,
-									commenter: {
-										name: childComment.author.name,
-										profilePicture: childComment.author.avatarImage
-									},
-									content: childComment.content,
-									date: childComment.date
-								};
-							})
-						}}
-						articleClass={i !== 0
-							? 'border-t border-gray-200 dark:border-gray-700 rounded-none'
-							: ''}
-					>
-						<svelte:fragment slot="dropdownMenu">
-							<DotsHorizontalOutline class="dots-menu dark:text-white" />
-							<Dropdown triggeredBy=".dots-menu">
-								{#if data.user?.id == comment.author.id}
-									<DropdownItem
-										on:click={() => {
-											commentEditingId = comment.id;
-										}}>Edit</DropdownItem
-									>
-
-									<DropdownItem
-										on:click={() => {
-											commentDeleteId = comment.id;
-										}}>Remove</DropdownItem
-									>
-								{/if}
-								<DropdownItem>Report</DropdownItem>
-							</Dropdown>
-						</svelte:fragment>
-						<svelte:fragment slot="reply">
-							{#if comment.id == commentEditingId}
-								<form
-									action={`/articles/${data.article?.slug}/${data.article?.id}?/updateComment`}
-									method="post"
+			{#each data.comments as comment, i}
+				<CommentItem
+					comment={{
+						id: comment.id + '',
+						commenter: {
+							name: comment.author.displayName,
+							profilePicture: comment.author.avatarImage
+						},
+						content: comment.content,
+						date: comment.createdAt
+					}}
+					articleClass={i !== 0 ? 'border-t border-gray-200 dark:border-gray-700 rounded-none' : ''}
+				>
+					<svelte:fragment slot="dropdownMenu">
+						<DotsHorizontalOutline
+							id={`dots-menu-${comment.id}`}
+							class="dots-menu dark:text-white"
+						/>
+						<Dropdown triggeredBy={`#dots-menu-${comment.id}`}>
+							{#if data.user?.id == comment.author.id}
+								<DropdownItem
+									on:click={() => {
+										commentEditingId = comment.id;
+									}}>Edit</DropdownItem
 								>
-									<Textarea
-										class="mb-4"
-										placeholder="Write a comment"
-										name="content"
-										value={comment.value}
-									>
-										<div slot="footer" class="flex items-center justify-between">
-											<Button type="submit">Post comment</Button>
-											<Toolbar embedded>
-												<ToolbarButton name="Attach file"
-													><PaperClipOutline class="h-5 w-5 rotate-45" /></ToolbarButton
-												>
-												<ToolbarButton name="Embed map"
-													><MapPinAltSolid class="h-5 w-5" /></ToolbarButton
-												>
-												<ToolbarButton name="Upload image"
-													><ImageOutline class="h-5 w-5" /></ToolbarButton
-												>
-											</Toolbar>
-										</div>
-									</Textarea>
-								</form>
-							{/if}
 
-							{#if comment.id == commentDeleteId}
-								<form
-									action={`/articles/${data.article?.slug}/${data.article?.id}?/updateComment`}
-									method="post"
+								<DropdownItem
+									on:click={() => {
+										commentDeleteId = comment.id;
+									}}>Remove</DropdownItem
 								>
-									<Button on:click={() => (defaultModal = true)}>Remove comment ??</Button>
-									<Modal title="Terms of Service" bind:open={defaultModal} autoclose>
-										<p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-											You can't unchange this action, if you agree click "I accept". If not, click
-											"Decline"
-										</p>
-										<svelte:fragment slot="footer">
-											<Button on:click={() => alert('Handle "success"')}>I accept</Button>
-											<Button color="alternative">Decline</Button>
-										</svelte:fragment>
-									</Modal>
-								</form>
 							{/if}
-						</svelte:fragment>
-					</CommentItem>
-				{/key}
+							<DropdownItem>Report</DropdownItem>
+						</Dropdown>
+					</svelte:fragment>
+					<svelte:fragment slot="reply">
+						{#if comment.id == commentEditingId}
+							<form
+								class="mt-3"
+								action={`/articles/${data.article?.slug}/${data.article?.id}?/updateComment`}
+								method="post"
+							>
+								<Textarea
+									class="mb-4"
+									placeholder="Write a comment"
+									name="content"
+									value={comment.content}
+								>
+									<div slot="footer" class="flex items-center justify-between">
+										<Button type="submit">Post comment</Button>
+										<Toolbar embedded>
+											<ToolbarButton name="Attach file"
+												><PaperClipOutline class="h-5 w-5 rotate-45" /></ToolbarButton
+											>
+											<ToolbarButton name="Embed map"
+												><MapPinAltSolid class="h-5 w-5" /></ToolbarButton
+											>
+											<ToolbarButton name="Upload image"
+												><ImageOutline class="h-5 w-5" /></ToolbarButton
+											>
+										</Toolbar>
+									</div>
+								</Textarea>
+							</form>
+						{/if}
+
+						{#if comment.id == commentDeleteId}
+							<form
+								action={`/articles/${data.article?.slug}/${data.article?.id}?/updateComment`}
+								method="post"
+							>
+								<Button on:click={() => (defaultModal = true)}>Remove comment ??</Button>
+								<Modal title="Terms of Service" bind:open={defaultModal} autoclose>
+									<p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
+										You can't unchange this action, if you agree click "I accept". If not, click
+										"Decline"
+									</p>
+									<svelte:fragment slot="footer">
+										<Button on:click={() => alert('Handle "success"')}>I accept</Button>
+										<Button color="alternative">Decline</Button>
+									</svelte:fragment>
+								</Modal>
+							</form>
+						{/if}
+					</svelte:fragment>
+				</CommentItem>
 			{/each}
 		</Section>
 	</div>

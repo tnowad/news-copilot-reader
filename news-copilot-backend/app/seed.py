@@ -114,7 +114,7 @@ def seed_articles():
             "category_ids": fake.random_elements(
                 elements=range(10), length=3, unique=True
             ),
-            "author_id": 1,
+            "author_id": random.randint(1, 2),
         }
         for i in range(1, 101)
     ]
@@ -157,7 +157,6 @@ def seed_articles_from_json(file_path):
             article_entry = Article(
                 title=article_data["title"],
                 summary=article_data["summary"],
-                # replace \n with <br> tag
                 content=article_data["content"].replace("\n", "\n\n"),
                 slug=generate_slug(article_data["title"]),
                 created_at=(
@@ -177,6 +176,16 @@ def seed_articles_from_json(file_path):
                 article_entry.categories.append(category)
 
             db.session.add(article_entry)
+            db.session.commit()
+
+            for _ in range(5):
+                comment = Comment(
+                    content=fake.paragraph(),
+                    author_id=random.randint(1, 3),
+                    article_id=article_entry.id,
+                )
+                db.session.add(comment)
+
             db.session.commit()
 
 
