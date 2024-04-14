@@ -1,7 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { defaultHeaders } from './config';
 import { API_URL } from '$env/static/private';
-import type { Role } from '$lib/types/models';
 
 type GetCurrentUserProfileParams = {
 	include?: 'roles'[];
@@ -11,18 +10,7 @@ type GetCurrentUserProfileParams = {
 type GetCurrentUserProfileSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
-		user: {
-			id: number;
-			email: string;
-			displayName: string;
-			avatarImage: string;
-
-			bio?: string;
-			birthDate?: string;
-			phoneNumber?: string;
-
-			roles?: Role[];
-		};
+		user: User;
 	};
 	message: string;
 };
@@ -84,16 +72,7 @@ type UpdateCurrentUserProfileBody = {
 type UpdateCurrentUserProfileSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
-		user: {
-			id: number;
-			email: string;
-			displayName: string;
-			avatarImage: string;
-
-			bio?: string;
-			birthDate?: string;
-			phoneNumber?: string;
-		};
+		user: User;
 	};
 	message: string;
 };
@@ -176,18 +155,7 @@ type GetAllUsersParams = {
 type GetAllUsersSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
-		users: [
-			{
-				id: number;
-				email: string;
-				displayName: string;
-				avatarImage: string;
-				bio?: string;
-				birthDate?: string;
-				phoneNumber?: string;
-				roles?: Role[];
-			}
-		];
+		users: User[];
 	};
 	message: string;
 };
@@ -231,7 +199,6 @@ const getAllUsers = async (
 	}
 };
 
-// TODO: DELETE USER
 type deleteUserSuccessful = {
 	statusCode: StatusCodes.OK;
 	message: string;
