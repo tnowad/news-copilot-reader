@@ -43,9 +43,9 @@ def create_app():
         from .routes import routes_bp
 
         # Send a test email
-        msg = Message("Hello from Flask-Mail", recipients=["recipient@example.com"])
-        msg.body = "This is a test email sent from Flask using Maildev."
-        mail.send(msg)
+        # msg = Message("Hello from Flask-Mail", recipients=["recipient@example.com"])
+        # msg.body = "This is a test email sent from Flask using Maildev."
+        # mail.send(msg)
 
         db.create_all()
         seed_database()

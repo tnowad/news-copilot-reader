@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import json
+import random
 from faker import Faker
 
 from app.extensions import db
@@ -8,6 +10,7 @@ from app.models.category import Category
 from app.models.comment import Comment
 from app.models.role import Role, RoleEnum
 from app.models.user import User
+from app.utils.slug import generate_slug
 
 fake = Faker()
 
@@ -144,8 +147,42 @@ def seed_articles():
         db.session.commit()
 
 
+def seed_articles_from_json(file_path):
+    with open(file_path, "r") as file:
+        articles_data = json.load(file)
+
+    for article_data in articles_data:
+        article_entry = Article.query.filter_by(title=article_data["title"]).first()
+        if not article_entry:
+            article_entry = Article(
+                title=article_data["title"],
+                summary=article_data["summary"],
+                # replace \n with <br> tag
+                content=article_data["content"].replace("\n", "\n\n"),
+                slug=generate_slug(article_data["title"]),
+                created_at=(
+                    datetime.strptime(article_data["created_at"], "%Y-%m-%dT%H:%M:%S")
+                ),
+            )
+            article_entry.author_id = 1
+            for category_name in article_data["categories"]:
+                category = Category.query.filter_by(title=category_name).first()
+                if not category:
+                    category = Category(
+                        title=category_name,
+                        slug=generate_slug(category_name),
+                    )
+                    db.session.add(category)
+                    db.session.commit()
+                article_entry.categories.append(category)
+
+            db.session.add(article_entry)
+            db.session.commit()
+
+
 def seed_database():
     seed_roles()
     seed_users()
-    seed_categories()
-    seed_articles()
+    # seed_categories()
+    # seed_articles()
+    seed_articles_from_json("articles.json")
