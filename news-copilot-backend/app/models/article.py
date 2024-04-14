@@ -49,12 +49,25 @@ class Article(db.Model):
     )
     deleted_at = db.Column(db.DateTime)
 
-    def __init__(self, title, cover_image=None, summary=None, slug=None, content=None):
+    def __init__(
+        self,
+        title,
+        cover_image=None,
+        summary=None,
+        slug=None,
+        content=None,
+        created_at=None,
+        updated_at=None,
+        deleted_at=None,
+    ):
         self.title = title
         self.cover_image = cover_image
         self.summary = summary
         self.slug = slug
         self.content = content
+        self.created_at = created_at
+        self.updated_at = updated_at
+        self.deleted_at = deleted_at
 
     def __repr__(self):
         return f"<Article {self.title}>"
