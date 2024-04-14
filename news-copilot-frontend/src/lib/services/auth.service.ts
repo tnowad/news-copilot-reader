@@ -1,6 +1,7 @@
 import type { StatusCodes } from 'http-status-codes';
 import { defaultHeaders } from './config';
 import { API_URL } from '$env/static/private';
+import type { Token, User } from './types';
 
 type SignInBody = {
 	email: string;
@@ -10,17 +11,8 @@ type SignInBody = {
 type SignInSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
-		user: {
-			id: number;
-			email: string;
-			roles: string[];
-			avatarImage: string;
-			displayName: string;
-		};
-		token: {
-			accessToken: string;
-			refreshToken: string;
-		};
+		user: User;
+		token: Token;
 	};
 	message: string;
 };
@@ -72,17 +64,8 @@ type SignUpBody = {
 type SignUpSuccessful = {
 	statusCode: StatusCodes.CREATED;
 	data: {
-		user: {
-			id: number;
-			email: string;
-			roles: string[];
-			avatarImage: string;
-			displayName: string;
-		};
-		token: {
-			accessToken: string;
-			refreshToken: string;
-		};
+		user: User;
+		token: Token;
 	};
 	message: string;
 };
@@ -167,9 +150,7 @@ type RefreshTokenBody = {
 type RefreshTokenSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
-		token: {
-			accessToken: string;
-		};
+		token: Omit<Token, 'refreshToken'>;
 	};
 	message: string;
 };

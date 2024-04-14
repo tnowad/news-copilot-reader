@@ -1,5 +1,10 @@
 export type Role = 'USER' | 'WRITER' | 'ADMIN';
 
+export type Token = {
+	accessToken: string;
+	refreshToken: string;
+};
+
 export type User = {
 	id: number;
 	email: string;
