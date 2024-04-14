@@ -3,6 +3,7 @@ import articleService from '$lib/services/article.service';
 import { StatusCodes } from 'http-status-codes';
 import commentsService from '$lib/services/comment.service';
 import viewService from '$lib/services/view.service';
+import bookmarksService from '$lib/services/bookmark.service';
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const id = parseInt(params.id);
 
@@ -64,10 +65,16 @@ export const actions = {
 		);
 	},
 	bookmarkArticle: async (event) => {
-		const articleId = parseInt(event.params.id);
-		await viewService.markArticleViewed(
-			{ articleId: articleId },
-			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
-		);
+		try {
+			const articleId = parseInt(event.params.id);
+
+			// Call the bookmarks service to bookmark the article
+			const bookmarkResponse = await bookmarksService.createBookmark(
+				{ article_id: articleId }, // Ensure the key matches the expected format on the server side
+				{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
+			);
+		} catch (error) {
+			console.error('Failed to bookmark article: ' + error);
+		}
 	}
 } satisfies Actions;

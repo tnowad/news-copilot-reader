@@ -54,8 +54,27 @@
 			body: formData
 		});
 	};
+
+	const bookmarkArticle = async () => {
+		if (!data.article?.id || !data.article?.slug) {
+			return;
+		}
+		const formData = new FormData();
+		formData.append('article_id', data.article.id);
+		formData.append('slug', data.article.slug);
+
+		fetch(`/articles/${data.article.slug}/${data.article.id}?/bookmarkArticle`, {
+			method: 'POST',
+			body: formData,
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		});
+	};
+
 	onMount(() => {
 		markArticleViewed();
+		bookmarkArticle();
 	});
 </script>
 
