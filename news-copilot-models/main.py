@@ -1,41 +1,60 @@
 import torch
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers import TextDataset, DataCollatorForLanguageModeling
+from transformers import Trainer, TrainingArguments
 
+# Check device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-tokenizer = GPT2Tokenizer.from_pretrained("danghuy1999/gpt2-viwiki")
-model = GPT2LMHeadModel.from_pretrained("danghuy1999/gpt2-viwiki").to(device)
+# Load tokenizer and model
+tokenizer = GPT2Tokenizer.from_pretrained("news-copilot-viwiki")
+model = GPT2LMHeadModel.from_pretrained("news-copilot-viwiki").to(device)
 
-text = "Github là gì?"
-input_ids = tokenizer.encode(text, return_tensors="pt").to(device)
-max_length = 100
+# Path to your training dataset
+train_file = "./corpus.txt"
 
-sample_outputs = model.generate(
-    input_ids,
-    pad_token_id=tokenizer.eos_token_id,
-    temperature=0.7,
-    do_sample=True,
-    max_length=max_length,
-    min_length=max_length,
-    top_k=40,
-    num_beams=5,
-    early_stopping=True,
-    no_repeat_ngram_size=2,
-    num_return_sequences=3,
+# Load dataset
+train_dataset = TextDataset(
+    tokenizer=tokenizer, file_path=train_file, block_size=128  # Adjust as needed
 )
 
-for i, sample_output in enumerate(sample_outputs):
-    print(
-        ">> Generated text {}\n\n{}".format(
-            i + 1, tokenizer.decode(sample_output.tolist())
-        )
-    )
-    print("\n---")
+# Data collator for language modeling
+data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
+# Training arguments
+training_args = TrainingArguments(
+    output_dir="./gpt2-finetuned",
+    overwrite_output_dir=True,
+    num_train_epochs=1,  # Reduce epochs for faster training
+    per_device_train_batch_size=2,  # Reduce batch size
+    per_device_eval_batch_size=2,  # Reduce batch size
+    logging_dir="./logs",
+    logging_steps=100,  # Reduce logging frequency
+    evaluation_strategy="steps",
+    eval_steps=500,  # Reduce evaluation frequency
+    save_steps=500,  # Reduce saving frequency
+    warmup_steps=100,  # Reduce warmup steps
+    weight_decay=0.01,
+    logging_first_step=True,
+    save_total_limit=1,  # Save only one model checkpoint
+    dataloader_num_workers=1,  # Reduce number of workers to 1 for dataloading
+)
 
-save_directory = "news-copilot-viwiki"
+# Trainer
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    data_collator=data_collator,
+    train_dataset=train_dataset,
+)
 
-model.save_pretrained(save_directory)
-tokenizer.save_pretrained(save_directory)
+# Train the model
+trainer.train()
 
-print("Model and tokenizer saved to:", save_directory)
+# Save the fine-tuned model
+trainer.save_model("./gpt2-finetuned")
+
+# Save tokenizer
+tokenizer.save_pretrained("./gpt2-finetuned")
+
+print("Model and tokenizer saved to: ./gpt2-finetuned")
