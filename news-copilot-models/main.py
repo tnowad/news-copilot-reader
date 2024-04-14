@@ -31,3 +31,11 @@ for i, sample_output in enumerate(sample_outputs):
         )
     )
     print("\n---")
+
+
+save_directory = "news-copilot-viwiki"
+
+model.save_pretrained(save_directory)
+tokenizer.save_pretrained(save_directory)
+
+print("Model and tokenizer saved to:", save_directory)
