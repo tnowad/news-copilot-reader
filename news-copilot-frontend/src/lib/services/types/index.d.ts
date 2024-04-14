@@ -39,6 +39,15 @@ export type Category = {
 	articles?: Article[];
 };
 
+export type Comment = {
+	id: number;
+	content: string;
+	createdAt: string;
+	updatedAt: string;
+	article?: Article;
+	author?: User;
+};
+
 export type Pagination = {
 	offset: number;
 	limit: number;

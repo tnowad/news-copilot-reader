@@ -1,6 +1,7 @@
 import type { StatusCodes } from 'http-status-codes';
 import { defaultHeaders } from './config';
 import { API_URL } from '$env/static/private';
+import type { Comment } from './types';
 type CreateCommentBody = {
 	content: string;
 	authorId: number;
@@ -9,15 +10,7 @@ type CreateCommentBody = {
 type CreateCommentSuccessful = {
 	statuscode: StatusCodes.CREATED;
 	data: {
-		id: number;
-		content: string;
-		createdAt: string;
-		updatedAt: string;
-		author: {
-			id: number;
-			displayName: string;
-			avatarImage: string;
-		};
+		comment: Comment;
 	};
 	message: string;
 };
@@ -63,18 +56,7 @@ const createComment = async (body: CreateCommentBody, headers: HeadersInit = {})
 type GetAllCommentSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
-		comments: {
-			id: number;
-			content: string;
-			createdAt: string;
-			updatedAt: string;
-			articleID: number;
-			author: {
-				id: number;
-				displayName: string;
-				avatarImage: string;
-			};
-		}[];
+		comments: Comment[];
 		metadata: {
 			pagination: {
 				offset: number;
@@ -169,18 +151,7 @@ type UpdateCommentSuccessful = {
 	statusCode: StatusCodes.OK;
 	message: string;
 	data: {
-		comment: {
-			id: number;
-			content: string;
-			createdAt: string;
-			updatedAt: string;
-			articleId: number;
-			author: {
-				id: number;
-				displayName: string;
-				avatarImage: string;
-			};
-		};
+		comment: Comment;
 	};
 };
 
@@ -254,18 +225,7 @@ type GetCommentByIdSuccessful = {
 	statusCode: StatusCodes.OK;
 	message: string;
 	data: {
-		comment: {
-			id: number;
-			content: string;
-			createdAt: string;
-			updatedAt: string;
-			articleId: number;
-			author: {
-				id: number;
-				displayName: string;
-				avatarImage: string;
-			};
-		};
+		comment: Comment;
 	};
 };
 
