@@ -11,6 +11,7 @@ from app.routes.recommendations import recommendations_bp
 from app.routes.roles import roles_bp
 from app.routes.users import users_bp
 from app.routes.views import views_bp
+from app.routes.forgetPassoword import forgotPassword_bp
 
 routes_bp = Blueprint("api", __name__)
 
@@ -25,3 +26,4 @@ routes_bp.register_blueprint(recommendations_bp)
 routes_bp.register_blueprint(roles_bp)
 routes_bp.register_blueprint(users_bp)
 routes_bp.register_blueprint(views_bp)
+routes_bp.register_blueprint(forgotPassword_bp)

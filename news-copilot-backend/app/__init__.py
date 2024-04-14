@@ -17,6 +17,8 @@ def create_app():
     app.config["JWT_SECRET_KEY"] = "manager_access123"
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=356)
+
+    # configure mail server
     app.config["MAIL_SERVER"] = "localhost"
     app.config["MAIL_PORT"] = 1025
     app.config["MAIL_USE_TLS"] = False
@@ -24,6 +26,10 @@ def create_app():
     app.config["MAIL_USERNAME"] = None
     app.config["MAIL_PASSWORD"] = None
     app.config["MAIL_DEFAULT_SENDER"] = "news-copilot-reader@example.com"
+
+    # configure cache
+    app.config["CACHE_TYPE"] = "simple"
+    app.config["CACHE_DEFAULT_TIMEOUT"] = 3600
 
     # app.config["SQLALCHEMY_ECHO"] = True
 
