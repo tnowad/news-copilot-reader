@@ -2,6 +2,10 @@
 	import { Label, Input, Button, MultiSelect, Textarea } from 'flowbite-svelte';
 	import Markdown from '$lib/widgets/markdown.svelte';
 	import Editor from '$lib/widgets/editor.svelte';
+	import type { ActionData } from './$types';
+	import { toasts } from 'svelte-toasts';
+	import { enhance } from '$app/forms';
+	import { StatusCodes } from 'http-status-codes';
 
 	export let data;
 
@@ -10,11 +14,27 @@
 		value: category.id,
 		name: category.slug
 	}));
+
+	export let form: ActionData;
+
+	$: {
+		if (form) {
+			switch (form.statusCode) {
+				case StatusCodes.CREATED:
+					toasts.success(form.message);
+					break;
+				case StatusCodes.UNPROCESSABLE_ENTITY | StatusCodes.INTERNAL_SERVER_ERROR:
+					toasts.error(form.message);
+					break;
+			}
+			console.log(form);
+		}
+	}
 </script>
 
 <section class="mx-5">
 	<h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Update Article</h2>
-	<form action={`/dashboard/articles/create`} method="post">
+	<form action={`/dashboard/articles/create`} method="post" use:enhance>
 		<div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
 			<div class="sm:col-span-2">
 				<Label for="name" class="mb-2">Title</Label>

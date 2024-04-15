@@ -41,5 +41,7 @@ export const actions = {
 			},
 			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
 		);
+
+		return articleResponse;
 	}
 } satisfies Actions;
