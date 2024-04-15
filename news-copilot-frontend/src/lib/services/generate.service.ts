@@ -60,7 +60,6 @@ const generateText = async (params: GenerateTextParams, headers: HeadersInit = {
 
 const debouncedGenerateText = (params: GenerateTextParams, headers?: HeadersInit) => {
 	return new Promise<GenerateTextResponse>((resolve, reject) => {
-		// Cancel previous debounce timeout
 		if (debounceTimeout) {
 			clearTimeout(debounceTimeout);
 		}
@@ -72,9 +71,9 @@ const debouncedGenerateText = (params: GenerateTextParams, headers?: HeadersInit
 			} catch (error) {
 				reject(error);
 			} finally {
-				debounceTimeout = null; // Reset debounce timeout
+				debounceTimeout = null;
 			}
-		}, 2000); // 2 seconds debounce interval
+		}, 2000);
 	});
 };
 
