@@ -220,6 +220,7 @@
 								<DropdownItem
 									on:click={() => {
 										commentDeleteId = comment.id;
+										defaultModal = true;
 									}}>Remove</DropdownItem
 								>
 							{/if}
@@ -263,18 +264,26 @@
 
 						{#if comment.id == commentDeleteId}
 							<form
-								action={`/articles/${data.article?.slug}/${data.article?.id}?/updateComment`}
+								action={`/articles/${data.article?.slug}/${data.article?.id}?/deleteComment`}
 								method="post"
+								use:enhance={() => {
+									commentDeleteId = null;
+								}}
 							>
-								<Button on:click={() => (defaultModal = true)}>Remove comment ??</Button>
-								<Modal title="Terms of Service" bind:open={defaultModal} autoclose>
+								<Modal title="Delete Comment" bind:open={defaultModal}>
 									<p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-										You can't unchange this action, if you agree click "I accept". If not, click
-										"Decline"
+										Do you want to delete this comment?
 									</p>
+									<input type="hidden" name="commentId" value={comment.id} />
 									<svelte:fragment slot="footer">
-										<Button on:click={() => alert('Handle "success"')}>I accept</Button>
-										<Button color="alternative">Decline</Button>
+										<Button type="submit">Yes</Button>
+										<Button
+											on:click={() => {
+												commentDeleteId = null;
+												defaultModal = false;
+											}}
+											color="alternative">No</Button
+										>
 									</svelte:fragment>
 								</Modal>
 							</form>

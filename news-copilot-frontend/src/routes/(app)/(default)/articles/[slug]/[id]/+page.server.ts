@@ -90,7 +90,20 @@ export const actions = {
 
 		return commentResponse;
 	},
+	deleteComment: async (event) => {
+		const formData = await event.request.formData();
+		if (!event.locals.user) {
+			return;
+		}
+		const commentId = formData.get('commentId') as unknown as number;
 
+		const commentResponse = await commentsService.deleteComment(
+			{ id: commentId },
+			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
+		);
+
+		return commentResponse;
+	},
 	markViewed: async (event) => {
 		const articleId = parseInt(event.params.id);
 		await viewService.markArticleViewed(
