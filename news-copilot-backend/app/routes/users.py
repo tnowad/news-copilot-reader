@@ -64,31 +64,90 @@ def profile():
 
 
 @users_bp.route("/users", methods=["GET"])
-@jwt_required()
-def getAllUsers():
-    users = User.query.all()
-    response_data = {
-        "statusCode": HTTPStatus.OK,
-        "message": "get all users successful",
-        "data": {
-            "users": [
+def get_users():
+    try:
+        page = request.args.get("page", type=int) or 1
+        limit = request.args.get("limit", type=int) or 10
+        search = request.args.get("search", type=str)
+        sort_by = request.args.get("sortBy", type=str)
+        sort_order = request.args.get("sortOrder", type=str)
+
+        query = User.query
+
+        if search:
+            query = query.filter(User.display_name.ilike(f"%{search}%"))
+
+        if sort_by:
+            if sort_by == "display_name":
+                query = query.order_by(User.display_name)
+
+        if sort_order:
+            if sort_order == "desc":
+                query = query.order_by(User.display_name.desc())
+            elif sort_order == "asc":
+                query = query.order_by(User.display_name.asc())
+
+        total_users = query.count()
+
+        if page and limit:
+            offset = (page - 1) * limit
+            query = query.offset(offset).limit(limit)
+
+        users = query.all()
+
+        users_data = []
+        for user in users:
+            user_info = {
+                "id": user.id,
+                "email": user.email,
+                "displayName": user.display_name,
+                "avatarImage": user.avatar_image,
+                "bio": user.bio,
+                "birthDate": datetime.strftime(user.birth_date, "%Y-%m-%d"),
+                "phoneNumber": user.phone_number,
+                "roles": [str(role.name) for role in user.roles],
+                "createdAt": datetime.strftime(user.created_at, "%Y-%m-%d"),
+                "updatedAt": datetime.strftime(user.updated_at, "%Y-%m-%d"),
+            }
+            users_data.append(user_info)
+
+        metadata = {
+            "pagination": {
+                "offset": (page - 1) * limit if (page and limit) else None,
+                "limit": limit,
+                "previousOffset": (page - 2) * limit if page > 1 else None,
+                "nextOffset": page * limit if len(users) == limit else None,
+                "currentPage": page if page else None,
+                "pageCount": (
+                    (total_users + limit - 1) // limit if page and limit else None
+                ),
+                "totalCount": total_users,
+            },
+            "sortedBy": {"name": sort_by, "order": sort_order},
+            "filters": {
+                "search": search,
+            },
+        }
+
+        response_data = {
+            "statusCode": HTTPStatus.OK,
+            "message": "Get all users route",
+            "data": {"users": users_data, "metadata": metadata},
+        }
+
+        return jsonify(response_data), HTTPStatus.OK
+
+    except Exception as e:
+        return (
+            jsonify(
                 {
-                    "id": user.id,
-                    "email": user.email,
-                    "displayName": user.display_name,
-                    "avatarImage": user.avatar_image,
-                    "bio": user.bio,
-                    "birthDate": datetime.strftime(user.birth_date, "%Y-%m-%d"),
-                    "phoneNumber": user.phone_number,
-                    "roles": [str(role.name) for role in user.roles],
-                    "createdAt": datetime.strftime(user.created_at, "%Y-%m-%d"),
-                    "updatedAt": datetime.strftime(user.updated_at, "%Y-%m-%d"),
+                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
+                    "message": "Internal Server Error",
+                    "error": str(e),
                 }
-                for user in users
-            ]
-        },
-    }
-    return jsonify(response_data), HTTPStatus.OK
+            ),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
 
 
 @users_bp.route("/users/<int:user_id>", methods=["PUT"])
