@@ -27,7 +27,9 @@
 				</Label>
 				<div class="flex items-start">
 					<Checkbox name="remember">Remember me</Checkbox>
-					<a href="/" class="ml-auto text-sm text-blue-700 hover:underline dark:text-blue-500"
+					<a
+						href="/email-verification"
+						class="ml-auto text-sm text-blue-700 hover:underline dark:text-blue-500"
 						>Forgot password?</a
 					>
 				</div>
