@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { defaultHeaders } from './config';
 import { API_URL } from '$env/static/private';
+import type { Metadata } from './types';
 
 type GetCurrentUserProfileParams = {
 	include?: 'roles'[];
@@ -156,6 +157,7 @@ type GetAllUsersSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
 		users: User[];
+		metadata: Metadata;
 	};
 	message: string;
 };
