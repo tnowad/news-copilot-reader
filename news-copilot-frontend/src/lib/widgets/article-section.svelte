@@ -15,7 +15,7 @@
 	export let title: string;
 </script>
 
-<Section name="none" sectionClass="">
+<Section name="none" sectionClass="container mx-auto">
 	{#if title}
 		<BlogHead h2Class="text-start font-bold text-2xl mb-2" divClass="max-w-none">
 			<svelte:fragment slot="h2">{title}</svelte:fragment>
