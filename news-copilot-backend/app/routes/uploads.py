@@ -2,6 +2,7 @@ from flask import request, jsonify, Blueprint, send_file
 from http import HTTPStatus
 from werkzeug.utils import secure_filename
 import os
+from uuid import uuid4
 
 uploads_bp = Blueprint("uploads", __name__)
 
@@ -44,7 +45,7 @@ def upload_file():
         )
 
     if file and file.filename and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
+        filename = f"{uuid4()}.{secure_filename(file.filename)}"
         file.save(os.path.join(UPLOAD_FOLDER, filename))
         file_url = f"{request.host_url}{UPLOAD_FOLDER}/{filename}"
         return (
