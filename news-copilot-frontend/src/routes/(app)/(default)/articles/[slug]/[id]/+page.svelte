@@ -15,7 +15,8 @@
 		Card,
 		Heading,
 		Dropdown,
-		DropdownItem
+		DropdownItem,
+		Badge
 	} from 'flowbite-svelte';
 	import {
 		PaperClipOutline,
@@ -88,9 +89,37 @@
 		<Card size="none" shadow={false}>
 			<Heading class="text-center">{data.article?.title}</Heading>
 
-			<div class="my-6 flex justify-center">
-				<Img src={data.article?.coverImage} alt={data.article?.title} imgClass="rounded-md" />
-			</div>
+			{#if data.article?.createdAt}
+				<div class="mt-2 flex justify-center">
+					<p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+						{new Date(data.article?.createdAt).toLocaleDateString()}
+					</p>
+				</div>
+			{/if}
+
+			{#if data.article?.categories}
+				<div class="mt-2 flex flex-wrap justify-center gap-1">
+					{#each data.article?.categories as category}
+						<Badge>{category.title.toUpperCase()}</Badge>
+					{/each}
+				</div>
+			{/if}
+
+			{#if data.article?.coverImage}
+				<div class="my-6 flex justify-center">
+					<Img src={data.article?.coverImage} alt={data.article?.title} imgClass="rounded-md" />
+				</div>
+			{/if}
+
+			{#if data.article?.summary}
+				<div class="mt-2">
+					<span class="font-bold">Summary: </span>
+					<span class="text-sm font-medium">
+						{data.article?.summary}
+					</span>
+				</div>
+			{/if}
+
 			<div>
 				<Markdown source={data.article?.content} />
 			</div>
