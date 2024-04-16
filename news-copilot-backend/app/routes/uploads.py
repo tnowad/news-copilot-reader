@@ -1,11 +1,11 @@
-from flask import request, jsonify, Blueprint, send_from_directory
+from flask import request, jsonify, Blueprint, send_file
 from http import HTTPStatus
 from werkzeug.utils import secure_filename
 import os
 
 uploads_bp = Blueprint("uploads", __name__)
 
-UPLOAD_FOLDER = "static/uploads/"
+UPLOAD_FOLDER = "uploads"
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -67,4 +67,23 @@ def upload_file():
             }
         ),
         HTTPStatus.BAD_REQUEST,
+    )
+
+
+@uploads_bp.route("/uploads/<path:path>", methods=["GET"])
+def get_file(path):
+    file_path = os.path.join(os.getcwd(), "uploads", path)
+    print(file_path)
+
+    if os.path.exists(file_path):
+        return send_file(file_path)
+
+    return (
+        jsonify(
+            {
+                "statusCode": HTTPStatus.NOT_FOUND,
+                "error": "File not found",
+            }
+        ),
+        HTTPStatus.NOT_FOUND,
     )
