@@ -17,7 +17,6 @@ users_bp = Blueprint("user", __name__)
 
 @users_bp.route("/users/profile", methods=["GET"])
 @jwt_required()
-@role_required([RoleEnum.USER, RoleEnum.ADMIN, RoleEnum.WRITER])
 def profile():
     current_user = User.query.filter_by(email=get_jwt_identity()).first()
 
@@ -267,3 +266,79 @@ def create_user():
     }
 
     return jsonify(response_data), HTTPStatus.CREATED
+
+
+@users_bp.route("/users/profile", methods=["PUT"])
+@jwt_required()
+def update_profile_user():
+    try:
+        current_user = User.query.filter_by(email=get_jwt_identity()).first_or_404()
+        data = request.get_json()
+
+        display_name = data.get("displayName")
+        avatar_image = data.get("avatarImage")
+        password = data.get("password")
+        phone_number = data.get("phoneNumber")
+        bio = data.get("bio")
+        birth_date = data.get("birthDate")
+
+        if password and not current_user.check_password(password):
+            return (
+                jsonify(
+                    {
+                        "statusCode": HTTPStatus.BAD_REQUEST,
+                        "message": "Password is incorrect",
+                    }
+                ),
+                HTTPStatus.BAD_REQUEST,
+            )
+
+        if display_name is not None and current_user.display_name != display_name:
+            current_user.display_name = display_name
+        if (
+            avatar_image is not None
+            and current_user.avatar_image != avatar_image
+            and avatar_image != ""
+        ):
+            current_user.avatar_image = avatar_image
+        if phone_number is not None and current_user.phone_number != phone_number:
+            current_user.phone_number = phone_number
+        if bio is not None and current_user.bio != bio:
+            current_user.bio = bio
+        if birth_date is not None and current_user.birth_date != birth_date:
+            current_user.birth_date = datetime.strptime(birth_date, "%Y-%m-%d")
+
+        db.session.commit()
+        response_data = {
+            "statusCode": HTTPStatus.OK,
+            "message": "User updated successfully",
+            "data": {
+                "user": {
+                    "id": current_user.id,
+                    "email": current_user.email,
+                    "displayName": current_user.display_name,
+                    "avatarImage": current_user.avatar_image,
+                    "bio": current_user.bio,
+                    "birthDate": datetime.strftime(current_user.birth_date, "%Y-%m-%d"),
+                    "phoneNumber": current_user.phone_number,
+                    "roles": [str(role.name) for role in current_user.roles],
+                    "createdAt": datetime.strftime(current_user.created_at, "%Y-%m-%d"),
+                    "updatedAt": datetime.strftime(current_user.updated_at, "%Y-%m-%d"),
+                }
+            },
+        }
+
+        return (
+            jsonify(response_data),
+            HTTPStatus.OK,
+        )
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.BAD_REQUEST,
+                    "message": str(e),
+                }
+            ),
+            HTTPStatus.BAD_REQUEST,
+        )
