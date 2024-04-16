@@ -10,7 +10,8 @@
 		Label,
 		Badge,
 		MultiSelect,
-		Textarea
+		Textarea,
+		Fileupload
 	} from 'flowbite-svelte';
 	import { UploadSolid } from 'flowbite-svelte-icons';
 	import type { PageData } from './$types';
@@ -136,6 +137,11 @@
 							name="birthDate"
 							class="border font-normal outline-none"
 						/>
+					</Label>
+
+					<Label class="col-span-6 space-y-2 sm:col-span-3">
+						<span>Avatar Image:</span>
+						<Fileupload name="avatarImage" class="border font-normal outline-none" />
 					</Label>
 
 					<Label class="col-span-6 space-y-2 sm:col-span-3">

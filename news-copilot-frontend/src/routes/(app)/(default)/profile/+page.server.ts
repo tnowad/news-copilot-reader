@@ -1,4 +1,5 @@
 import userService from '$lib/services/user.service';
+import uploadService from '$lib/services/upload.service';
 import { StatusCodes } from 'http-status-codes';
 import type { Actions, PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
@@ -35,10 +36,13 @@ export const actions = {
 		const avatarImage = formData.get('avatarImage') as string;
 		const bio = formData.get('bio') as string;
 
+		const avatarURL = uploadService.uploadFile(avatarImage);
+		console.log(avatarURL);
+
 		const response = await userService.updateCurrentUser(
 			{
 				email,
-				avatarImage,
+				avatarImage: avatarURL,
 				displayName,
 				bio,
 				phoneNumber,
