@@ -3,14 +3,6 @@ import type { PageServerLoad } from './$types';
 import authService from '$lib/services/auth.service';
 import { StatusCodes } from 'http-status-codes';
 
-export const load: PageServerLoad = async (event) => {
-	const accessToken = event.cookies.get('accessToken');
-
-	if (accessToken) {
-		return redirect(StatusCodes.MOVED_TEMPORARILY, '/');
-	}
-};
-
 export const actions = {
 	default: async (event) => {
 		const formData = await event.request.formData();
@@ -28,12 +20,8 @@ export const actions = {
 			case StatusCodes.OK:
 				event.cookies.set('refreshToken', response.data.token.refreshToken, { path: '/' });
 				event.cookies.set('accessToken', response.data.token.accessToken, { path: '/' });
+				return { ...response, redirectTo: '/' };
 				break;
-			case StatusCodes.UNAUTHORIZED:
-				break;
-			case StatusCodes.UNPROCESSABLE_ENTITY:
-				break;
-			default:
 		}
 
 		return response;
