@@ -192,6 +192,12 @@ def seed_articles_from_json(file_path):
 def seed_database():
     seed_roles()
     seed_users()
-    # seed_categories()
-    # seed_articles()
-    seed_articles_from_json("articles.json")
+    try:
+        seed_articles_from_json("articles.json")
+    except Exception as e:
+        try:
+            seed_categories()
+            seed_articles()
+        except Exception as e:
+            print(f"Error seeding articles: {e}")
+            db.session.rollback()

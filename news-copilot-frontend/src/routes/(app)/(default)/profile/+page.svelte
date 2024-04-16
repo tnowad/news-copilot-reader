@@ -9,6 +9,7 @@
 		Input,
 		Label,
 		Badge,
+		MultiSelect,
 		Textarea
 	} from 'flowbite-svelte';
 	import { UploadSolid } from 'flowbite-svelte-icons';
@@ -20,6 +21,11 @@
 
 	let avatarInputElement: HTMLInputElement | null = null;
 	let avatarImageSrc = data.user?.avatarImage ?? '/images/default-profile-picture.png';
+	let roles = [
+		{ value: 'admin', name: 'ADMIN' },
+		{ value: 'writer', name: 'WRITER' },
+		{ value: 'user', name: 'USER' }
+	];
 
 	onMount(() => {
 		if (avatarInputElement) {
@@ -168,10 +174,13 @@
 					</Label>
 					<Label class="col-span-full space-y-2">
 						<span>Role:</span>
-						<div class="flex gap-x-2">
+						<!-- <div class="flex gap-x-2">
 							{#each data.user?.roles ?? [] as role}
 								<Badge>{role}</Badge>
 							{/each}
+						</div> -->
+						<div class="col-span-full">
+							<MultiSelect name="category" items={roles} />
 						</div>
 					</Label>
 

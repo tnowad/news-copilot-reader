@@ -1,15 +1,6 @@
-import { redirect, type Actions } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+import { type Actions } from '@sveltejs/kit';
 import authService from '$lib/services/auth.service';
 import { StatusCodes } from 'http-status-codes';
-
-export const load: PageServerLoad = async (event) => {
-	const accessToken = event.cookies.get('accessToken');
-
-	if (accessToken) {
-		return redirect(StatusCodes.MOVED_TEMPORARILY, '/');
-	}
-};
 
 export const actions = {
 	default: async (event) => {
@@ -28,12 +19,7 @@ export const actions = {
 			case StatusCodes.OK:
 				event.cookies.set('refreshToken', response.data.token.refreshToken, { path: '/' });
 				event.cookies.set('accessToken', response.data.token.accessToken, { path: '/' });
-				break;
-			case StatusCodes.UNAUTHORIZED:
-				break;
-			case StatusCodes.UNPROCESSABLE_ENTITY:
-				break;
-			default:
+				return { ...response, redirectTo: '/' };
 		}
 
 		return response;
