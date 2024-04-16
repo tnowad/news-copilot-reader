@@ -1,30 +1,30 @@
 import { StatusCodes } from 'http-status-codes';
 import { defaultHeaders } from './config';
 import { API_URL } from '$env/static/private';
+import type { Bookmark } from './types';
 
 type CreateBookmarkBody = {
-	article_id: number;
+	userId?: number;
+	articleId?: number;
 };
 
 type CreateBookmarkSuccessful = {
 	statusCode: StatusCodes.CREATED;
+	data: {
+		bookmark: Bookmark;
+	};
 	message: string;
 };
 
-type CreateBookmarkArticleNotFound = {
-	statusCode: StatusCodes.NOT_FOUND;
+type CreateBookmarkServerError = {
+	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
 	message: string;
+	error: string;
 };
 
-type CreateBookmarkBookmarkExists = {
-	statusCode: StatusCodes.BAD_REQUEST;
-	message: string;
+type CreateBookmarkResponse = Omit<Response, 'json'> & {
+	json: () => Promise<CreateBookmarkSuccessful | CreateBookmarkServerError>;
 };
-
-type CreateBookmarkResponse =
-	| CreateBookmarkSuccessful
-	| CreateBookmarkArticleNotFound
-	| CreateBookmarkBookmarkExists;
 
 const createBookmark = async (body: CreateBookmarkBody, headers: HeadersInit = {}) => {
 	try {
@@ -35,92 +35,147 @@ const createBookmark = async (body: CreateBookmarkBody, headers: HeadersInit = {
 			headers: { ...defaultHeaders, ...headers }
 		};
 
-		const response = await fetch(url, requestInit);
+		const response = (await fetch(url, requestInit)) as CreateBookmarkResponse;
 
-		if (response.ok) {
-			return { statusCode: response.status, message: 'Bookmark created successfully' };
-		} else if (response.status === StatusCodes.NOT_FOUND) {
-			return { statusCode: response.status, message: 'Article not found' };
-		} else if (response.status === StatusCodes.BAD_REQUEST) {
-			return { statusCode: response.status, message: 'Bookmark already exists' };
-		} else {
-			throw new Error(`Failed to create bookmark: ${response.statusText}`);
-		}
+		return response.json();
 	} catch (error) {
 		throw new Error('Failed to create bookmark: ' + (error as Error).message);
 	}
 };
 
-type GetBookmarksSuccessful = {
-	statusCode: StatusCodes.OK;
-	bookmarks: {
-		id: number;
-		article_id: number;
-		created_at: string;
-	}[];
-};
-
-type GetBookmarksResponse = GetBookmarksSuccessful;
-
-const getBookmarks = async (headers: HeadersInit = {}) => {
-	try {
-		const url = new URL('/bookmarks', API_URL);
-		const requestInit: RequestInit = {
-			method: 'GET',
-			headers: { ...defaultHeaders, ...headers }
-		};
-
-		const response = await fetch(url, requestInit);
-		const data = await response.json();
-
-		if (response.ok) {
-			return { statusCode: response.status, bookmarks: data.bookmarks };
-		} else {
-			throw new Error(`Failed to get bookmarks: ${response.statusText}`);
-		}
-	} catch (error) {
-		throw new Error('Failed to get bookmarks: ' + (error as Error).message);
-	}
+type DeleteBookmarkParams = {
+	id: number;
 };
 
 type DeleteBookmarkSuccessful = {
-	statusCode: StatusCodes.OK;
+	statusCode: StatusCodes.NO_CONTENT;
 	message: string;
 };
 
-type DeleteBookmarkNotFound = {
-	statusCode: StatusCodes.NOT_FOUND;
+type DeleteBookmarkServerError = {
+	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
 	message: string;
+	error: string;
 };
 
-type DeleteBookmarkResponse = DeleteBookmarkSuccessful | DeleteBookmarkNotFound;
+type DeleteBookmarkResponse = Omit<Response, 'json'> & {
+	json: () => Promise<DeleteBookmarkSuccessful | DeleteBookmarkServerError>;
+};
 
-const deleteBookmark = async (bookmark_id: number, headers: HeadersInit = {}) => {
+const deleteBookmark = async (params: DeleteBookmarkParams, headers: HeadersInit = {}) => {
 	try {
-		const url = new URL(`/bookmarks/${bookmark_id}`, API_URL);
+		const { id } = params;
+
+		const url = new URL(`/bookmarks/${id}`, API_URL);
 		const requestInit: RequestInit = {
 			method: 'DELETE',
 			headers: { ...defaultHeaders, ...headers }
 		};
 
-		const response = await fetch(url, requestInit);
+		const response = (await fetch(url, requestInit)) as DeleteBookmarkResponse;
 
-		if (response.ok) {
-			return { statusCode: response.status, message: 'Bookmark deleted successfully' };
-		} else if (response.status === StatusCodes.NOT_FOUND) {
-			return { statusCode: response.status, message: 'Bookmark not found' };
-		} else {
-			throw new Error(`Failed to delete bookmark: ${response.statusText}`);
-		}
+		return response.json();
 	} catch (error) {
 		throw new Error('Failed to delete bookmark: ' + (error as Error).message);
 	}
 };
 
+type GetBookmarksParams = {
+	userId?: number;
+	articleId?: number;
+};
+
+type GetBookmarksSuccessful = {
+	statusCode: StatusCodes.OK;
+	data: {
+		bookmarks: Bookmark[];
+	};
+	message: string;
+};
+
+type GetBookmarksServerError = {
+	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
+	message: string;
+	error: string;
+};
+
+type GetBookmarksResponse = Omit<Response, 'json'> & {
+	json: () => Promise<GetBookmarksSuccessful | GetBookmarksServerError>;
+};
+
+const getBookmarks = async (params: GetBookmarksParams, headers: HeadersInit = {}) => {
+	try {
+		const { userId, articleId } = params;
+
+		const url = new URL('/bookmarks', API_URL);
+		userId && url.searchParams.append('userId', userId.toString());
+		articleId && url.searchParams.append('articleId', articleId.toString());
+
+		const requestInit: RequestInit = {
+			method: 'GET',
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as GetBookmarksResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to get bookmarks: ' + (error as Error).message);
+	}
+};
+
+type GetBookmarkByIdParams = {
+	id: number;
+};
+
+type GetBookmarkByIdSuccessful = {
+	statusCode: StatusCodes.OK;
+	data: {
+		bookmark: Bookmark;
+	};
+	message: string;
+};
+
+type GetBookmarkByIdNotFound = {
+	statusCode: StatusCodes.NOT_FOUND;
+	message: string;
+	error: string;
+};
+
+type GetBookmarkByIdServerError = {
+	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
+	message: string;
+	error: string;
+};
+
+type GetBookmarkByIdResponse = Omit<Response, 'json'> & {
+	json: () => Promise<
+		GetBookmarkByIdSuccessful | GetBookmarkByIdNotFound | GetBookmarkByIdServerError
+	>;
+};
+
+const getBookmarkById = async (params: GetBookmarkByIdParams, headers: HeadersInit = {}) => {
+	try {
+		const { id } = params;
+		const url = new URL(`/bookmarks/${id}`, API_URL);
+		const requestInit: RequestInit = {
+			method: 'GET',
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as GetBookmarkByIdResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to get bookmark by ID: ' + (error as Error).message);
+	}
+};
+
 const bookmarkService = {
 	createBookmark,
-	getBookmarks,
-	deleteBookmark
+	deleteBookmark,
+	getBookmarkById,
+	getBookmarks
 };
 
 export default bookmarkService;

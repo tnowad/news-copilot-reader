@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import commentsService from '$lib/services/comment.service';
 import viewService from '$lib/services/view.service';
 import bookmarksService from '$lib/services/bookmark.service';
-export const load: PageServerLoad = async ({ params, locals }) => {
+export const load: PageServerLoad = async ({ params, locals, cookies }) => {
 	const id = parseInt(params.id);
 
 	const articlesResponse = await articleService.getArticleById({
@@ -26,13 +26,28 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		includes: ['author', 'categories']
 	});
 
+	const bookmarkResponse = await bookmarksService.getBookmarks(
+		{
+			articleId: id,
+			userId: locals.user?.id ?? 0,
+			limit: 1
+		},
+		{ Authorization: `Bearer ${cookies.get('accessToken')}` }
+	);
+
 	const article =
 		articlesResponse.statusCode === StatusCodes.OK ? articlesResponse.data.article : null;
 	const comments =
 		commentsResponse.statusCode === StatusCodes.OK ? commentsResponse.data.comments : [];
+	const bookmark =
+		bookmarkResponse.statusCode === StatusCodes.OK && bookmarkResponse.data.bookmarks.length > 0
+			? bookmarkResponse.data.bookmarks[0]
+			: null;
+
 	return {
 		article,
 		comments,
+		bookmark,
 		recommendArticles:
 			recommendArticlesResponse.statusCode === StatusCodes.OK
 				? recommendArticlesResponse.data.articles
@@ -64,17 +79,32 @@ export const actions = {
 			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
 		);
 	},
-	bookmarkArticle: async (event) => {
+	createBookmark: async (event) => {
 		try {
 			const articleId = parseInt(event.params.id);
+			const userId = event.locals.user?.id;
 
-			// Call the bookmarks service to bookmark the article
 			const bookmarkResponse = await bookmarksService.createBookmark(
-				{ article_id: articleId }, // Ensure the key matches the expected format on the server side
+				{ articleId: articleId, userId: userId },
 				{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
 			);
+
+			return bookmarkResponse;
 		} catch (error) {
 			console.error('Failed to bookmark article: ' + error);
+		}
+	},
+	deleteBookmark: async (event) => {
+		try {
+			const formData = await event.request.formData();
+			const id = formData.get('bookmarkId') as unknown as number;
+			const bookmarkResponse = await bookmarksService.deleteBookmark(
+				{ id },
+				{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
+			);
+			return bookmarkResponse;
+		} catch (error) {
+			console.error('Failed to delete bookmark: ' + error);
 		}
 	}
 } satisfies Actions;

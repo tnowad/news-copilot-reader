@@ -25,6 +25,7 @@
 	} from 'flowbite-svelte-icons';
 	import { CommentItem, Section } from 'flowbite-svelte-blocks';
 	import { onMount } from 'svelte';
+	import { enhance } from '$app/forms';
 
 	let commentEditingId: number | null;
 	let commentDeleteId: number | null;
@@ -49,26 +50,8 @@
 		});
 	};
 
-	const bookmarkArticle = async () => {
-		if (!data.article?.id || !data.article?.slug) {
-			return;
-		}
-		const formData = new FormData();
-		formData.append('article_id', data.article.id as unknown as string);
-		formData.append('slug', data.article.slug);
-
-		fetch(`/articles/${data.article.slug}/${data.article.id}?/bookmarkArticle`, {
-			method: 'POST',
-			body: formData,
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		});
-	};
-
 	onMount(() => {
 		markArticleViewed();
-		bookmarkArticle();
 	});
 </script>
 
@@ -120,13 +103,27 @@
 					</div>
 				</a>
 				<div class="mt-3 text-center">
-					<form
-						action={`/articles/${data.article?.slug}/${data.article?.id}?/bookmarkArticle`}
-						method="post"
-					>
-						<input type="hidden" name="category-id" value={data.article?.id} />
-						<Button type="submit">Bookmark</Button>
-					</form>
+					{#if data.bookmark}
+						<form
+							action={`/articles/${data.article?.slug}/${data.article?.id}?/deleteBookmark`}
+							method="post"
+							use:enhance
+						>
+							<input type="hidden" name="bookmarkId" value={data.bookmark.id} />
+
+							<Button type="submit">Unbookmark</Button>
+						</form>
+					{:else}
+						<form
+							action={`/articles/${data.article?.slug}/${data.article?.id}?/createBookmark`}
+							method="post"
+							use:enhance
+						>
+							<input type="hidden" name="articleId" value={data.article?.id} />
+
+							<Button type="submit">Bookmark</Button>
+						</form>
+					{/if}
 				</div>
 			</div>
 		</Card>
