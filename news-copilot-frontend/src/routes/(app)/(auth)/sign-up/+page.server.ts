@@ -32,7 +32,10 @@ export const actions = {
 			case StatusCodes.CREATED:
 				event.cookies.set('refreshToken', response.data.token.refreshToken, { path: '/' });
 				event.cookies.set('accessToken', response.data.token.accessToken, { path: '/' });
-				break;
+				return {
+					...response,
+					redirectTo: '/'
+				};
 			case StatusCodes.CONFLICT:
 			case StatusCodes.BAD_REQUEST:
 				break;

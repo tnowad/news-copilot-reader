@@ -1,5 +1,4 @@
-import { redirect, type Actions } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+import { type Actions } from '@sveltejs/kit';
 import authService from '$lib/services/auth.service';
 import { StatusCodes } from 'http-status-codes';
 
@@ -21,7 +20,6 @@ export const actions = {
 				event.cookies.set('refreshToken', response.data.token.refreshToken, { path: '/' });
 				event.cookies.set('accessToken', response.data.token.accessToken, { path: '/' });
 				return { ...response, redirectTo: '/' };
-				break;
 		}
 
 		return response;

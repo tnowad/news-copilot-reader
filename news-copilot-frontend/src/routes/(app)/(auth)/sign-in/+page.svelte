@@ -11,7 +11,7 @@
 	export let form: ActionData;
 
 	$: if (form?.statusCode === StatusCodes.OK) {
-		toasts.success('You have successfully signed in');
+		toasts.success(form.message ?? 'You have successfully signed in');
 		goto(form.redirectTo ?? '/');
 	} else if (form?.statusCode === StatusCodes.UNAUTHORIZED) {
 		toasts.error(form?.message ?? 'Invalid email or password');

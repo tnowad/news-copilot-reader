@@ -3,8 +3,22 @@
 	import { Button, Label, Input, Checkbox } from 'flowbite-svelte';
 	import { getErrorFieldMessage } from '$lib/utils/form';
 	import type { ActionData } from './$types';
+	import { goto } from '$app/navigation';
+	import { StatusCodes } from 'http-status-codes';
+	import { toasts } from 'svelte-toasts';
 
 	export let form: ActionData;
+	$: if (form?.statusCode === StatusCodes.CREATED) {
+		toasts.success(form.message ?? 'You have successfully signed up');
+		goto(form?.redirectTo ?? '/');
+	} else if (
+		form?.statusCode === StatusCodes.BAD_REQUEST ||
+		form?.statusCode === StatusCodes.CONFLICT
+	) {
+		toasts.error(form?.message ?? 'Could not sign up. Please try again.');
+	} else if (form?.statusCode === StatusCodes.UNPROCESSABLE_ENTITY) {
+		toasts.error(form?.message ?? 'Invalid form data. Please check the form and try again.');
+	}
 </script>
 
 <Section name="register" sectionClass="w-full md:w-[500px]">
