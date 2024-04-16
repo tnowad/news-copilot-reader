@@ -22,7 +22,7 @@ export const load: PageServerLoad = async ({ params, locals, cookies }) => {
 	const recommendArticlesResponse = await articleService.getRecommendArticles({
 		userId: locals.user?.id,
 		articleId: id,
-		limit: 12,
+		limit: 4,
 		includes: ['author', 'categories']
 	});
 
@@ -71,9 +71,26 @@ export const actions = {
 		);
 
 		return commentsResponse;
-
-		console.log(commentsResponse);
 	},
+	updateComment: async (event) => {
+		const formData = await event.request.formData();
+		if (!event.locals.user) {
+			return;
+		}
+		const commendId = formData.get('commentId') as unknown as number;
+		const content = formData.get('content') as string;
+
+		const commentResponse = await commentsService.updateComment(
+			{
+				id: commendId,
+				content: content
+			},
+			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
+		);
+
+		return commentResponse;
+	},
+
 	markViewed: async (event) => {
 		const articleId = parseInt(event.params.id);
 		await viewService.markArticleViewed(

@@ -175,6 +175,7 @@
 			<form
 				action={`/articles/${data.article?.slug}/${data.article?.id}?/createComment`}
 				method="post"
+				use:enhance
 			>
 				<Textarea class="mb-4" placeholder="Write a comment" name="content">
 					<div slot="footer" class="flex items-center justify-between">
@@ -231,7 +232,11 @@
 								class="mt-3"
 								action={`/articles/${data.article?.slug}/${data.article?.id}?/updateComment`}
 								method="post"
+								use:enhance={() => {
+									commentEditingId = null;
+								}}
 							>
+								<input type="hidden" name="commentId" value={comment.id} />
 								<Textarea
 									class="mb-4"
 									placeholder="Write a comment"
