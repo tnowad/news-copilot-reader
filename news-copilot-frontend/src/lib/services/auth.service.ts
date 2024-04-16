@@ -182,11 +182,102 @@ const refreshToken = async (body: RefreshTokenBody, headers: HeadersInit = {}) =
 	}
 };
 
+type ForgotPasswordBody = {
+	email: string;
+};
+
+type ForgotPasswordSuccessful = {
+	statusCode: StatusCodes.OK;
+	data: {
+		token: string;
+	};
+	message: string;
+};
+
+type ForgotPasswordFailed = {
+	statusCode: StatusCodes.NOT_FOUND;
+	message: string;
+	error: string;
+};
+
+type ForgotPasswordResponse = Omit<Response, 'json'> & {
+	json: () => Promise<ForgotPasswordSuccessful | ForgotPasswordFailed>;
+};
+
+const forgotPassword = async (body: ForgotPasswordBody, headers: HeadersInit = {}) => {
+	try {
+		const url = new URL('/auth/forgot-password', API_URL);
+		const requestInit: RequestInit = {
+			method: 'POST',
+			body: JSON.stringify(body),
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as ForgotPasswordResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to refresh token: ' + (error as Error).message);
+	}
+};
+
+type ResetPasswordBody = {
+	email: string;
+	code: string;
+	password: string;
+	confirmPassword: string;
+};
+
+type ResetPasswordSuccessful = {
+	statusCode: StatusCodes.OK;
+	message: string;
+};
+
+type ResetPasswordFailed = {
+	statusCode: StatusCodes.UNAUTHORIZED;
+	message: string;
+	error: string;
+};
+
+type ResetPasswordValidationFailed = {
+	statusCode: StatusCodes.UNPROCESSABLE_ENTITY;
+	message: string;
+	errors: {
+		field: 'email' | 'code' | 'password' | 'confirmPassword';
+		message: string;
+	}[];
+};
+
+type ResetPasswordResponse = Omit<Response, 'json'> & {
+	json: () => Promise<
+		ResetPasswordSuccessful | ResetPasswordFailed | ResetPasswordValidationFailed
+	>;
+};
+
+const resetPassword = async (body: ResetPasswordBody, headers: HeadersInit = {}) => {
+	try {
+		const url = new URL('/auth/reset-password', API_URL);
+		const requestInit: RequestInit = {
+			method: 'POST',
+			body: JSON.stringify(body),
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as ResetPasswordResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to refresh token: ' + (error as Error).message);
+	}
+};
+
 const authService = {
 	signIn,
 	signUp,
 	signOut,
-	refreshToken
+	refreshToken,
+	forgotPassword,
+	resetPassword
 };
 
 export default authService;
