@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+	import type { ActionData, PageData } from './$types';
 	import { Modal } from 'flowbite-svelte';
 	import Markdown from '$lib/widgets/markdown.svelte';
 	import ArticleSection from '$lib/widgets/article-section.svelte';
@@ -26,12 +26,15 @@
 	import { CommentItem, Section } from 'flowbite-svelte-blocks';
 	import { onMount } from 'svelte';
 	import { enhance } from '$app/forms';
+	import { StatusCodes } from 'http-status-codes';
+	import { toasts } from 'svelte-toasts';
 
 	let commentEditingId: number | null;
 	let commentDeleteId: number | null;
 	let defaultModal = false;
 
 	export let data: PageData;
+	export let form: ActionData;
 
 	const markArticleViewed = async () => {
 		if (!data.article?.id) {
@@ -49,7 +52,17 @@
 			body: formData
 		});
 	};
+	$: {
+		if (form) {
+			if (form.statusCode >= 200 && form.statusCode < 300) {
+				toasts.success(form.message);
+			} else {
+				toasts.error(form.message);
+			}
 
+			console.log(form);
+		}
+	}
 	onMount(() => {
 		markArticleViewed();
 	});

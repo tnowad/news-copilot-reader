@@ -70,6 +70,8 @@ export const actions = {
 			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
 		);
 
+		return commentsResponse;
+
 		console.log(commentsResponse);
 	},
 	markViewed: async (event) => {
