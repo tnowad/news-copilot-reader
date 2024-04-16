@@ -26,6 +26,7 @@ def upload_file():
                 {
                     "statusCode": HTTPStatus.BAD_REQUEST,
                     "error": "No file part",
+                    "message": "No file part provided in the request",
                 }
             ),
             HTTPStatus.BAD_REQUEST,
@@ -39,6 +40,7 @@ def upload_file():
                 {
                     "statusCode": HTTPStatus.BAD_REQUEST,
                     "error": "No selected file",
+                    "message": "No file selected for upload",
                 }
             ),
             HTTPStatus.BAD_REQUEST,
@@ -55,6 +57,7 @@ def upload_file():
                     "data": {
                         "fileURL": file_url,
                     },
+                    "message": "File uploaded successfully",
                 }
             ),
             HTTPStatus.OK,
@@ -65,6 +68,7 @@ def upload_file():
             {
                 "statusCode": HTTPStatus.BAD_REQUEST,
                 "error": "Invalid file type",
+                "message": "Uploaded file type is not supported",
             }
         ),
         HTTPStatus.BAD_REQUEST,
@@ -74,7 +78,6 @@ def upload_file():
 @uploads_bp.route("/uploads/<path:path>", methods=["GET"])
 def get_file(path):
     file_path = os.path.join(os.getcwd(), "uploads", path)
-    print(file_path)
 
     if os.path.exists(file_path):
         return send_file(file_path)
@@ -84,6 +87,7 @@ def get_file(path):
             {
                 "statusCode": HTTPStatus.NOT_FOUND,
                 "error": "File not found",
+                "message": "Requested file is not found",
             }
         ),
         HTTPStatus.NOT_FOUND,
