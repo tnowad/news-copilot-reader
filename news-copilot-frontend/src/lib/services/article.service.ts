@@ -408,13 +408,88 @@ const getRecommendArticles = async (
 	}
 };
 
+type getAllBookmarkedArticlesParams = {
+	page?: number;
+	limit?: number;
+	sortBy?: 'title' | 'createdAt' | 'viewCount' | 'publishedAt' | 'updatedAt';
+	sortOrder?: 'asc' | 'desc';
+	style?: 'compact' | 'full';
+	includes?: ('author' | 'categories')[];
+};
+
+type GetAllBookmarkedArticlesSuccessful = {
+	statusCode: StatusCodes.OK;
+	data: {
+		articles: Article[];
+		metadata: {
+			pagination: {
+				offset: number;
+				limit: number;
+				previousOffset: number;
+				nextOffset: number;
+				currentPage: number;
+				pageCount: number;
+				totalCount: number;
+			};
+			sortedBy: {
+				name: 'title' | 'date';
+				order: 'asc' | 'desc';
+			};
+			style: 'compact' | 'full';
+		};
+	};
+	message: string;
+};
+
+type GetAllBookmarkedArticlesServerError = {
+	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
+	message: string;
+	error: string;
+};
+
+type GetAllBookmarkedArticlesResponse = Omit<Response, 'json'> & {
+	json: () => Promise<GetAllBookmarkedArticlesSuccessful | GetAllBookmarkedArticlesServerError>;
+};
+
+const getAllBookmarkedArticles = async (
+	params: getAllBookmarkedArticlesParams = {},
+	headers: HeadersInit = {}
+) => {
+	try {
+		const { page, limit, sortBy, sortOrder, style, includes } = params;
+		const url = new URL('/articles/bookmarks', API_URL);
+		const queryParams = new URLSearchParams();
+
+		if (page) queryParams.set('page', page.toString());
+		if (limit) queryParams.set('limit', limit.toString());
+		if (sortBy) queryParams.set('sortBy', sortBy);
+		if (sortOrder) queryParams.set('sortOrder', sortOrder);
+		if (style) queryParams.set('style', style);
+		if (includes) includes.forEach((param) => queryParams.append('includes', param));
+
+		url.search = queryParams.toString();
+
+		const requestInit: RequestInit = {
+			method: 'GET',
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as GetAllBookmarkedArticlesResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to fetch articles: ' + (error as Error).message);
+	}
+};
+
 const artcileService = {
 	createArticle,
 	updateArticle,
 	deleteArticle,
 	getArticleById,
 	getAllArticles,
-	getRecommendArticles
+	getRecommendArticles,
+	getAllBookmarkedArticles
 };
 
 export default artcileService;
