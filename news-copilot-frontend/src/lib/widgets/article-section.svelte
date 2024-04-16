@@ -15,7 +15,7 @@
 	export let title: string;
 </script>
 
-<Section name="blog" sectionClass="123">
+<Section name="none" sectionClass="">
 	{#if title}
 		<BlogHead h2Class="text-start font-bold text-2xl mb-2" divClass="max-w-none">
 			<svelte:fragment slot="h2">{title}</svelte:fragment>
@@ -55,7 +55,7 @@
 							<svelte:fragment slot="h2">{article.title}</svelte:fragment>
 							<svelte:fragment slot="paragraph">
 								<p class="mb-5 flex-grow font-light text-gray-500 dark:text-gray-400">
-									{article.summary}
+									{article.summary.slice(0, 100) + '...'}
 								</p>
 							</svelte:fragment>
 						</ArticleBody>
