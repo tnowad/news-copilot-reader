@@ -73,13 +73,13 @@
 </script>
 
 <section>
-	<div class="container">
+	<div class="container mx-auto">
 		<div class="col-span-full mt-6 xl:mb-0">
 			<Breadcrumb class="mb-6">
-				<BreadcrumbItem href="../">Home</BreadcrumbItem>
+				<BreadcrumbItem home href="/">Home</BreadcrumbItem>
 				<BreadcrumbItem
 					class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
-					href="/curd/users">Article</BreadcrumbItem
+					href="/articles">Article</BreadcrumbItem
 				>
 				<BreadcrumbItem>{data.article?.title}</BreadcrumbItem>
 			</Breadcrumb>
@@ -100,12 +100,12 @@
 			</div>
 
 			<div class="m-3 flex items-center justify-between">
-				<a href={`/users/${data.article?.author.id}`}>
+				<a href={`/users/${data.article?.author?.id}`}>
 					<div class="flex space-x-4 rtl:space-x-reverse">
 						<Avatar
 							class="h-10 w-10"
-							src={data.article?.author.avatarImage}
-							alt={data.article?.author.displayName}
+							src={data.article?.author?.avatarImage}
+							alt={data.article?.author?.displayName}
 						/>
 						<div class="flex flex-col">
 							<h4 class="text-sm font-bold dark:text-white">
@@ -156,8 +156,8 @@
 					comment={{
 						id: comment.id + '',
 						commenter: {
-							name: comment.author.displayName,
-							profilePicture: comment.author.avatarImage
+							name: comment.author?.displayName || 'unknown',
+							profilePicture: comment.author?.avatarImage
 						},
 						content: comment.content,
 						date: comment.createdAt
@@ -170,7 +170,7 @@
 							class="dots-menu dark:text-white"
 						/>
 						<Dropdown triggeredBy={`#dots-menu-${comment.id}`}>
-							{#if data.user?.id == comment.author.id}
+							{#if data.user?.id == comment.author?.id}
 								<DropdownItem
 									on:click={() => {
 										commentEditingId = comment.id;
