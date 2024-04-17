@@ -21,7 +21,6 @@
 	<DropdownItem href="/profile">Profile</DropdownItem>
 
 	{#if user.roles?.some((role) => role === 'USER')}
-		<DropdownItem href="/settings">Settings</DropdownItem>
 		<DropdownItem href="/bookmarks">Bookmark</DropdownItem>
 	{/if}
 	<DropdownDivider />
