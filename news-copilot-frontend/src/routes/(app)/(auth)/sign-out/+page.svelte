@@ -4,9 +4,7 @@
 	import { Button, Modal } from 'flowbite-svelte';
 	let defaultModal = true;
 
-	$: (() => {
-		defaultModal === false && goto('/');
-	})();
+	$: defaultModal === false && goto('/');
 </script>
 
 <Modal title="Are you sure you want to sign out?" bind:open={defaultModal}>

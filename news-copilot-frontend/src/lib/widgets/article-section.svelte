@@ -8,19 +8,18 @@
 		BlogBodyWrapper,
 		BlogHead
 	} from 'flowbite-svelte-blocks';
-	import { Avatar, Badge, Hr, Img } from 'flowbite-svelte';
+	import { Avatar, Badge, Img } from 'flowbite-svelte';
 	import type { Article } from '$lib/services/types';
 
 	export let articles: Article[] = [];
 	export let title: string;
 </script>
 
-<Section name="blog" sectionClass="123">
+<Section name="none" sectionClass="container mx-auto">
 	{#if title}
-		<BlogHead>
+		<BlogHead h2Class="text-start font-bold text-2xl mb-2" divClass="max-w-none">
 			<svelte:fragment slot="h2">{title}</svelte:fragment>
 		</BlogHead>
-		<Hr />
 	{/if}
 
 	<BlogBodyWrapper divClass="grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -34,7 +33,10 @@
 					articleClass="p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700 h-full flex flex-col"
 				>
 					<ArticleHead divClass="">
-						<Img imgClass="h-48 w-full object-cover rounded-md" src={article.coverImage} />
+						<Img
+							imgClass="h-48 w-full object-cover rounded-md"
+							src={article.coverImage ?? '/images/logo.png'}
+						/>
 						{#if article.categories}
 							<div class="mt-2 flex flex-wrap gap-1">
 								{#each article.categories as category}
@@ -53,7 +55,7 @@
 							<svelte:fragment slot="h2">{article.title}</svelte:fragment>
 							<svelte:fragment slot="paragraph">
 								<p class="mb-5 flex-grow font-light text-gray-500 dark:text-gray-400">
-									{article.summary}
+									{article.summary.slice(0, 100) + '...'}
 								</p>
 							</svelte:fragment>
 						</ArticleBody>

@@ -7,18 +7,22 @@ class HybridRecommender:
         self.collaborative_filtering_recommender.train(views_df)
         self.content_based_recommender.train(articles_df)
 
-    def recommend_articles(self, user_id, article_id, num_recommendations=5):
+    def recommend_articles(self, user_id, article_id, num_recommendations=12):
         recommended_articles = []
         if user_id is not None:
             collaborative_recommendations = (
-                self.collaborative_filtering_recommender.recommend_articles(user_id)
+                self.collaborative_filtering_recommender.recommend_articles(
+                    user_id, num_recommendations
+                )
             )
             print(collaborative_recommendations)
             recommended_articles.extend(collaborative_recommendations)
 
         if article_id is not None:
             content_based_recommendations = (
-                self.content_based_recommender.recommend_articles(article_id)
+                self.content_based_recommender.recommend_articles(
+                    article_id, num_recommendations
+                )
             )
             recommended_articles.extend(content_based_recommendations)
 

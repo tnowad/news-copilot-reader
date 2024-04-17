@@ -10,34 +10,28 @@ from app.models.article import Article
 from app.models.bookmark import Bookmark
 from app.models.user import User
 from app.models.role import RoleEnum
-from sqlalchemy import and_
 
 bookmarks_bp = Blueprint("bookmarks", __name__)
-
-
-# Error handling for "Bookmark not found" error
-@bookmarks_bp.errorhandler(404)
-def not_found_error(error):
-    return jsonify({"error": "Bookmark not found"}), HTTPStatus.NOT_FOUND
-
-
-# Error handling for generic internal server errors
-@bookmarks_bp.errorhandler(Exception)
-def internal_error(error):
-    return jsonify({"error": "Internal Server Error"}), HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 @bookmarks_bp.route("/bookmarks", methods=["POST"])
 @jwt_required()
 def create_bookmark():
     data = request.get_json()
-    article_id = data.get("article_id")
+    article_id = data.get("articleId")
+    user_id = data.get("userId")
+
     current_user = User.query.filter_by(email=get_jwt_identity()).first_or_404()
-
-    user_id = current_user.id
-
-    if not User.query.get(user_id):
-        return jsonify({"error": "User not found"}), HTTPStatus.NOT_FOUND
+    if user_id != current_user.id:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.UNAUTHORIZED,
+                    "error": "Unauthorized",
+                }
+            ),
+            HTTPStatus.UNAUTHORIZED,
+        )
 
     article = Article.query.get(article_id)
     if not article:
@@ -46,8 +40,17 @@ def create_bookmark():
     existing_bookmark = Bookmark.query.filter_by(
         article_id=article_id, user_id=user_id
     ).first()
+
     if existing_bookmark:
-        return jsonify({"error": "Bookmark already exists"}), HTTPStatus.BAD_REQUEST
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.CONFLICT,
+                    "error": "Bookmark already exists",
+                }
+            ),
+            HTTPStatus.CONFLICT,
+        )
 
     bookmark = Bookmark(
         article_id=article_id, user_id=user_id, created_at=datetime.now()
@@ -55,26 +58,72 @@ def create_bookmark():
     db.session.add(bookmark)
     db.session.commit()
 
-    return jsonify({"message": "Bookmark created successfully"}), HTTPStatus.CREATED
+    return (
+        jsonify(
+            {
+                "statusCode": HTTPStatus.CREATED,
+                "message": "Bookmark created successfully",
+            }
+        ),
+        HTTPStatus.CREATED,
+    )
+
+
+@bookmarks_bp.route("/bookmarks/<int:bookmark_id>", methods=["DELETE"])
+@jwt_required()
+def delete_bookmark(bookmark_id):
+    current_user = User.query.filter_by(email=get_jwt_identity()).first_or_404()
+    bookmark = Bookmark.query.filter_by(
+        id=bookmark_id, user_id=current_user.id
+    ).first_or_404()
+    if not bookmark:
+        return jsonify({"error": "Bookmark not found"}), HTTPStatus.NOT_FOUND
+    if bookmark.user_id != current_user.id:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.UNAUTHORIZED,
+                    "error": "Unauthorized",
+                }
+            ),
+            HTTPStatus.UNAUTHORIZED,
+        )
+
+    db.session.delete(bookmark)
+    db.session.commit()
+    return (
+        jsonify(
+            {
+                "statusCode": HTTPStatus.NO_CONTENT,
+                "message": "Bookmark deleted successfully",
+            }
+        ),
+        HTTPStatus.OK,
+    )
 
 
 @bookmarks_bp.route("/bookmarks", methods=["GET"])
 @jwt_required()
-@role_required([RoleEnum.ADMIN])
 def get_bookmarks():
     try:
         current_user_email = get_jwt_identity()
         current_user = User.query.filter_by(email=current_user_email).first_or_404()
 
-        if RoleEnum.ADMIN in [role for role in current_user.roles]:
-            bookmarks = Bookmark.query.all()
-        else:
-            bookmarks = Bookmark.query.filter_by(user_id=current_user.id).all()
-
         article_id = request.args.get("articleId", type=int)
+        user_id = request.args.get("userId", type=int)
         limit = request.args.get("limit", type=int) or 10
         style = request.args.get("style", type=str) or "compact"
         includes = request.args.getlist("includes", type=str)
+
+        query = Bookmark.query
+        if article_id:
+            query = query.filter_by(article_id=article_id)
+        if user_id:
+            query = query.filter_by(user_id=user_id)
+        else:
+            query = query.filter_by(user_id=current_user.id)
+
+        bookmarks = query.limit(limit).all()
 
         bookmark_data = []
         for bookmark in bookmarks:
@@ -89,41 +138,6 @@ def get_bookmarks():
                     "slug": bookmark.article.slug,
                     "createdAt": bookmark.article.created_at.strftime(
                         "%Y-%m-%dT%H:%M:%S"
-                    ),
-                    "content": bookmark.article.content if style == "full" else None,
-                    "updatedAt": (
-                        bookmark.article.updated_at.strftime("%Y-%m-%dT%H:%M:%S")
-                        if style == "full" and bookmark.article.updated_at
-                        else None
-                    ),
-                    "deletedAt": (
-                        bookmark.article.deleted_at.strftime("%Y-%m-%dT%H:%M:%S")
-                        if style == "full" and bookmark.article.deleted_at
-                        else None
-                    ),
-                    "comments": (
-                        [
-                            {
-                                "id": comment.id,
-                                "content": comment.content,
-                                "createdAt": comment.created_at.strftime(
-                                    "%Y-%m-%dT%H:%M:%S"
-                                ),
-                                "updatedAt": comment.updated_at.strftime(
-                                    "%Y-%m-%dT%H:%M:%S"
-                                ),
-                                "parentCommentId": comment.parent_id,
-                                "author": {
-                                    "id": comment.author.id,
-                                    "email": comment.author.email,
-                                    "displayName": comment.author.display_name,
-                                    "avatarImage": comment.author.avatar_image,
-                                },
-                            }
-                            for comment in bookmark.article.comments
-                        ]
-                        if "comments" in includes
-                        else None
                     ),
                     "categories": (
                         [
@@ -181,7 +195,7 @@ def get_bookmarks():
 
 @bookmarks_bp.route("/bookmarks/<int:bookmark_id>", methods=["GET"])
 @jwt_required()
-def get_bookmark_by_id(bookmark_id):
+def get_bookmark(bookmark_id):
     try:
         current_user_email = get_jwt_identity()
         current_user = User.query.filter_by(email=current_user_email).first_or_404()

@@ -40,7 +40,7 @@
 					<span class="sr-only">Check icon</span>
 				{/if}
 			</svelte:fragment>
-			{data.title}
+			{data.description}
 		</Toast>
 	</ToastContainer>
 	<slot />

@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { defaultHeaders } from './config';
 import { API_URL } from '$env/static/private';
+import type { Metadata } from './types';
 
 type GetCurrentUserProfileParams = {
 	include?: 'roles'[];
@@ -156,6 +157,7 @@ type GetAllUsersSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
 		users: User[];
+		metadata: Metadata;
 	};
 	message: string;
 };
@@ -285,10 +287,67 @@ const createUser = async (body: CreateUserBody, headers: HeadersInit = {}) => {
 	}
 };
 
+type GetUserParams = {
+	id?: number;
+	include?: 'roles'[];
+	style?: 'compact' | 'full';
+};
+
+type GetUserSuccessful = {
+	statusCode: StatusCodes.OK;
+	data: {
+		user: User;
+	};
+	message: string;
+};
+
+type GetUserFailed = {
+	statusCode: StatusCodes.UNAUTHORIZED;
+	message: string;
+	error: string;
+};
+
+type GetUserResponse = Omit<Response, 'json'> & {
+	json: () => Promise<GetUserSuccessful | GetUserFailed>;
+};
+
+const getUser = async (
+	params: GetUserParams = {},
+	headers: HeadersInit = {}
+): Promise<GetUserSuccessful | GetCurrentUserProfileFailed> => {
+	try {
+		const { id, include, style } = params;
+		const queryParams = new URLSearchParams();
+
+		if (include) {
+			include.forEach((param) => queryParams.append('include', param));
+		}
+
+		if (style) {
+			queryParams.set('style', style);
+		}
+
+		const url = new URL(`/users/${id}`, API_URL);
+		url.search = queryParams.toString();
+
+		const requestInit: RequestInit = {
+			method: 'GET',
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as GetUserResponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to get current user profile: ' + (error as Error).message);
+	}
+};
+
 const userService = {
 	getCurrentUserProfile,
 	updateCurrentUser,
 	getAllUsers,
+	getUser,
 	deleteUser,
 	createUser
 };

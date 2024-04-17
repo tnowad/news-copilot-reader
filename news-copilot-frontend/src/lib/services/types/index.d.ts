@@ -48,6 +48,13 @@ export type Comment = {
 	author?: User;
 };
 
+export type Bookmark = {
+	id: number;
+	user: User;
+	article: Article;
+	createdAt: string;
+};
+
 export type Pagination = {
 	offset: number;
 	limit: number;

@@ -5,7 +5,6 @@ from flask_migrate import Migrate
 
 from app.extensions import cache, db, jwt, mail
 from app.seed import seed_database
-from flask_mail import Message
 
 migrate = Migrate()
 
@@ -41,11 +40,6 @@ def create_app():
 
     with app.app_context():
         from .routes import routes_bp
-
-        # Send a test email
-        # msg = Message("Hello from Flask-Mail", recipients=["recipient@example.com"])
-        # msg.body = "This is a test email sent from Flask using Maildev."
-        # mail.send(msg)
 
         db.create_all()
         seed_database()

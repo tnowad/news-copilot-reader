@@ -12,7 +12,9 @@
 		Checkbox,
 		ButtonGroup,
 		Badge,
-		Input
+		Input,
+		Breadcrumb,
+		BreadcrumbItem
 	} from 'flowbite-svelte';
 	import { Section } from 'flowbite-svelte-blocks';
 	import {
@@ -25,6 +27,7 @@
 	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
+	import { enhance } from '$app/forms';
 
 	export let data: PageData;
 
@@ -66,8 +69,20 @@
 	}, 100);
 </script>
 
-<Section sectionClass="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5" classDiv="max-w-none">
-	<form method="get" action="/dashboard/articles">
+<section>
+	<div>
+		<Breadcrumb class="mb-6">
+			<BreadcrumbItem home>Home</BreadcrumbItem>
+			<BreadcrumbItem
+				class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
+				href="/dashboard/users">Users</BreadcrumbItem
+			>
+		</Breadcrumb>
+	</div>
+</section>
+
+<Section sectionClass="" classDiv="max-w-none !p-0">
+	<form method="get" action="/dashboard/users">
 		<TableSearch
 			placeholder="Search"
 			hoverable={true}
@@ -138,7 +153,7 @@
 					<span class="text-sm font-normal text-gray-500 dark:text-gray-400">
 						Showing
 						<span class="font-semibold text-gray-900 dark:text-white"
-							>{data.metadata.pagination.offset}-{data.metadata.pagination.nextOffset}</span
+							>{data.metadata.pagination?.offset}-{data.metadata.pagination?.nextOffset}</span
 						>
 						of
 						<span class="font-semibold text-gray-900 dark:text-white"

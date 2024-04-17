@@ -42,17 +42,21 @@
 </script>
 
 <section>
+	<div>
+		<Breadcrumb class="mb-6">
+			<BreadcrumbItem home>Home</BreadcrumbItem>
+			<BreadcrumbItem
+				class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
+				href="/dashboard/users">Users</BreadcrumbItem
+			>
+			<BreadcrumbItem>{data.user?.email}</BreadcrumbItem>
+		</Breadcrumb>
+	</div>
+</section>
+
+<section>
 	<div class="">
 		<div class="col-span-full mt-6 xl:mb-0">
-			<Breadcrumb class="mb-6">
-				<BreadcrumbItem home>Home</BreadcrumbItem>
-				<BreadcrumbItem
-					class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
-					href="/curd/users">Users</BreadcrumbItem
-				>
-				<BreadcrumbItem>Settings</BreadcrumbItem>
-			</Breadcrumb>
-
 			<Heading tag="h1" class="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">
 				User settings
 			</Heading>

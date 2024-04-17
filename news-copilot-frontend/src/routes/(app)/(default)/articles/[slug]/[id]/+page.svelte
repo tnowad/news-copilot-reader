@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+	import type { ActionData, PageData } from './$types';
 	import { Modal } from 'flowbite-svelte';
 	import Markdown from '$lib/widgets/markdown.svelte';
 	import ArticleSection from '$lib/widgets/article-section.svelte';
@@ -15,7 +15,8 @@
 		Card,
 		Heading,
 		Dropdown,
-		DropdownItem
+		DropdownItem,
+		Badge
 	} from 'flowbite-svelte';
 	import {
 		PaperClipOutline,
@@ -25,12 +26,16 @@
 	} from 'flowbite-svelte-icons';
 	import { CommentItem, Section } from 'flowbite-svelte-blocks';
 	import { onMount } from 'svelte';
+	import { enhance } from '$app/forms';
+	import { StatusCodes } from 'http-status-codes';
+	import { toasts } from 'svelte-toasts';
 
 	let commentEditingId: number | null;
 	let commentDeleteId: number | null;
 	let defaultModal = false;
 
 	export let data: PageData;
+	export let form: ActionData;
 
 	const markArticleViewed = async () => {
 		if (!data.article?.id) {
@@ -48,38 +53,30 @@
 			body: formData
 		});
 	};
-
-	const bookmarkArticle = async () => {
-		if (!data.article?.id || !data.article?.slug) {
-			return;
-		}
-		const formData = new FormData();
-		formData.append('article_id', data.article.id as unknown as string);
-		formData.append('slug', data.article.slug);
-
-		fetch(`/articles/${data.article.slug}/${data.article.id}?/bookmarkArticle`, {
-			method: 'POST',
-			body: formData,
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
+	$: {
+		if (form) {
+			if (form.statusCode >= 200 && form.statusCode < 300) {
+				toasts.success(form.message);
+			} else {
+				toasts.error(form.message);
 			}
-		});
-	};
 
+			console.log(form);
+		}
+	}
 	onMount(() => {
 		markArticleViewed();
-		bookmarkArticle();
 	});
 </script>
 
 <section>
-	<div class="container">
+	<div class="container mx-auto">
 		<div class="col-span-full mt-6 xl:mb-0">
 			<Breadcrumb class="mb-6">
-				<BreadcrumbItem href="../">Home</BreadcrumbItem>
+				<BreadcrumbItem home href="/">Home</BreadcrumbItem>
 				<BreadcrumbItem
 					class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
-					href="/curd/users">Article</BreadcrumbItem
+					href="/articles">Article</BreadcrumbItem
 				>
 				<BreadcrumbItem>{data.article?.title}</BreadcrumbItem>
 			</Breadcrumb>
@@ -92,20 +89,48 @@
 		<Card size="none" shadow={false}>
 			<Heading class="text-center">{data.article?.title}</Heading>
 
-			<div class="my-6 flex justify-center">
-				<Img src={data.article?.coverImage} alt={data.article?.title} imgClass="rounded-md" />
-			</div>
+			{#if data.article?.createdAt}
+				<div class="mt-2 flex justify-center">
+					<p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+						{new Date(data.article?.createdAt).toLocaleDateString()}
+					</p>
+				</div>
+			{/if}
+
+			{#if data.article?.categories}
+				<div class="mt-2 flex flex-wrap justify-center gap-1">
+					{#each data.article?.categories as category}
+						<Badge>{category.title.toUpperCase()}</Badge>
+					{/each}
+				</div>
+			{/if}
+
+			{#if data.article?.coverImage}
+				<div class="my-6 flex justify-center">
+					<Img src={data.article?.coverImage} alt={data.article?.title} imgClass="rounded-md" />
+				</div>
+			{/if}
+
+			{#if data.article?.summary}
+				<div class="mt-2">
+					<span class="font-bold">Summary: </span>
+					<span class="text-sm font-medium">
+						{data.article?.summary}
+					</span>
+				</div>
+			{/if}
+
 			<div>
 				<Markdown source={data.article?.content} />
 			</div>
 
 			<div class="m-3 flex items-center justify-between">
-				<a href={`/users/${data.article?.author.id}`}>
+				<a href={`/users/${data.article?.author?.id}`}>
 					<div class="flex space-x-4 rtl:space-x-reverse">
 						<Avatar
 							class="h-10 w-10"
-							src={data.article?.author.avatarImage}
-							alt={data.article?.author.displayName}
+							src={data.article?.author?.avatarImage}
+							alt={data.article?.author?.displayName}
 						/>
 						<div class="flex flex-col">
 							<h4 class="text-sm font-bold dark:text-white">
@@ -120,13 +145,27 @@
 					</div>
 				</a>
 				<div class="mt-3 text-center">
-					<form
-						action={`/articles/${data.article?.slug}/${data.article?.id}?/bookmarkArticle`}
-						method="post"
-					>
-						<input type="hidden" name="category-id" value={data.article?.id} />
-						<Button type="submit">Bookmark</Button>
-					</form>
+					{#if data.bookmark}
+						<form
+							action={`/articles/${data.article?.slug}/${data.article?.id}?/deleteBookmark`}
+							method="post"
+							use:enhance
+						>
+							<input type="hidden" name="bookmarkId" value={data.bookmark.id} />
+
+							<Button type="submit">Unbookmark</Button>
+						</form>
+					{:else}
+						<form
+							action={`/articles/${data.article?.slug}/${data.article?.id}?/createBookmark`}
+							method="post"
+							use:enhance
+						>
+							<input type="hidden" name="articleId" value={data.article?.id} />
+
+							<Button type="submit">Bookmark</Button>
+						</form>
+					{/if}
 				</div>
 			</div>
 		</Card>
@@ -136,6 +175,7 @@
 			<form
 				action={`/articles/${data.article?.slug}/${data.article?.id}?/createComment`}
 				method="post"
+				use:enhance
 			>
 				<Textarea class="mb-4" placeholder="Write a comment" name="content">
 					<div slot="footer" class="flex items-center justify-between">
@@ -156,8 +196,8 @@
 					comment={{
 						id: comment.id + '',
 						commenter: {
-							name: comment.author.displayName,
-							profilePicture: comment.author.avatarImage
+							name: comment.author?.displayName || 'unknown',
+							profilePicture: comment.author?.avatarImage
 						},
 						content: comment.content,
 						date: comment.createdAt
@@ -170,7 +210,7 @@
 							class="dots-menu dark:text-white"
 						/>
 						<Dropdown triggeredBy={`#dots-menu-${comment.id}`}>
-							{#if data.user?.id == comment.author.id}
+							{#if data.user?.id == comment.author?.id}
 								<DropdownItem
 									on:click={() => {
 										commentEditingId = comment.id;
@@ -180,6 +220,7 @@
 								<DropdownItem
 									on:click={() => {
 										commentDeleteId = comment.id;
+										defaultModal = true;
 									}}>Remove</DropdownItem
 								>
 							{/if}
@@ -192,7 +233,11 @@
 								class="mt-3"
 								action={`/articles/${data.article?.slug}/${data.article?.id}?/updateComment`}
 								method="post"
+								use:enhance={() => {
+									commentEditingId = null;
+								}}
 							>
+								<input type="hidden" name="commentId" value={comment.id} />
 								<Textarea
 									class="mb-4"
 									placeholder="Write a comment"
@@ -219,18 +264,26 @@
 
 						{#if comment.id == commentDeleteId}
 							<form
-								action={`/articles/${data.article?.slug}/${data.article?.id}?/updateComment`}
+								action={`/articles/${data.article?.slug}/${data.article?.id}?/deleteComment`}
 								method="post"
+								use:enhance={() => {
+									commentDeleteId = null;
+								}}
 							>
-								<Button on:click={() => (defaultModal = true)}>Remove comment ??</Button>
-								<Modal title="Terms of Service" bind:open={defaultModal} autoclose>
+								<Modal title="Delete Comment" bind:open={defaultModal}>
 									<p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-										You can't unchange this action, if you agree click "I accept". If not, click
-										"Decline"
+										Do you want to delete this comment?
 									</p>
+									<input type="hidden" name="commentId" value={comment.id} />
 									<svelte:fragment slot="footer">
-										<Button on:click={() => alert('Handle "success"')}>I accept</Button>
-										<Button color="alternative">Decline</Button>
+										<Button type="submit">Yes</Button>
+										<Button
+											on:click={() => {
+												commentDeleteId = null;
+												defaultModal = false;
+											}}
+											color="alternative">No</Button
+										>
 									</svelte:fragment>
 								</Modal>
 							</form>

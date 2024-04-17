@@ -1,6 +1,7 @@
-import userService from '$lib/services/user.service';
 import { StatusCodes } from 'http-status-codes';
 import type { Actions, PageServerLoad } from './$types';
+import userService from '$lib/services/user.service';
+import uploadService from '$lib/services/upload.service';
 import { redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async (event) => {
@@ -34,20 +35,24 @@ export const actions = {
 		const displayName = formData.get('displayName') as string;
 		const avatarImage = formData.get('avatarImage') as string;
 		const bio = formData.get('bio') as string;
+		let avatarURL;
 
-		const response = await userService.updateCurrentUser(
-			{
-				email,
-				avatarImage,
-				displayName,
-				bio,
-				phoneNumber,
-				birthDate,
-				newPassword,
-				password
-			},
-			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
-		);
+		const body = {
+			email,
+			displayName,
+			bio,
+			phoneNumber,
+			birthDate,
+			newPassword,
+			password
+		};
+		if (avatarImage) {
+			avatarURL = await uploadService.uploadFile(avatarImage);
+			body['avatarImage'] = avatarURL;
+		}
+		const response = await userService.updateCurrentUser(body, {
+			Authorization: `Bearer ${event.cookies.get('accessToken')}`
+		});
 
 		switch (response.statusCode) {
 			case StatusCodes.OK:

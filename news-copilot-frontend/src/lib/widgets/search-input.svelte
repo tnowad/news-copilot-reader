@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { Input, Button, Modal, Search, Listgroup, ListgroupItem, Card } from 'flowbite-svelte';
+	import { Input, Button, Modal, Search } from 'flowbite-svelte';
 	import { ArrowRightOutline, SearchOutline } from 'flowbite-svelte-icons';
 
 	let query = '';
@@ -17,37 +16,6 @@
 		coverImage: string;
 		slug: string;
 	}[] = [];
-
-	const mockArticles = [
-		{
-			id: 1,
-			title: 'How to build a website using SvelteKit',
-			summary: 'Learn how to build a website using SvelteKit and deploy it to Vercel.',
-			coverImage: '/images/default-news-cover.png',
-			slug: 'how-to-build-a-website-using-sveltekit'
-		},
-		{
-			id: 2,
-			title: 'How to build a website using SvelteKit',
-			summary: 'Learn how to build a website using SvelteKit and deploy it to Vercel.',
-			coverImage: '/images/default-news-cover.png',
-			slug: 'how-to-build-a-website-using-sveltekit'
-		},
-		{
-			id: 3,
-			title: 'How to build a website using SvelteKit',
-			summary: 'Learn how to build a website using SvelteKit and deploy it to Vercel.',
-			coverImage: '/images/default-news-cover.png',
-			slug: 'how-to-build-a-website-using-sveltekit'
-		},
-		{
-			id: 4,
-			title: 'How to build a website using SvelteKit',
-			summary: 'Learn how to build a website using SvelteKit and deploy it to Vercel.',
-			coverImage: '/images/default-news-cover.png',
-			slug: 'how-to-build-a-website-using-sveltekit'
-		}
-	];
 
 	const getAllArticles = async (query: string) => {
 		const response = await fetch(`/api/articles?search=${query}`, {
@@ -102,13 +70,17 @@
 	{#each searchResults as article}
 		<a
 			href={`/articles/${article.slug}/${article.id}`}
-			class="flex max-h-20"
+			class="flex w-full"
 			on:click={toggleSearchModal}
 		>
 			<div class="h-20 w-20">
-				<img src={article.coverImage} alt={article.title} class="h-full w-full object-cover" />
+				<img
+					src={article.coverImage ?? '/images/logo.png'}
+					alt={article.title}
+					class="h-full w-full object-cover"
+				/>
 			</div>
-			<div>
+			<div class="w-full">
 				<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
 					{article.title}
 				</h5>
@@ -120,7 +92,7 @@
 	{/each}
 	<slot name="footer">
 		<div class="flex justify-end">
-			<Button href={`/search?search=${query}`} on:click={toggleSearchModal}
+			<Button href={`/articles?search=${query}`} on:click={toggleSearchModal}
 				>Show more <ArrowRightOutline class="ml-2 h-5 w-5" /></Button
 			>
 		</div>
