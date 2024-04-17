@@ -61,27 +61,17 @@
 		{
 			name: 'Categories',
 			icon: TableColumnSolid,
-			href: '/dashboard/categories',
-			children: {
-				'Categories List': '/dashboard/categories',
-				'Create Category': '/dashboard/categories/create'
-			}
+			href: '/dashboard/categories'
 		},
 		{
 			name: 'Articles',
 			icon: BookOpenSolid,
-			children: {
-				'Articles List': '/dashboard/articles',
-				'Create Articles': '/dashboard/articles/create'
-			}
+			href: '/dashboard/articles'
 		},
 		{
 			name: 'Comments',
 			icon: MessageCaptionSolid,
-			children: {
-				'Comment List': '/dashboard/comments',
-				'Create Comments': '/dashboard/comments/create'
-			}
+			href: '/dashboard/comments'
 		}
 	];
 
@@ -166,7 +156,9 @@
 			</SidebarWrapper>
 		</Sidebar>
 
-		<div class="relative h-full w-full overflow-y-auto lg:ml-64">
+		<div
+			class="relative h-full min-h-screen w-full overflow-y-auto bg-gray-50 p-3 dark:bg-gray-900 lg:ml-64"
+		>
 			<slot />
 		</div>
 	</div>

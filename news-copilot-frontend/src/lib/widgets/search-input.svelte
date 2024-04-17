@@ -70,7 +70,7 @@
 	{#each searchResults as article}
 		<a
 			href={`/articles/${article.slug}/${article.id}`}
-			class="flex max-h-20"
+			class="flex w-full"
 			on:click={toggleSearchModal}
 		>
 			<div class="h-20 w-20">
@@ -80,7 +80,7 @@
 					class="h-full w-full object-cover"
 				/>
 			</div>
-			<div>
+			<div class="w-full">
 				<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
 					{article.title}
 				</h5>
@@ -92,7 +92,7 @@
 	{/each}
 	<slot name="footer">
 		<div class="flex justify-end">
-			<Button href={`/search?search=${query}`} on:click={toggleSearchModal}
+			<Button href={`/articles?search=${query}`} on:click={toggleSearchModal}
 				>Show more <ArrowRightOutline class="ml-2 h-5 w-5" /></Button
 			>
 		</div>

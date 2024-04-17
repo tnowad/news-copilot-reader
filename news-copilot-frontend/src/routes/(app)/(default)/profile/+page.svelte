@@ -9,42 +9,13 @@
 		Input,
 		Label,
 		Badge,
-		MultiSelect,
-		Textarea
+		Textarea,
+		Fileupload
 	} from 'flowbite-svelte';
-	import { UploadSolid } from 'flowbite-svelte-icons';
 	import type { PageData } from './$types';
 	import { enhance } from '$app/forms';
-	import { onMount } from 'svelte';
 
 	export let data: PageData;
-
-	let avatarInputElement: HTMLInputElement | null = null;
-	let avatarImageSrc = data.user?.avatarImage ?? '/images/default-profile-picture.png';
-	let roles = [
-		{ value: 'admin', name: 'ADMIN' },
-		{ value: 'writer', name: 'WRITER' },
-		{ value: 'user', name: 'USER' }
-	];
-
-	onMount(() => {
-		if (avatarInputElement) {
-			avatarInputElement.onchange = () => {
-				if (avatarInputElement == null) {
-					return;
-				}
-
-				if (!avatarInputElement.files?.length) {
-					return;
-				}
-
-				if (avatarInputElement.files.length > 0) {
-					const file = avatarInputElement.files[0];
-					avatarImageSrc = URL.createObjectURL(file);
-				}
-			};
-		}
-	});
 </script>
 
 <section>
@@ -75,17 +46,14 @@
 					size="none"
 					rounded
 				>
-					<img src={avatarImageSrc} class="h-full w-full object-cover" alt="Avatar" />
+					<img src={data.user?.avatarImage} class="h-full w-full object-cover" alt="Avatar" />
 				</Avatar>
 
 				<div class="py-0.5">
-					<Heading tag="h3" class="text-xl">Profile picture</Heading>
-					<p class="mb-4 mt-1 pt-px text-sm">JPG, GIF or PNG. Max size of 800K</p>
-					<div class="flex items-center space-x-4">
-						<Button size="sm" class="px-3" on:click={() => avatarInputElement?.click()}
-							><UploadSolid size="sm" class="-ms-1 me-2" /> Upload picture</Button
-						>
-					</div>
+					<Heading tag="h3" class="text-xl">Profile information</Heading>
+					<p class="text-gray-600 dark:text-gray-400">{data.user?.email}</p>
+					<p class="text-gray-600 dark:text-gray-400">{data.user?.phoneNumber}</p>
+					<p class="text-gray-600 dark:text-gray-400">{data.user?.displayName}</p>
 				</div>
 			</Card>
 			<Card class="xl:col-span-8" size="none">
@@ -139,6 +107,11 @@
 					</Label>
 
 					<Label class="col-span-6 space-y-2 sm:col-span-3">
+						<span>Avatar Image:</span>
+						<Fileupload name="avatarImage" class="border font-normal outline-none" />
+					</Label>
+
+					<Label class="col-span-6 space-y-2 sm:col-span-3">
 						<span>Password:</span>
 						<Input
 							type="password"
@@ -168,19 +141,12 @@
 						/>
 					</Label>
 
-					<Label class="hidden">
-						<span>Avatar Image</span>
-						<input bind:this={avatarInputElement} type="file" name="avatarImage" />
-					</Label>
 					<Label class="col-span-full space-y-2">
 						<span>Role:</span>
-						<!-- <div class="flex gap-x-2">
+						<div class="flex gap-x-2">
 							{#each data.user?.roles ?? [] as role}
 								<Badge>{role}</Badge>
 							{/each}
-						</div> -->
-						<div class="col-span-full">
-							<MultiSelect name="category" items={roles} />
 						</div>
 					</Label>
 

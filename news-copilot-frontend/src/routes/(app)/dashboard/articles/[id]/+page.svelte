@@ -1,5 +1,13 @@
 <script lang="ts">
-	import { Label, Input, Button, MultiSelect, Textarea } from 'flowbite-svelte';
+	import {
+		Label,
+		Input,
+		Button,
+		MultiSelect,
+		Textarea,
+		Breadcrumb,
+		BreadcrumbItem
+	} from 'flowbite-svelte';
 	import Markdown from '$lib/widgets/markdown.svelte';
 	import Editor from '$lib/widgets/editor.svelte';
 
@@ -13,6 +21,19 @@
 		name: category.slug
 	}));
 </script>
+
+<section>
+	<div>
+		<Breadcrumb class="mb-6">
+			<BreadcrumbItem home>Home</BreadcrumbItem>
+			<BreadcrumbItem
+				class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
+				href="/dashboard/articles">Articles</BreadcrumbItem
+			>
+			<BreadcrumbItem>{data.article?.title}</BreadcrumbItem>
+		</Breadcrumb>
+	</div>
+</section>
 
 <section class="mx-5">
 	<h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Update Article</h2>

@@ -15,12 +15,14 @@
 	export let title: string;
 </script>
 
-<Section name="blog" sectionClass="123">
+<Section name="none" sectionClass="container mx-auto mt-10">
 	{#if title}
 		<BlogHead h2Class="text-start font-bold text-2xl mb-2" divClass="max-w-none">
 			<svelte:fragment slot="h2">{title}</svelte:fragment>
 		</BlogHead>
 	{/if}
+
+	<slot name="filters" />
 
 	<BlogBodyWrapper divClass="grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 		{#if articles?.length === 0}
@@ -55,7 +57,7 @@
 							<svelte:fragment slot="h2">{article.title}</svelte:fragment>
 							<svelte:fragment slot="paragraph">
 								<p class="mb-5 flex-grow font-light text-gray-500 dark:text-gray-400">
-									{article.summary}
+									{article.summary.slice(0, 100) + '...'}
 								</p>
 							</svelte:fragment>
 						</ArticleBody>
@@ -84,4 +86,6 @@
 			{/each}
 		{/if}
 	</BlogBodyWrapper>
+
+	<slot name="pagination" />
 </Section>

@@ -8,6 +8,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.decorators.authorization import role_required
 from app.extensions import db
 from app.models.article import Article
+from app.models.bookmark import Bookmark
 from app.models.category import Category
 from app.models.role import RoleEnum
 from app.models.user import User
@@ -26,6 +27,7 @@ def get_articles():
         sort_order = request.args.get("sortOrder", type=str)
         style = request.args.get("style", type=str)
         includes = request.args.getlist("includes", type=str)
+        print(category_ids)
 
         # Query articles based on parameters
         query = Article.query
@@ -493,3 +495,112 @@ def delete_article(article_id):
         ),
         HTTPStatus.OK,
     )
+
+
+@articles_bp.route("/articles/bookmarks", methods=["GET"])
+@jwt_required()
+def get_bookmarked_articles():
+    try:
+        page = request.args.get("page", type=int) or 1
+        limit = request.args.get("limit", type=int) or 10
+        sort_by = request.args.get("sortBy", type=str)
+        sort_order = request.args.get("sortOrder", type=str)
+        style = request.args.get("style", type=str)
+        includes = request.args.getlist("includes", type=str)
+
+        user = User.query.filter_by(email=get_jwt_identity()).first_or_404()
+        bookmarks = user.bookmarks
+        articles = [bookmark.article for bookmark in bookmarks]
+        total_articles = len(articles)
+
+        # Construct response data
+
+        articles_data = []
+        for article in articles:
+            article_info = {
+                "id": article.id,
+                "title": article.title,
+                "summary": article.summary,
+                "coverImage": article.cover_image,
+                "slug": article.slug,
+                "createdAt": article.created_at,
+            }
+
+            if style == "full":
+                article_info["content"] = article.content
+                article_info["updatedAt"] = article.updated_at
+                article_info["deletedAt"] = article.deleted_at
+
+            if "comments" in includes:
+                article_info["comments"] = [
+                    {
+                        "id": comment.id,
+                        "content": comment.content,
+                        "createdAt": comment.created_at,
+                        "updatedAt": comment.updated_at,
+                        "parentCommentId": comment.parent_id,
+                        "author": {
+                            "id": comment.author.id,
+                            "email": comment.author.email,
+                            "displayName": comment.author.display_name,
+                            "avatarImage": comment.author.avatar_image,
+                        },
+                    }
+                    for comment in article.comments
+                ]
+
+            if "categories" in includes:
+                article_info["categories"] = [
+                    {
+                        "id": category.id,
+                        "title": category.title,
+                        "slug": category.slug,
+                    }
+                    for category in article.categories
+                ]
+
+            if "author" in includes:
+                article_info["author"] = {
+                    "id": article.author.id,
+                    "email": article.author.email,
+                    "displayName": article.author.display_name,
+                    "avatarImage": article.author.avatar_image,
+                }
+
+            articles_data.append(article_info)
+
+        # Construct metadata
+        metadata = {
+            "pagination": {
+                "offset": (page - 1) * limit if (page and limit) else None,
+                "limit": limit,
+                "previousOffset": (page - 2) * limit if page > 1 else None,
+                "nextOffset": page * limit if articles else None,
+                "currentPage": page if page else None,
+                "pageCount": total_articles // limit if page and limit else None,
+                "totalCount": total_articles,
+            },
+            "sortedBy": {"name": sort_by, "order": sort_order},
+            "style": style,
+        }
+
+        # Construct final response
+        response_data = {
+            "statusCode": HTTPStatus.OK,
+            "message": "Get all articles route",
+            "data": {"articles": articles_data, "metadata": metadata},
+        }
+
+        return jsonify(response_data), HTTPStatus.OK
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
+                    "message": "Internal Server Error",
+                    "error": str(e),
+                }
+            ),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )

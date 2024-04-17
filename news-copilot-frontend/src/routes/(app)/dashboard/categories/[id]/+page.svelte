@@ -1,9 +1,21 @@
 <script lang="ts">
-	import { Section } from 'flowbite-svelte-blocks';
-	import { Button, Input, Label, Select, Textarea } from 'flowbite-svelte';
+	import { Breadcrumb, BreadcrumbItem, Button, Input, Label, Textarea } from 'flowbite-svelte';
 
 	export let data;
 </script>
+
+<section>
+	<div>
+		<Breadcrumb class="mb-6">
+			<BreadcrumbItem home>Home</BreadcrumbItem>
+			<BreadcrumbItem
+				class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
+				href="/dashboard/categories">Categories</BreadcrumbItem
+			>
+			<BreadcrumbItem>{data.category?.title}</BreadcrumbItem>
+		</Breadcrumb>
+	</div>
+</section>
 
 <section>
 	<form action={`/dashboard/categories/${data.category?.id}`} method="post">

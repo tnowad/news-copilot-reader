@@ -1,12 +1,35 @@
 <script lang="ts">
 	import { Section } from 'flowbite-svelte-blocks';
-	import { Button, Input, Label, Select, Textarea } from 'flowbite-svelte';
+	import {
+		Breadcrumb,
+		BreadcrumbItem,
+		Button,
+		Input,
+		Label,
+		Select,
+		Textarea
+	} from 'flowbite-svelte';
 
 	export let data;
 </script>
 
 <section>
 	<form action={`/dashboard/comments/${data.comments?.id}`} , method="post">
+		<div>
+			<Breadcrumb class="mb-6">
+				<BreadcrumbItem home>Home</BreadcrumbItem>
+				<BreadcrumbItem
+					class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
+					href="/dashboard/comments">Comments</BreadcrumbItem
+				>
+				<BreadcrumbItem>{data.comment.id}</BreadcrumbItem>
+			</Breadcrumb>
+		</div>
+	</form>
+</section>
+
+<section>
+	<form>
 		<div class="mb-4 grid gap-4 sm:grid-cols-2">
 			<div class="sm:col-span-2">
 				<Label for="description" class="mb-2">Description</Label>

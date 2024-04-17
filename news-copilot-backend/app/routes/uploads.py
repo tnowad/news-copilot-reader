@@ -1,25 +1,13 @@
-from flask import request, jsonify, Blueprint, send_file
+from flask import Blueprint, request, jsonify, send_file
 from http import HTTPStatus
-from werkzeug.utils import secure_filename
-import os
-from uuid import uuid4
+
+from app.services.upload import get_file, upload_file
 
 uploads_bp = Blueprint("uploads", __name__)
 
-UPLOAD_FOLDER = "uploads"
-
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
-
-
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 @uploads_bp.route("/uploads", methods=["POST"])
-def upload_file():
+def upload_file_controller():
     if "file" not in request.files:
         return (
             jsonify(
@@ -46,10 +34,8 @@ def upload_file():
             HTTPStatus.BAD_REQUEST,
         )
 
-    if file and file.filename and allowed_file(file.filename):
-        filename = f"{uuid4()}.{secure_filename(file.filename)}"
-        file.save(os.path.join(UPLOAD_FOLDER, filename))
-        file_url = f"{request.host_url}{UPLOAD_FOLDER}/{filename}"
+    try:
+        file_url = upload_file(file)
         return (
             jsonify(
                 {
@@ -62,33 +48,32 @@ def upload_file():
             ),
             HTTPStatus.OK,
         )
-
-    return (
-        jsonify(
-            {
-                "statusCode": HTTPStatus.BAD_REQUEST,
-                "error": "Invalid file type",
-                "message": "Uploaded file type is not supported",
-            }
-        ),
-        HTTPStatus.BAD_REQUEST,
-    )
+    except ValueError as e:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.BAD_REQUEST,
+                    "error": "Invalid file type",
+                    "message": str(e),
+                }
+            ),
+            HTTPStatus.BAD_REQUEST,
+        )
 
 
 @uploads_bp.route("/uploads/<path:path>", methods=["GET"])
-def get_file(path):
-    file_path = os.path.join(os.getcwd(), "uploads", path)
-
-    if os.path.exists(file_path):
+def get_file_controller(path):
+    try:
+        file_path = get_file(path)
         return send_file(file_path)
-
-    return (
-        jsonify(
-            {
-                "statusCode": HTTPStatus.NOT_FOUND,
-                "error": "File not found",
-                "message": "Requested file is not found",
-            }
-        ),
-        HTTPStatus.NOT_FOUND,
-    )
+    except FileNotFoundError as e:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.NOT_FOUND,
+                    "error": "File not found",
+                    "message": str(e),
+                }
+            ),
+            HTTPStatus.NOT_FOUND,
+        )

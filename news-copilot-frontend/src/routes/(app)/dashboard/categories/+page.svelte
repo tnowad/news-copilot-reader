@@ -12,7 +12,9 @@
 		Checkbox,
 		ButtonGroup,
 		Badge,
-		Input
+		Input,
+		Breadcrumb,
+		BreadcrumbItem
 	} from 'flowbite-svelte';
 	import { Section } from 'flowbite-svelte-blocks';
 	import {
@@ -65,7 +67,19 @@
 	}, 100);
 </script>
 
-<Section sectionClass="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5" classDiv="max-w-none">
+<section>
+	<div>
+		<Breadcrumb class="mb-6">
+			<BreadcrumbItem home>Home</BreadcrumbItem>
+			<BreadcrumbItem
+				class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
+				href="/dashboard/categories">Categories</BreadcrumbItem
+			>
+		</Breadcrumb>
+	</div>
+</section>
+
+<Section sectionClass="" classDiv="max-w-none !p-0">
 	<form method="get" action="/dashboard/catagories">
 		<TableSearch
 			placeholder="Search"
