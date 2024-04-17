@@ -14,7 +14,7 @@
 </script>
 
 <section>
-	<form action={`/dashboard/comments/${data.comments?.id}`} , method="post">
+	<form action={`/dashboard/comments/${data.comments?.id}`} method="post">
 		<div>
 			<Breadcrumb class="mb-6">
 				<BreadcrumbItem home>Home</BreadcrumbItem>
@@ -29,7 +29,7 @@
 </section>
 
 <section>
-	<form>
+	<form action={`/dashboard/comments/${data.comments?.id}`} method="post">
 		<div class="mb-4 grid gap-4 sm:grid-cols-2">
 			<div class="sm:col-span-2">
 				<Label for="description" class="mb-2">Description</Label>

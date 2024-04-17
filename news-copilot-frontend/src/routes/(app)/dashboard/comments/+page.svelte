@@ -86,7 +86,7 @@
 		<Breadcrumb class="mb-6">
 			<BreadcrumbItem home>Home</BreadcrumbItem>
 			<BreadcrumbItem
-				class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
+				class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
 				href="/dashboard/comments">Comments</BreadcrumbItem
 			>
 		</Breadcrumb>
@@ -158,7 +158,7 @@
 				{#each data.comments as comment (comment.id)}
 					<TableBodyRow>
 						<TableBodyCell tdClass="px-4 py-3">{comment.id}</TableBodyCell>
-						<a href={`/dashboard/users/${comment.author.id}`}>
+						<a href={`/dashboard/users/${comment.author?.id}`}>
 							<TableBodyCell tdClass="px-4 py-3">{comment.author?.email}</TableBodyCell>
 						</a>
 						<TableBodyCell tdClass="px-4 py-3">{comment.content}</TableBodyCell>
