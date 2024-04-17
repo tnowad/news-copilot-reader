@@ -67,7 +67,7 @@
 	}, 100);
 </script>
 
-<Section sectionClass="bg-gray-50 dark:bg-gray-900" classDiv="max-w-none">
+<Section sectionClass="" classDiv="max-w-none !p-0">
 	<form method="get" action="/dashboard/users">
 		<TableSearch
 			placeholder="Search"
