@@ -96,9 +96,9 @@
 
 				<div class="py-0.5">
 					<Heading tag="h3" class="text-xl">Profile information</Heading>
-          <p class="text-gray-600 dark:text-gray-400">{data.user?.email}</p>
-          <p class="text-gray-600 dark:text-gray-400">{data.user?.phoneNumber}</p>
-          <p class="text-gray-600 dark:text-gray-400">{data.user?.displayName}</p>
+					<p class="text-gray-600 dark:text-gray-400">{data.user?.email}</p>
+					<p class="text-gray-600 dark:text-gray-400">{data.user?.phoneNumber}</p>
+					<p class="text-gray-600 dark:text-gray-400">{data.user?.displayName}</p>
 				</div>
 			</Card>
 			<Card class="xl:col-span-8" size="none">
@@ -196,16 +196,6 @@
 							{#each data.user?.roles ?? [] as role}
 								<Badge>{role}</Badge>
 							{/each}
-<<<<<<< HEAD
-						</div> -->
-						<div class="col-span-full">
-							<MultiSelect name="roles" bind:value={selected}>
-								{#each roles as role}
-									<option value={role}>{role}</option>
-								{/each}
-							</MultiSelect>
-=======
->>>>>>> 5f7fa1d4f81ae2df54c38ef686aaf810c078474f
 						</div>
 					</Label>
 
