@@ -327,6 +327,64 @@ def create_user():
     return jsonify(response_data), HTTPStatus.CREATED
 
 
+@users_bp.route("/users/<int:user_id>", methods=["GET"])
+def get_user(user_id):
+    if user_id is None:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.BAD_REQUEST,
+                    "message": "User ID is required",
+                }
+            ),
+            HTTPStatus.BAD_REQUEST,
+        )
+
+    user = User.query.get(user_id)
+
+    if not user:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.NOT_FOUND,
+                    "message": "User not found",
+                    "error": "User not found",
+                }
+            ),
+            HTTPStatus.NOT_FOUND,
+        )
+
+    response_data = {
+        "statusCode": HTTPStatus.OK,
+        "message": "User profile",
+        "data": {
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "displayName": user.display_name,
+                "avatarImage": user.avatar_image,
+            }
+        },
+    }
+
+    style_param = request.args.get("style")
+
+    if style_param == "full":
+        response_data["data"]["user"]["bio"] = user.bio
+        response_data["data"]["user"]["birthDate"] = datetime.strftime(
+            user.birth_date, "%Y-%m-%d"
+        )
+        response_data["data"]["user"]["phoneNumber"] = user.phone_number
+
+    include_params = request.args.getlist("include")
+
+    if "roles" in include_params:
+        roles = [str(role.name) for role in user.roles]
+        response_data["data"]["user"]["roles"] = roles
+
+    return jsonify(response_data), HTTPStatus.OK
+
+
 @users_bp.route("/users/profile", methods=["PUT"])
 @jwt_required()
 def update_profile_user():

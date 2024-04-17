@@ -5,21 +5,18 @@ import { redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async (event) => {
 	const accessToken = event.cookies.get('accessToken');
+	const id = +event.params.id;
 
 	if (!accessToken) {
 		redirect(StatusCodes.TEMPORARY_REDIRECT, '/sign-in');
 	}
 
-	// Change to get user by id
-	const currentUserProfileResponse = await userService.getCurrentUserProfile(
-		{ include: ['roles'], style: 'full' },
+	const userResponse = await userService.getUser(
+		{ include: ['roles'], style: 'full', id },
 		{ Authorization: `Bearer ${accessToken}` }
 	);
 
-	const user =
-		currentUserProfileResponse.statusCode === StatusCodes.OK
-			? currentUserProfileResponse.data.user
-			: null;
+	const user = userResponse.statusCode === StatusCodes.OK ? userResponse.data.user : null;
 
 	return { user: user };
 };

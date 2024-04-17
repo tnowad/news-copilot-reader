@@ -166,7 +166,9 @@
 			</SidebarWrapper>
 		</Sidebar>
 
-		<div class="relative h-full w-full overflow-y-auto lg:ml-64">
+		<div
+			class="relative h-full min-h-screen w-full overflow-y-auto bg-gray-50 p-3 dark:bg-gray-900 lg:ml-64"
+		>
 			<slot />
 		</div>
 	</div>
