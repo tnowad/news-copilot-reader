@@ -343,13 +343,101 @@ const getUser = async (
 	}
 };
 
+type UpdateUserBody = {
+	id?: number;
+	email?: string;
+	displayName?: string;
+	avatarImage?: string;
+	password: string;
+	newPassword?: string;
+	roleIds?: number[];
+
+	bio?: string;
+	birthDate?: string;
+	phoneNumber?: string;
+};
+
+type UpdateUserSuccessful = {
+	statusCode: StatusCodes.OK;
+	data: {
+		user: User;
+	};
+	message: string;
+};
+
+type UpdateUserValidationFailed = {
+	statusCode: StatusCodes.UNPROCESSABLE_ENTITY;
+	message: string;
+	errors: {
+		field:
+			| 'id'
+			| 'displayName'
+			| 'avatarImage'
+			| 'email'
+			| 'phoneNumber'
+			| 'bio'
+			| 'birthDate'
+			| 'password'
+			| 'newPassword'
+			| 'confirmPassword';
+		message: string;
+	}[];
+};
+
+type UpdateUserPermissionDenied = {
+	statusCode: StatusCodes.FORBIDDEN;
+	message: string;
+	error: string;
+};
+
+type UpdateUserNotFound = {
+	statusCode: StatusCodes.NOT_FOUND;
+	message: string;
+	error: string;
+};
+
+type UpdateUserServerError = {
+	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
+	message: string;
+	error: string;
+};
+
+type UpdateUserReponse = Omit<Response, 'json'> & {
+	json: () => Promise<
+		| UpdateUserSuccessful
+		| UpdateUserPermissionDenied
+		| UpdateUserValidationFailed
+		| UpdateUserNotFound
+		| UpdateUserServerError
+	>;
+};
+
+const updateUser = async (body: UpdateUserBody, headers: HeadersInit = {}) => {
+	try {
+		const { id } = body;
+		const url = new URL(`/users/${id}`, API_URL);
+		const requestInit: RequestInit = {
+			method: 'PUT',
+			body: JSON.stringify(body),
+			headers: { ...defaultHeaders, ...headers }
+		};
+
+		const response = (await fetch(url, requestInit)) as UpdateUserReponse;
+
+		return response.json();
+	} catch (error) {
+		throw new Error('Failed to update user: ' + (error as Error).message);
+	}
+};
+
 const userService = {
 	getCurrentUserProfile,
 	updateCurrentUser,
 	getAllUsers,
 	getUser,
 	deleteUser,
-	createUser
+	createUser,
+	updateUser
 };
 
 export default userService;

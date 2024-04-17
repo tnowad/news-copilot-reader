@@ -196,7 +196,9 @@
 					comment={{
 						id: comment.id + '',
 						commenter: {
-							name: comment.author?.displayName || 'unknown',
+							name:
+								(comment.author?.displayName || 'unknown') +
+								(data.article?.author?.id === comment.author?.id ? ' (Author)' : ''),
 							profilePicture: comment.author?.avatarImage
 						},
 						content: comment.content,
@@ -216,7 +218,8 @@
 										commentEditingId = comment.id;
 									}}>Edit</DropdownItem
 								>
-
+							{/if}
+							{#if data.user?.id == comment.author?.id || data.user?.roles?.includes('ADMIN')}
 								<DropdownItem
 									on:click={() => {
 										commentDeleteId = comment.id;

@@ -15,12 +15,14 @@
 	export let title: string;
 </script>
 
-<Section name="none" sectionClass="container mx-auto">
+<Section name="none" sectionClass="container mx-auto mt-10">
 	{#if title}
 		<BlogHead h2Class="text-start font-bold text-2xl mb-2" divClass="max-w-none">
 			<svelte:fragment slot="h2">{title}</svelte:fragment>
 		</BlogHead>
 	{/if}
+
+	<slot name="filters" />
 
 	<BlogBodyWrapper divClass="grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 		{#if articles?.length === 0}
@@ -84,4 +86,6 @@
 			{/each}
 		{/if}
 	</BlogBodyWrapper>
+
+	<slot name="pagination" />
 </Section>

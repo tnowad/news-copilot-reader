@@ -27,6 +27,7 @@ def get_articles():
         sort_order = request.args.get("sortOrder", type=str)
         style = request.args.get("style", type=str)
         includes = request.args.getlist("includes", type=str)
+        print(category_ids)
 
         # Query articles based on parameters
         query = Article.query

@@ -1,8 +1,9 @@
+import roleService from '$lib/services/role.service';
+import uploadService from '$lib/services/upload.service';
 import userService from '$lib/services/user.service';
+import { redirect } from '@sveltejs/kit';
 import { StatusCodes } from 'http-status-codes';
 import type { Actions, PageServerLoad } from './$types';
-import { redirect } from '@sveltejs/kit';
-import roleService from '$lib/services/role.service';
 
 export const load: PageServerLoad = async (event) => {
 	const accessToken = event.cookies.get('accessToken');
@@ -28,26 +29,34 @@ export const load: PageServerLoad = async (event) => {
 export const actions = {
 	default: async (event) => {
 		const formData = await event.request.formData();
+		const id = +event.params.id;
 		const email = formData.get('email') as string;
 		const birthDate = formData.get('birthDate') as string;
 		const phoneNumber = formData.get('phoneNumber') as string;
 		const password = formData.get('password') as string;
 		const newPassword = formData.get('newPassword') as string;
 		const displayName = formData.get('displayName') as string;
-		const avatarImage = formData.get('avatarImage') as string;
+		const avatarImage = formData.get('avatarImage') as File;
 		const bio = formData.get('bio') as string;
+		const roleIds = (formData.getAll('roleIds') as string[]).map(Number);
+		let avatarURL;
 
-		// Change to update user id
-		const response = await userService.updateCurrentUser(
+		if (avatarImage) {
+			avatarURL = await uploadService.uploadFile(avatarImage);
+		}
+
+		const response = await userService.updateUser(
 			{
+				id,
 				email,
-				avatarImage,
+				avatarImage: avatarURL,
 				displayName,
 				bio,
 				phoneNumber,
 				birthDate,
 				newPassword,
-				password
+				password,
+				roleIds
 			},
 			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
 		);

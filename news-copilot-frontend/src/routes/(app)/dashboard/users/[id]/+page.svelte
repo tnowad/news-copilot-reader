@@ -129,6 +129,7 @@
 						value={data.user?.roles?.map(
 							(roleEnum) => data.roles?.find((role) => role.name === roleEnum)?.id
 						)}
+						name="roleIds"
 					/>
 				</Label>
 

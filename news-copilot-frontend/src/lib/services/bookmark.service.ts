@@ -83,6 +83,7 @@ const deleteBookmark = async (params: DeleteBookmarkParams, headers: HeadersInit
 type GetBookmarksParams = {
 	userId?: number;
 	articleId?: number;
+	limit?: number;
 };
 
 type GetBookmarksSuccessful = {
@@ -105,11 +106,12 @@ type GetBookmarksResponse = Omit<Response, 'json'> & {
 
 const getBookmarks = async (params: GetBookmarksParams, headers: HeadersInit = {}) => {
 	try {
-		const { userId, articleId } = params;
+		const { userId, articleId, limit } = params;
 
 		const url = new URL('/bookmarks', API_URL);
 		userId && url.searchParams.append('userId', userId.toString());
 		articleId && url.searchParams.append('articleId', articleId.toString());
+		limit && url.searchParams.append('limit', limit.toString());
 
 		const requestInit: RequestInit = {
 			method: 'GET',

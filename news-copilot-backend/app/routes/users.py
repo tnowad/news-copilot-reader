@@ -9,7 +9,7 @@ from flask_jwt_extended import (
 
 from app.decorators.authorization import role_required
 from app.extensions import db
-from app.models.role import RoleEnum
+from app.models.role import Role, RoleEnum
 from app.models.user import User
 
 users_bp = Blueprint("user", __name__)
@@ -168,19 +168,14 @@ def update_user(user_id):
         )
     data = request.get_json()
 
-    # Get all fields
     display_name = data.get("displayName")
-    # Get email and do nothing because user can't change email
-    email = data.get("email")
     avatar_image = data.get("avatarImage")
-    # other fields
-    # Get password
     password = data.get("password")
     phone_number = data.get("phoneNumber")
     bio = data.get("bio")
     birth_date = data.get("birthDate")
+    roleIds = data.get_list("roleIds")
 
-    # Validate
     if password and not current_user.check_password(password):
         return (
             jsonify(
@@ -192,7 +187,6 @@ def update_user(user_id):
             HTTPStatus.BAD_REQUEST,
         )
 
-    # Assign value and save
     if display_name is not None and current_user.display_name != display_name:
         current_user.display_name = display_name
     if avatar_image is not None and current_user.avatar_image != avatar_image:
@@ -203,6 +197,13 @@ def update_user(user_id):
         current_user.bio = bio
     if birth_date is not None and current_user.birth_date != birth_date:
         current_user.birth_date = datetime.strptime(birth_date, "%Y-%m-%d")
+
+    if roleIds:
+        current_user.roles.clear()
+        for roleId in roleIds:
+            role = Role.query.filter_by(id=roleId).first()
+            if role:
+                current_user.roles.append(role)
 
     response_data = {
         "statusCode": HTTPStatus.OK,
