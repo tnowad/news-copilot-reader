@@ -16,16 +16,31 @@
 	import type { PageData } from './$types';
 	import { enhance } from '$app/forms';
 	import { onMount } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
+	import userService from '$lib/services/user.service';
 
 	export let data: PageData;
 
 	let avatarInputElement: HTMLInputElement | null = null;
 	let avatarImageSrc = data.user?.avatarImage ?? '/images/default-profile-picture.png';
-	let roles = [
-		{ value: 'admin', name: 'ADMIN' },
-		{ value: 'writer', name: 'WRITER' },
-		{ value: 'user', name: 'USER' }
-	];
+
+	let selected = [];
+	let roles = [];
+
+	const dispatch = createEventDispatcher();
+
+	async function fetchRolesFromBackend() {
+		const response = await userService.getCurrentUserProfile;
+		const data = await response.json();
+		roles = data.roles;
+	}
+	onMount(() => {
+		fetchRolesFromBackend();
+		dispatch('selectedRoles', selected);
+	});
+	$: {
+		dispatch('selectedRoles', selected);
+	}
 
 	onMount(() => {
 		if (avatarInputElement) {
@@ -180,7 +195,11 @@
 							{/each}
 						</div> -->
 						<div class="col-span-full">
-							<MultiSelect name="category" items={roles} />
+							<MultiSelect name="roles" bind:value={selected}>
+								{#each roles as role}
+									<option value={role}>{role}</option>
+								{/each}
+							</MultiSelect>
 						</div>
 					</Label>
 
