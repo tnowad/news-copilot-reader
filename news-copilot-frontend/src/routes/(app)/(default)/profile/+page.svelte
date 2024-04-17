@@ -9,58 +9,13 @@
 		Input,
 		Label,
 		Badge,
-		MultiSelect,
 		Textarea,
 		Fileupload
 	} from 'flowbite-svelte';
-	import { UploadSolid } from 'flowbite-svelte-icons';
 	import type { PageData } from './$types';
 	import { enhance } from '$app/forms';
-	import { onMount } from 'svelte';
-	import { createEventDispatcher } from 'svelte';
-	import userService from '$lib/services/user.service';
 
 	export let data: PageData;
-
-	let avatarInputElement: HTMLInputElement | null = null;
-	let avatarImageSrc = data.user?.avatarImage ?? '/images/default-profile-picture.png';
-
-	let selected = [];
-	let roles = [];
-
-	const dispatch = createEventDispatcher();
-
-	async function fetchRolesFromBackend() {
-		const response = await userService.getCurrentUserProfile;
-		const data = await response.json();
-		roles = data.roles;
-	}
-	onMount(() => {
-		fetchRolesFromBackend();
-		dispatch('selectedRoles', selected);
-	});
-	$: {
-		dispatch('selectedRoles', selected);
-	}
-
-	onMount(() => {
-		if (avatarInputElement) {
-			avatarInputElement.onchange = () => {
-				if (avatarInputElement == null) {
-					return;
-				}
-
-				if (!avatarInputElement.files?.length) {
-					return;
-				}
-
-				if (avatarInputElement.files.length > 0) {
-					const file = avatarInputElement.files[0];
-					avatarImageSrc = URL.createObjectURL(file);
-				}
-			};
-		}
-	});
 </script>
 
 <section>
@@ -186,10 +141,6 @@
 						/>
 					</Label>
 
-					<Label class="hidden">
-						<span>Avatar Image</span>
-						<input bind:this={avatarInputElement} type="file" name="avatarImage" />
-					</Label>
 					<Label class="col-span-full space-y-2">
 						<span>Role:</span>
 						<div class="flex gap-x-2">

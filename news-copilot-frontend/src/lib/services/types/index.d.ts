@@ -1,4 +1,4 @@
-export type Role = 'USER' | 'WRITER' | 'ADMIN';
+export type RoleEnum = 'USER' | 'WRITER' | 'ADMIN';
 
 export type Token = {
 	accessToken: string;
@@ -10,7 +10,7 @@ export type User = {
 	email: string;
 	displayName: string;
 	avatarImage: string;
-	roles?: Role[];
+	roles?: RoleEnum[];
 };
 
 export type Article = {
@@ -63,6 +63,11 @@ export type Pagination = {
 	currentPage: number;
 	pageCount: number;
 	totalCount: number;
+};
+
+export type Role = {
+	id: number;
+	name: RoleEnum;
 };
 
 export type Style = 'compact' | 'full';

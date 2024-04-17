@@ -2,6 +2,7 @@ import userService from '$lib/services/user.service';
 import { StatusCodes } from 'http-status-codes';
 import type { Actions, PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
+import roleService from '$lib/services/role.service';
 
 export const load: PageServerLoad = async (event) => {
 	const accessToken = event.cookies.get('accessToken');
@@ -16,9 +17,12 @@ export const load: PageServerLoad = async (event) => {
 		{ Authorization: `Bearer ${accessToken}` }
 	);
 
-	const user = userResponse.statusCode === StatusCodes.OK ? userResponse.data.user : null;
+	const rolesResponse = await roleService.getAllRoles();
 
-	return { user: user };
+	const user = userResponse.statusCode === StatusCodes.OK ? userResponse.data.user : null;
+	const roles = rolesResponse.statusCode === StatusCodes.OK ? rolesResponse.data.roles : [];
+
+	return { user: user, roles };
 };
 
 export const actions = {

@@ -33,26 +33,28 @@ export const actions = {
 		const password = formData.get('password') as string;
 		const newPassword = formData.get('newPassword') as string;
 		const displayName = formData.get('displayName') as string;
-		const avatarImage = formData.get('avatarImage') as string;
+		const avatarImage = formData.get('avatarImage') as File;
 		const bio = formData.get('bio') as string;
 		let avatarURL;
 
-		const body = {
-			email,
-			displayName,
-			bio,
-			phoneNumber,
-			birthDate,
-			newPassword,
-			password
-		};
 		if (avatarImage) {
 			avatarURL = await uploadService.uploadFile(avatarImage);
-			body['avatarImage'] = avatarURL;
 		}
-		const response = await userService.updateCurrentUser(body, {
-			Authorization: `Bearer ${event.cookies.get('accessToken')}`
-		});
+		const response = await userService.updateCurrentUser(
+			{
+				email,
+				displayName,
+				avatarImage: avatarURL,
+				bio,
+				phoneNumber,
+				birthDate,
+				newPassword,
+				password
+			},
+			{
+				Authorization: `Bearer ${event.cookies.get('accessToken')}`
+			}
+		);
 
 		switch (response.statusCode) {
 			case StatusCodes.OK:
