@@ -33,12 +33,12 @@ export const actions = {
 			return;
 		}
 		const sortOrder = formData.get('sortOrder') as string;
-		//const sortBy = formData.get('sortBy') as string;
+		const sortBy = formData.get('sortBy') as string;
 		console.log(sortOrder);
 
 		const commentsResponse = await commentServerices.getAllComments({
 			sortOrder: sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : undefined,
-			sortBy: 'createdAt'
+			sortBy: sortBy === 'article' || sortBy === 'user' || sortBy === 'createdAt' ? sortBy : undefined
 		});
 		console.log(commentsResponse.data.comments);
 		return {
