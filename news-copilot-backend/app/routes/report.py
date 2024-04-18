@@ -10,6 +10,89 @@ from app.models.report import Report
 report_bp = Blueprint("report", __name__)
 
 
+@report_bp.route("/reports", methods=["GET"])
+def get_report():
+    try:
+        page = request.args.get("page", type=int) or 1
+        limit = request.args.get("limit", type=int) or 10
+        sort_by = request.args.get("sortBy", type=str)
+        sort_order = request.args.get("sortOrder", type=str)
+        style = request.args.get("style", type=str)
+        search = request.args.get("search", type=str)
+
+        query = Report.query
+
+        if search:
+            query = query.filter(Report.title.ilike(f"%{search}%"))  # type: ignore
+
+        if sort_by and sort_order:
+            if sort_by == "id":
+                query = query.order_by(
+                    Report.id.asc() if sort_order == "asc" else Report.id.desc()
+                )
+            if sort_by == "created_at":
+                query = query.order_by(
+                    Report.created_at.asc()
+                    if sort_order == "asc"
+                    else Report.created_at.desc()
+                )
+
+        if page and limit:
+            offset = (page - 1) * limit
+            query = query.offset(offset).limit(limit)
+
+        reports = query.all()
+
+        reports_data = []
+        for report in reports:
+            report_info = {
+                "id": report.id,
+                "content": report.content,
+                "objectType": report.object_type,
+                "objectId": report.object_id,
+            }
+            reports_data.append(report_info)
+
+        metadata = {
+            "pagination": {
+                "offset": (page - 1) * limit if (page and limit) else None,
+                "limit": limit,
+                "previousOffset": (page - 2) * limit if page > 1 else None,
+                "nextOffset": page * limit if reports else None,
+                "currentPage": page if page else None,
+                "totalCount": query.count(),
+            },
+            "sortedBy": {
+                "name": sort_by,
+                "order": sort_order,
+            },
+            "style": style,
+        }
+
+        response_data = {
+            "statusCode": HTTPStatus.OK,
+            "message": "Get all report route",
+            "data": {
+                "reports": reports_data,
+                "metadata": metadata,
+            },
+        }
+
+        return jsonify(response_data), HTTPStatus.OK
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
+                    "message": "Internal Server Error",
+                    "error": str(e),
+                }
+            ),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
+
+
 @report_bp.route("/reports", methods=["POST"])
 def create_report():
     data = request.get_json()
@@ -20,8 +103,8 @@ def create_report():
 
     report = Report(
         content,
-        object_type,
         object_id,
+        object_type,
         created_at,
     )
 

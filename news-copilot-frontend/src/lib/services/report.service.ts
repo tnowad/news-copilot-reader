@@ -45,7 +45,60 @@ const createReport = async (body: CreateReportBody, headers: HeadersInit = {}) =
     }
 };
 
+type GetAllReportsParams = {
+    limit?: number;
+    page?: number;
+    search?: string;
+    sortBy?: 'createdAt';
+    sortOrder?: 'asc' | 'desc';
+};
+
+type GetAllReportsSuccessful = {
+    statusCode: StatusCodes.OK;
+    data: {
+        bookmarks: Report[];
+    };
+    message: string;
+};
+
+type GetAllReportsServerError = {
+    statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
+    message: string;
+    error: string;
+};
+
+type GetAllReportsResponse = Omit<Response, 'json'> & {
+    json: () => Promise<GetAllReportsSuccessful | GetAllReportsServerError>;
+};
+
+const getAllReports = async (params: GetAllReportsParams, headers: HeadersInit = {}) => {
+    try {
+        const { page, limit, search, sortBy, sortOrder } = params;
+        const url = new URL('/reports', API_URL);
+        const queryParams = new URLSearchParams();
+
+        if (page) queryParams.set('page', page.toString());
+        if (limit) queryParams.set('limit', limit.toString());
+        if (search) queryParams.set('search', search);
+        if (sortBy) queryParams.set('sortBy', sortBy);
+        if (sortOrder) queryParams.set('sortOrder', sortOrder);
+
+        url.search = queryParams.toString();
+        const requestInit: RequestInit = {
+            method: 'GET',
+            headers: { ...defaultHeaders, ...headers }
+        };
+
+        const response = (await fetch(url, requestInit)) as GetAllReportsResponse;
+
+        return response.json();
+    } catch (error) {
+        throw new Error('Failed to get report: ' + (error as Error).message);
+    }
+};
+
 const reportService = {
-    createReport
+    createReport,
+    getAllReports
 }
 export default reportService

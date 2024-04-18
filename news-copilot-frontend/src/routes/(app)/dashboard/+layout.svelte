@@ -17,6 +17,7 @@
 		BookmarkSolid,
 		CaretRightSolid,
 		ClipboardListSolid,
+		FlagSolid,
 		ListSolid,
 		MessageCaptionSolid,
 		UserAddSolid,
@@ -72,6 +73,11 @@
 			name: 'Comments',
 			icon: MessageCaptionSolid,
 			href: '/dashboard/comments'
+		},
+		{
+			name: 'Report',
+			icon: FlagSolid,
+			href: '/dashboard/reports'
 		}
 	];
 
@@ -92,12 +98,12 @@
 				<NavBrand href="/" class="lg:w-60">
 					<img src="/images/logo.png" class="me-2.5 h-6 sm:h-8" alt="News Copilot Logo" />
 					<span
-						class="ml-px self-center whitespace-nowrap text-xl font-semibold dark:text-white sm:text-2xl"
+						class="ml-px self-center whitespace-nowrap text-xl font-semibold sm:text-2xl dark:text-white"
 					>
 						News Copilot
 					</span>
 				</NavBrand>
-				<div class="ms-auto flex items-center gap-x-5 text-gray-500 dark:text-gray-400 sm:order-2">
+				<div class="ms-auto flex items-center gap-x-5 text-gray-500 sm:order-2 dark:text-gray-400">
 					<!-- <Notifications /> -->
 					<!-- <AppsMenu /> -->
 					<DarkMode />
@@ -157,7 +163,7 @@
 		</Sidebar>
 
 		<div
-			class="relative h-full min-h-screen w-full overflow-y-auto bg-gray-50 p-3 dark:bg-gray-900 lg:ml-64"
+			class="relative h-full min-h-screen w-full overflow-y-auto bg-gray-50 p-3 lg:ml-64 dark:bg-gray-900"
 		>
 			<slot />
 		</div>
