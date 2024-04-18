@@ -15,6 +15,9 @@
 		Card,
 		Heading,
 		Dropdown,
+		Label,
+		Input,
+		Select,
 		DropdownItem,
 		Badge
 	} from 'flowbite-svelte';
@@ -33,6 +36,7 @@
 	let commentEditingId: number | null;
 	let commentDeleteId: number | null;
 	let defaultModal = false;
+	let defaultModal2 = false;
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -75,7 +79,7 @@
 			<Breadcrumb class="mb-6">
 				<BreadcrumbItem home href="/">Home</BreadcrumbItem>
 				<BreadcrumbItem
-					class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
+					class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
 					href="/articles">Article</BreadcrumbItem
 				>
 				<BreadcrumbItem>{data.article?.title}</BreadcrumbItem>
@@ -167,6 +171,30 @@
 						</form>
 					{/if}
 				</div>
+				<div class="m-5 flex justify-center">
+					<Button on:click={() => (defaultModal = true)}>Report</Button>
+				</div>
+				<Modal
+					title="Reporting an article"
+					bind:open={defaultModal}
+					autoclose={false}
+					class="min-w-full"
+				>
+					<form
+						action={`/articles/${data.article?.slug}/${data.article?.id}?/createReport`}
+						method="post"
+					>
+						<Label class="mb-2">Description</Label>
+						<Textarea
+							id="description"
+							placeholder="Your description here"
+							rows="4"
+							name="reportContent"
+							required
+						/>
+						<Button type="submit" class="w-52">Report</Button>
+					</form>
+				</Modal>
 			</div>
 		</Card>
 

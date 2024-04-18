@@ -9,16 +9,14 @@ from app.extensions import db
 
 class Report(db.Model):
     __tablename__ = "report"
-    title = db.Column(String, nullable=False)
-    id = db.Column(Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     content = db.Column(Text, nullable=False)
     object_type = db.Column(Text, nullable=False)
     object_id = db.Column(Integer, nullable=False)
     created_at = db.Column(DateTime, server_default=db.func.now())
 
-    def __init__(self, id, content, object_id, object_type, created_at=0):
+    def __init__(self, content, object_id, object_type, created_at):
         self.content = content
         self.created_at = created_at
-        self.id = id
         self.object_id = object_id
         self.object_type = object_type
