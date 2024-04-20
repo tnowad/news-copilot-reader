@@ -9,8 +9,8 @@ export default defineConfig({
 				target: process.env.API_URL || 'http://localhost:5000',
 				changeOrigin: true,
 				rewrite: (path) => path.replace(/^\/api/, '')
-			},
-			'/uploads': process.env.API_URL || 'http://localhost:5000'
+			}
+			// '/uploads': process.env.API_URL || 'http://localhost:5000'
 		}
 	}
 });
