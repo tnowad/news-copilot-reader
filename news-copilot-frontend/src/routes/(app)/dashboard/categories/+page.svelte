@@ -33,6 +33,12 @@
 	let limit = +(data.metadata?.pagination.limit ?? 10);
 	let searchQuery = data.metadata?.filters?.search ?? '';
 
+	const sortByField = (field: string) => {
+		if (data.categories && data.categories.length > 0) {
+			data.categories = data.categories.sort((a, b) => a[field].localeCompare(b[field]));
+		}
+	};
+
 	const gotoPage = (
 		nextPage: number = page,
 		nextLimit: number = limit,
@@ -72,7 +78,7 @@
 		<Breadcrumb class="mb-6">
 			<BreadcrumbItem home>Home</BreadcrumbItem>
 			<BreadcrumbItem
-				class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
+				class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
 				href="/dashboard/categories">Categories</BreadcrumbItem
 			>
 		</Breadcrumb>
@@ -100,6 +106,16 @@
 				<Button color="alternative">Actions<ChevronDownOutline class="ml-2 h-3 w-3 " /></Button>
 				<Dropdown class="w-44 divide-y divide-gray-100">
 					<DropdownItem><a href="/dashboard/categories/create">Create category</a></DropdownItem>
+				</Dropdown>
+				<Button color="alternative">Filter<FilterSolid class="ml-2 h-3 w-3 " /></Button>
+				<Dropdown class="w-48 space-y-2 p-3 text-sm">
+					<h6 class="mb-3 text-sm font-medium text-gray-900 dark:text-white">Sort By</h6>
+					<li>
+						<Checkbox on:click={() => sortByField('title')}>Title</Checkbox>
+					</li>
+					<li>
+						<Checkbox on:click={() => sortByField('slug')}>Slug</Checkbox>
+					</li>
 				</Dropdown>
 			</div>
 			<TableHead>

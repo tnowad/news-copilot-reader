@@ -103,11 +103,11 @@ def get_users():
                 "displayName": user.display_name,
                 "avatarImage": user.avatar_image,
                 "bio": user.bio,
-                "birthDate": datetime.strftime(user.birth_date, "%Y-%m-%d"),
+                # "birthDate": datetime.strftime(user.birth_date, "%Y-%m-%d"),
                 "phoneNumber": user.phone_number,
                 "roles": [str(role.name) for role in user.roles],
-                "createdAt": datetime.strftime(user.created_at, "%Y-%m-%d"),
-                "updatedAt": datetime.strftime(user.updated_at, "%Y-%m-%d"),
+                # "createdAt": datetime.strftime(user.created_at, "%Y-%m-%d"),
+                # "updatedAt": datetime.strftime(user.updated_at, "%Y-%m-%d"),
             }
             users_data.append(user_info)
 

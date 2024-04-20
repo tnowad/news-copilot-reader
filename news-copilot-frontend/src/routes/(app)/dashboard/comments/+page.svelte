@@ -86,7 +86,7 @@
 		<Breadcrumb class="mb-6">
 			<BreadcrumbItem home>Home</BreadcrumbItem>
 			<BreadcrumbItem
-				class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
+				class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
 				href="/dashboard/comments">Comments</BreadcrumbItem
 			>
 		</Breadcrumb>
@@ -111,11 +111,11 @@
 				<Button href="/dashboard/articles/create">
 					<PlusOutline class="mr-2 h-3.5 w-3.5" />Add comment
 				</Button>
-				<Button color="alternative">Actions<ChevronDownOutline class="ml-2 h-3 w-3 " /></Button>
+				<!-- <Button color="alternative">Actions<ChevronDownOutline class="ml-2 h-3 w-3 " /></Button>
 				<Dropdown class="w-44 divide-y divide-gray-100">
 					<DropdownItem>Mass Edit</DropdownItem>
 					<DropdownItem>Delete all</DropdownItem>
-				</Dropdown>
+				</Dropdown> -->
 				<Button on:click={() => (formModal = true)} color="alternative"
 					>Filter<FilterSolid class="ml-2 h-3 w-3 " /></Button
 				>
