@@ -13,9 +13,6 @@
 		ButtonGroup,
 		Badge,
 		Input,
-		Modal,
-		Radio,
-		Select,
 		Breadcrumb,
 		BreadcrumbItem
 	} from 'flowbite-svelte';
@@ -32,10 +29,9 @@
 	import { browser } from '$app/environment';
 
 	export let data: PageData;
-
 	let page = +(data.metadata?.pagination.currentPage ?? 1);
 	let limit = +(data.metadata?.pagination.limit ?? 10);
-	let searchQuery = data.metadata?.filters?.search ?? '';
+	let searchQuery = data.metadata && data.metadata.filters ? data.metadata.filters.search : '';
 
 	const gotoPage = (
 		nextPage: number = page,
@@ -69,16 +65,6 @@
 	$: debounce(() => {
 		gotoPage(page, limit, searchQuery);
 	}, 100);
-	let formModal = false;
-	let sortOrderOptions = [
-		{ value: 'dsc', name: 'Descend' },
-		{ value: 'asc', name: 'Ascend' }
-	];
-	let sortByOptions = [
-		{ value: 'author', name: 'Author' },
-		{ value: 'createdAt', name: 'Date' }
-	];
-	let selected: any;
 </script>
 
 <section>
@@ -87,14 +73,14 @@
 			<BreadcrumbItem home>Home</BreadcrumbItem>
 			<BreadcrumbItem
 				class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
-				href="/dashboard/comments">Comments</BreadcrumbItem
+				href="/dashboard/categories">Reports</BreadcrumbItem
 			>
 		</Breadcrumb>
 	</div>
 </section>
 
 <Section sectionClass="" classDiv="max-w-none !p-0">
-	<form method="get" action="/dashboard/articles">
+	<form method="get" action="/dashboard/catagories">
 		<TableSearch
 			placeholder="Search"
 			hoverable={true}
@@ -108,63 +94,35 @@
 				slot="header"
 				class="flex w-full flex-shrink-0 flex-col items-stretch justify-end space-y-2 md:w-auto md:flex-row md:items-center md:space-x-3 md:space-y-0"
 			>
-				<Button href="/dashboard/articles/create">
-					<PlusOutline class="mr-2 h-3.5 w-3.5" />Add comment
-				</Button>
-				<!-- <Button color="alternative">Actions<ChevronDownOutline class="ml-2 h-3 w-3 " /></Button>
-				<Dropdown class="w-44 divide-y divide-gray-100">
-					<DropdownItem>Mass Edit</DropdownItem>
-					<DropdownItem>Delete all</DropdownItem>
-				</Dropdown> -->
-				<Button on:click={() => (formModal = true)} color="alternative"
-					>Filter<FilterSolid class="ml-2 h-3 w-3 " /></Button
-				>
-				<Modal bind:open={formModal} size="xs" autoclose={false} class="w-full">
-					<form
-						class="flex flex-col space-y-6"
-						action="/dashboard/comments"
-						tabindex="-1"
-						aria-hidden="true"
-						method="post"
-					>
-						<h3 class="text-xl font-medium text-gray-900 dark:text-white">Filters</h3>
-						<div>Sort Order</div>
-						<div class="grid grid-cols-2 gap-2 md:grid-cols-3">
-							<Select
-								class="mt-2"
-								items={sortOrderOptions}
-								bind:value={selected}
-								name="sortOrder"
-							/>
-						</div>
-						<!--<div>Sort By</div>
-						<div class="grid grid-cols-2 gap-2 md:grid-cols-3">
-							<Select class="mt-2" items={sortByOptions} bind:value={selected} name="sortBy" />
-						</div>-->
-						<div class="flex items-center space-x-4 rounded-b dark:border-gray-600">
-							<Button type="submit">Apply</Button>
-							<Button color="light">Reset</Button>
-						</div>
-					</form>
-				</Modal>
+				<Button color="alternative">Actions<ChevronDownOutline class="ml-2 h-3 w-3 " /></Button>
+				<Dropdown class="w-44 divide-y divide-gray-100"></Dropdown>
 			</div>
 			<TableHead>
 				<TableHeadCell padding="px-4 py-3" scope="col">ID</TableHeadCell>
-				<TableHeadCell padding="px-4 py-3" scope="col">Author</TableHeadCell>
-				<TableHeadCell padding="px-4 py-3" scope="col">Content</TableHeadCell>
-				<TableHeadCell padding="px-4 py-3" scope="col">Article Title</TableHeadCell>
+				<TableHeadCell padding="px-4 py-3" scope="col">Type</TableHeadCell>
+				<TableHeadCell padding="px-4 py-3" scope="col">ObjectId</TableHeadCell>
+				<TableHeadCell padding="px-4 py-3" scope="col">Description</TableHeadCell>
 			</TableHead>
 			<TableBody tableBodyClass="divide-y">
-				{#each data.comments as comment (comment.id)}
+				{#each data.reports as report (report.id)}
 					<TableBodyRow>
-						<TableBodyCell tdClass="px-4 py-3">{comment.id}</TableBodyCell>
-						<a href={`/dashboard/users/${comment.author?.id}`}>
-							<TableBodyCell tdClass="px-4 py-3">{comment.author?.email}</TableBodyCell>
-						</a>
-						<TableBodyCell tdClass="px-4 py-3">{comment.content}</TableBodyCell>
-						<a href={`/dashboard/articles/${comment.article?.id}`}>
-							<TableBodyCell tdClass="px-4 py-3">{comment.article?.title}</TableBodyCell>
-						</a>
+						<TableBodyCell tdClass="px-4 py-3">{report.id}</TableBodyCell>
+						{#if report.objectType == 'Article'}
+							<a href={`/dashboard/articles/${report.objectId}`}>
+								<TableBodyCell tdClass="px-4 py-3">{report.objectType}</TableBodyCell>
+							</a>
+						{:else if report.objectType == 'User'}
+							<a href={`/dashboard/users/${report.objectId}`}>
+								<TableBodyCell tdClass="px-4 py-3">{report.objectType}</TableBodyCell>
+							</a>
+						{:else}
+							<!-- dashboard/comments/[id] is not implemented yet-->
+							<a href={`/dashboard/comments/${report.objectId}`}>
+								<TableBodyCell tdClass="px-4 py-3">{report.objectType}</TableBodyCell>
+							</a>
+						{/if}
+						<TableBodyCell tdClass="px-4 py-3">{report.objectId}</TableBodyCell>
+						<TableBodyCell tdClass="px-4 py-3">{report.content}</TableBodyCell>
 					</TableBodyRow>
 				{/each}
 			</TableBody>

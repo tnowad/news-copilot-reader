@@ -21,13 +21,12 @@ export const actions = {
 		if (!event.locals.user) {
 			return;
 		}
-		const id = event.params.id as unknown as number;
+		const id = formData.get('id') as unknown as number;
 		const content = formData.get('description') as string;
 		const authorId = event.locals.user.id as number;
 
 		const commentsResponse = await commentServerices.updateComment({ id: id, content: content, authorId: authorId }, { Authorization: `Bearer ${event.cookies.get('accessToken')}` });
 
-		console.log(commentsResponse.data.comments);
 	}
 } satisfies Actions;
 

@@ -13,6 +13,7 @@ from app.routes.statistics import statistics_bp
 from app.routes.uploads import uploads_bp
 from app.routes.users import users_bp
 from app.routes.views import views_bp
+from app.routes.report import report_bp
 
 routes_bp = Blueprint("api", __name__)
 
@@ -29,3 +30,4 @@ routes_bp.register_blueprint(statistics_bp)
 routes_bp.register_blueprint(users_bp)
 routes_bp.register_blueprint(uploads_bp)
 routes_bp.register_blueprint(views_bp)
+routes_bp.register_blueprint(report_bp)

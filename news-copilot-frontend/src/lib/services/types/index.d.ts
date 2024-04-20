@@ -4,7 +4,14 @@ export type Token = {
 	accessToken: string;
 	refreshToken: string;
 };
-
+export type ReportObject = 'Article' | 'User' | 'Comment'
+export type Report = {
+	id: number;
+	content: string;
+	objectId: string;
+	objectType: ReportObject;
+	createdAt?: String;
+};
 export type User = {
 	id: number;
 	email: string;

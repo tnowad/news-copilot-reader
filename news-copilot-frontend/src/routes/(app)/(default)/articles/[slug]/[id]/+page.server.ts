@@ -3,6 +3,7 @@ import articleService from '$lib/services/article.service';
 import { StatusCodes } from 'http-status-codes';
 import commentsService from '$lib/services/comment.service';
 import viewService from '$lib/services/view.service';
+import reportService from '$lib/services/report.service';
 import bookmarksService from '$lib/services/bookmark.service';
 export const load: PageServerLoad = async ({ params, locals, cookies }) => {
 	const id = parseInt(params.id);
@@ -113,9 +114,9 @@ export const actions = {
 	},
 	createBookmark: async (event) => {
 		try {
+			console.log('Creating')
 			const articleId = parseInt(event.params.id);
 			const userId = event.locals.user?.id;
-
 			const bookmarkResponse = await bookmarksService.createBookmark(
 				{ articleId: articleId, userId: userId },
 				{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
@@ -138,5 +139,25 @@ export const actions = {
 		} catch (error) {
 			console.error('Failed to delete bookmark: ' + error);
 		}
+	},
+	createArticleReport: async (event) => {
+		console.log('Creating')
+		const formData = await event.request.formData();
+		const content = formData.get('reportArticleContent') as string;
+		const id = parseInt(event.params.id)
+		console.log(content, id);
+		const reportRespone = await reportService.createReport({ content: content, objectId: id, objectType: 'Article' })
+		console.log(reportRespone);
+		return
+	},
+	createCommentReport: async (event) => {
+		console.log('Creating')
+		const formData = await event.request.formData();
+		const content = formData.get('reportCommentContent') as string;
+		const id = formData.get('reportCommentId') as unknown as number;
+		console.log(content, id);
+		const reportRespone = await reportService.createReport({ content: content, objectId: id, objectType: 'Comment' })
+		console.log(reportRespone);
+		return
 	}
 } satisfies Actions;
