@@ -140,15 +140,24 @@ export const actions = {
 			console.error('Failed to delete bookmark: ' + error);
 		}
 	},
-	createReport: async (event) => {
+	createArticleReport: async (event) => {
 		console.log('Creating')
 		const formData = await event.request.formData();
-		const content = formData.get('reportContent') as string;
+		const content = formData.get('reportArticleContent') as string;
 		const id = parseInt(event.params.id)
 		console.log(content, id);
 		const reportRespone = await reportService.createReport({ content: content, objectId: id, objectType: 'Article' })
 		console.log(reportRespone);
 		return
-
+	},
+	createUserReport: async (event) => {
+		console.log('Creating')
+		const formData = await event.request.formData();
+		const content = formData.get('reportUserContent') as string;
+		const id = formData.get('reportUserId') as unknown as number;
+		console.log(content, id);
+		const reportRespone = await reportService.createReport({ content: content, objectId: id, objectType: 'User' })
+		console.log(reportRespone);
+		return
 	}
 } satisfies Actions;

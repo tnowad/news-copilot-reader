@@ -36,8 +36,8 @@
 	let commentEditingId: number | null;
 	let commentDeleteId: number | null;
 	let defaultModal = false;
-	let defaultModal2 = false;
-
+	let articleReportModal = false;
+	let userReportModal = false;
 	export let data: PageData;
 	export let form: ActionData;
 
@@ -172,16 +172,16 @@
 					{/if}
 				</div>
 				<div class="m-5 flex justify-center">
-					<Button on:click={() => (defaultModal = true)}>Report</Button>
+					<Button on:click={() => (articleReportModal = true)}>Report</Button>
 				</div>
 				<Modal
 					title="Reporting an article"
-					bind:open={defaultModal}
+					bind:open={articleReportModal}
 					autoclose={false}
 					class="min-w-full"
 				>
 					<form
-						action={`/articles/${data.article?.slug}/${data.article?.id}?/createReport`}
+						action={`/articles/${data.article?.slug}/${data.article?.id}?/createArticleReport`}
 						method="post"
 					>
 						<Label class="mb-2">Description</Label>
@@ -189,7 +189,7 @@
 							id="description"
 							placeholder="Your description here"
 							rows="4"
-							name="reportContent"
+							name="reportArticleContent"
 							required
 						/>
 						<Button type="submit" class="w-52">Report</Button>
@@ -255,7 +255,33 @@
 									}}>Remove</DropdownItem
 								>
 							{/if}
-							<DropdownItem>Report</DropdownItem>
+							<DropdownItem
+								on:click={() => {
+									userReportModal = true;
+								}}>Report</DropdownItem
+							>
+							<Modal
+								title="Reporting a user"
+								bind:open={userReportModal}
+								autoclose={false}
+								class="min-w-full"
+							>
+								<form
+									action={`/articles/${data.article?.slug}/${data.article?.id}?/createUserReport`}
+									method="post"
+								>
+									<Label class="mb-2">Description</Label>
+									<Textarea
+										id="description"
+										placeholder="Your description here"
+										rows="4"
+										name="reportUserContent"
+										required
+									/>
+									<input type="hidden" name="reportUserId" value={comment.author?.id} />
+									<Button type="submit" class="w-52">Report</Button>
+								</form>
+							</Modal>
 						</Dropdown>
 					</svelte:fragment>
 					<svelte:fragment slot="reply">
