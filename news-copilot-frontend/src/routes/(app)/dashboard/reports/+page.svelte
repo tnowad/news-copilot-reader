@@ -107,9 +107,20 @@
 				{#each data.reports as report (report.id)}
 					<TableBodyRow>
 						<TableBodyCell tdClass="px-4 py-3">{report.id}</TableBodyCell>
-						<a href={`/dashboard/categories/${report.id}`}>
-							<TableBodyCell tdClass="px-4 py-3">{report.objectType}</TableBodyCell>
-						</a>
+						{#if report.objectType == 'Article'}
+							<a href={`/dashboard/articles/${report.objectId}`}>
+								<TableBodyCell tdClass="px-4 py-3">{report.objectType}</TableBodyCell>
+							</a>
+						{:else if report.objectType == 'User'}
+							<a href={`/dashboard/users/${report.objectId}`}>
+								<TableBodyCell tdClass="px-4 py-3">{report.objectType}</TableBodyCell>
+							</a>
+						{:else}
+							<!-- dashboard/comments/[id] is not implemented yet-->
+							<a href={`/dashboard/comments/${report.objectId}`}>
+								<TableBodyCell tdClass="px-4 py-3">{report.objectType}</TableBodyCell>
+							</a>
+						{/if}
 						<TableBodyCell tdClass="px-4 py-3">{report.objectId}</TableBodyCell>
 						<TableBodyCell tdClass="px-4 py-3">{report.content}</TableBodyCell>
 					</TableBodyRow>

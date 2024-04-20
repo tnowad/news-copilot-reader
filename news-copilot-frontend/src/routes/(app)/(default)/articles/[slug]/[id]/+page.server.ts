@@ -150,13 +150,13 @@ export const actions = {
 		console.log(reportRespone);
 		return
 	},
-	createUserReport: async (event) => {
+	createCommentReport: async (event) => {
 		console.log('Creating')
 		const formData = await event.request.formData();
-		const content = formData.get('reportUserContent') as string;
-		const id = formData.get('reportUserId') as unknown as number;
+		const content = formData.get('reportCommentContent') as string;
+		const id = formData.get('reportCommentId') as unknown as number;
 		console.log(content, id);
-		const reportRespone = await reportService.createReport({ content: content, objectId: id, objectType: 'User' })
+		const reportRespone = await reportService.createReport({ content: content, objectId: id, objectType: 'Comment' })
 		console.log(reportRespone);
 		return
 	}

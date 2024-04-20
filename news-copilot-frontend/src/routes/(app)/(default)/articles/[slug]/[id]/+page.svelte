@@ -261,13 +261,13 @@
 								}}>Report</DropdownItem
 							>
 							<Modal
-								title="Reporting a user"
+								title="Reporting a comment"
 								bind:open={userReportModal}
 								autoclose={false}
 								class="min-w-full"
 							>
 								<form
-									action={`/articles/${data.article?.slug}/${data.article?.id}?/createUserReport`}
+									action={`/articles/${data.article?.slug}/${data.article?.id}?/createCommentReport`}
 									method="post"
 								>
 									<Label class="mb-2">Description</Label>
@@ -275,10 +275,10 @@
 										id="description"
 										placeholder="Your description here"
 										rows="4"
-										name="reportUserContent"
+										name="reportCommentContent"
 										required
 									/>
-									<input type="hidden" name="reportUserId" value={comment.author?.id} />
+									<input type="hidden" name="reportCommentId" value={comment.id} />
 									<Button type="submit" class="w-52">Report</Button>
 								</form>
 							</Modal>
