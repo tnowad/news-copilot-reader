@@ -56,9 +56,29 @@ type GetAllReportsParams = {
 type GetAllReportsSuccessful = {
     statusCode: StatusCodes.OK;
     data: {
-        bookmarks: Report[];
+        report: Report[];
+        metadata: {
+            pagination: {
+                offset: number;
+                limit: number;
+                previousOffset: number;
+                nextOffset: number;
+                currentPage: number;
+                totalCount: number;
+            };
+            sortedBy: {
+                name: 'date' | 'name';
+                sortOrder: 'asc' | 'desc';
+            };
+            filter: {
+                articleId: string;
+                userId: string;
+                parentId: string;
+                search: string;
+            };
+        };
+        message: string;
     };
-    message: string;
 };
 
 type GetAllReportsServerError = {

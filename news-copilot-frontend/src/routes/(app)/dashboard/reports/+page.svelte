@@ -31,7 +31,7 @@
 	export let data: PageData;
 	let page = +(data.metadata?.pagination.currentPage ?? 1);
 	let limit = +(data.metadata?.pagination.limit ?? 10);
-	let searchQuery = data.metadata?.filters?.search ?? '';
+	let searchQuery = data.metadata && data.metadata.filters ? data.metadata.filters.search : '';
 
 	const gotoPage = (
 		nextPage: number = page,
@@ -73,7 +73,7 @@
 			<BreadcrumbItem home>Home</BreadcrumbItem>
 			<BreadcrumbItem
 				class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
-				href="/dashboard/categories">Categories</BreadcrumbItem
+				href="/dashboard/categories">Reports</BreadcrumbItem
 			>
 		</Breadcrumb>
 	</div>
@@ -94,13 +94,8 @@
 				slot="header"
 				class="flex w-full flex-shrink-0 flex-col items-stretch justify-end space-y-2 md:w-auto md:flex-row md:items-center md:space-x-3 md:space-y-0"
 			>
-				<!-- <Button href="/dashboard/articles/create">
-					<PlusOutline class="mr-2 h-3.5 w-3.5" />Add article
-				</Button> -->
 				<Button color="alternative">Actions<ChevronDownOutline class="ml-2 h-3 w-3 " /></Button>
-				<Dropdown class="w-44 divide-y divide-gray-100">
-					<DropdownItem><a href="/dashboard/categories/create">Create category</a></DropdownItem>
-				</Dropdown>
+				<Dropdown class="w-44 divide-y divide-gray-100"></Dropdown>
 			</div>
 			<TableHead>
 				<TableHeadCell padding="px-4 py-3" scope="col">ID</TableHeadCell>
