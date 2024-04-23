@@ -70,16 +70,16 @@
 	let dropdowns = Object.fromEntries(Object.keys(menuItems).map((x) => [x, false]));
 </script>
 
-<div class="container mx-auto flex w-full space-x-4">
+<div class="container mx-auto flex h-full min-h-screen w-full flex-1 space-x-4">
 	<Sidebar
 		class={drawerHidden ? 'hidden' : ''}
 		activeUrl={mainSidebarUrl}
 		activeClass="bg-gray-100 dark:bg-gray-700"
-		asideClass=" z-30 flex-none w-64 border border-gray-200 dark:border-gray-600 lg:overflow-y-visible lg:pt-16 lg:block"
+		asideClass=" z-30 flex-none w-64 border border-gray-200 dark:border-gray-600 lg:overflow-y-visible lg:pt-16 lg:block my-auto dark:bg-gray-800 rounded-md"
 	>
 		<h4 class="sr-only">Main menu</h4>
 		<SidebarWrapper
-			divClass="overflow-y-auto px-3 pt-20 lg:pt-5 bg-white scrolling-touch max-w-2xs  lg:block dark:bg-gray-800 lg:me-0 lg:sticky top-2"
+			divClass="overflow-y-auto px-3 pt-20 lg:pt-5 bg-white scrolling-touch max-w-2xs lg:block dark:bg-gray-800 lg:me-0 lg:sticky top-2"
 		>
 			<nav class="divide-y divide-gray-200 dark:divide-gray-700">
 				<SidebarGroup ulClass={groupClass} class="mb-3">
