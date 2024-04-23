@@ -16,6 +16,7 @@
 		Breadcrumb,
 		BreadcrumbItem
 	} from 'flowbite-svelte';
+	import type { ActionData, PageData } from './$types';
 	import { Section } from 'flowbite-svelte-blocks';
 	import {
 		PlusOutline,
@@ -24,20 +25,23 @@
 		ChevronRightOutline,
 		ChevronLeftOutline
 	} from 'flowbite-svelte-icons';
-	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
 
+	
 	export let data: PageData;
 	let page = +(data.metadata?.pagination.currentPage ?? 1);
 	let limit = +(data.metadata?.pagination.limit ?? 10);
 	let searchQuery = data.metadata?.filters?.search ?? '';
+	import { enhance } from '$app/forms';
+	import { toasts } from 'svelte-toasts';
 
 	const sortByField = (field: string) => {
 		if (data.categories && data.categories.length > 0) {
 			data.categories = data.categories.sort((a, b) => a[field].localeCompare(b[field]));
 		}
 	};
+
 
 	const gotoPage = (
 		nextPage: number = page,
@@ -71,6 +75,16 @@
 	$: debounce(() => {
 		gotoPage(page, limit, searchQuery);
 	}, 100);
+	export let form: ActionData;
+	$: {
+		if (form) {
+			if (form.statusCode >= 200 && form.statusCode < 300) {
+				toasts.success(form.message);
+			} else {
+				toasts.error(form.message);
+			}
+		}
+	}
 </script>
 
 <section>
@@ -123,16 +137,23 @@
 				<TableHeadCell padding="px-4 py-3" scope="col">Title</TableHeadCell>
 				<TableHeadCell padding="px-4 py-3" scope="col">Slug</TableHeadCell>
 				<TableHeadCell padding="px-4 py-3" scope="col">Description</TableHeadCell>
+				<TableHeadCell padding="px-4 py-3" scope="col">Actions</TableHeadCell>
 			</TableHead>
 			<TableBody tableBodyClass="divide-y">
-				{#each data.categories as categories (categories.id)}
+				{#each data.categories as category (category.id)}
 					<TableBodyRow>
-						<TableBodyCell tdClass="px-4 py-3">{categories.id}</TableBodyCell>
-						<a href={`/dashboard/categories/${categories.id}`}>
-							<TableBodyCell tdClass="px-4 py-3">{categories.title}</TableBodyCell>
+						<TableBodyCell tdClass="px-4 py-3">{category.id}</TableBodyCell>
+						<a href={`/dashboard/categories/${category.id}`}>
+							<TableBodyCell tdClass="px-4 py-3">{category.title}</TableBodyCell>
 						</a>
-						<TableBodyCell tdClass="px-4 py-3">{categories.slug}</TableBodyCell>
-						<TableBodyCell tdClass="px-4 py-3">{categories.description}</TableBodyCell>
+						<TableBodyCell tdClass="px-4 py-3">{category.slug}</TableBodyCell>
+						<TableBodyCell tdClass="px-4 py-3">{category.description}</TableBodyCell>
+						<TableBodyCell tdClass="px-4 py-3">
+							<form use:enhance method="post" action="/dashboard/categories?/deleteCategory">
+								<input type="hidden" name="categoryId" value={category.id} />
+								<Button outline color="red" type="submit">Delete</Button>
+							</form>
+						</TableBodyCell>
 					</TableBodyRow>
 				{/each}
 			</TableBody>

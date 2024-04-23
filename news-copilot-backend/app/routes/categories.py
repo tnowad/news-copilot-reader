@@ -215,7 +215,24 @@ def update_category(category_id):
 def delete_category(category_id):
     category = Category.query.get(category_id)
     if not category:
-        return jsonify({"error": "Category not found"}), HTTPStatus.NOT_FOUND
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.NOT_FOUND,
+                    "message": "Article not found!",
+                }
+            ),
+            HTTPStatus.NOT_FOUND,
+        )
+
     db.session.delete(category)
     db.session.commit()
-    return jsonify({"message": "Category deleted successfully"}), HTTPStatus.OK
+    return (
+        jsonify(
+            {
+                "statusCode": HTTPStatus.OK,
+                "message": "Category deleted successfully",
+            }
+        ),
+        HTTPStatus.OK,
+    )
