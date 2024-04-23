@@ -135,3 +135,79 @@ def create_report():
         ),
         HTTPStatus.ACCEPTED,
     )
+
+
+@report_bp.route("/reports/<int:report_id>", methods=["DELETE"])
+def delete_report(report_id):
+    report = Report.query.get_or_404(report_id)
+    db.session.delete(report)
+    db.session.commit()
+    return (
+        jsonify(
+            {
+                "statusCode": HTTPStatus.NO_CONTENT,
+                "message": "Report deleted successfully",
+            }
+        ),
+        HTTPStatus.NO_CONTENT,
+    )
+
+
+@report_bp.route("/reports/<int:report_id>", methods=["PUT"])
+def update_report(report_id):
+    report = Report.query.get_or_404(report_id)
+    data = request.get_json()
+    content = data.get("content")
+
+    report.content = content
+    db.session.commit()
+
+    response_data = {
+        "id": report.id,
+        "object_id": report.object_id,
+        "object_type": report.object_type,
+        "created": report.created_at,
+        "content": report.content,
+        "message": "Report updated successfully",
+    }
+
+    response = {
+        "statusCode": HTTPStatus.OK,
+        "message": "Report updated successfully",
+        "data": response_data,
+    }
+
+    return jsonify(response), HTTPStatus.OK
+
+
+@report_bp.route("/reports/<int:report_id>", methods=["GET"])
+def get_report_by_id(report_id):
+    try:
+        report = Report.query.get_or_404(report_id)
+
+        report_data = {
+            "id": report.id,
+            "content": report.content,
+            "objectType": report.object_type,
+            "objectId": report.object_id,
+        }
+
+        response_data = {
+            "statusCode": HTTPStatus.OK,
+            "message": "Get report by ID",
+            "data": report_data,
+        }
+
+        return jsonify(response_data), HTTPStatus.OK
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
+                    "message": "Internal Server Error",
+                    "error": str(e),
+                }
+            ),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
