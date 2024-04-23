@@ -172,6 +172,9 @@
 				<div class="m-5 flex justify-center">
 					<Button on:click={() => (articleReportModal = true)}>Report</Button>
 				</div>
+				<div class="m-5 flex justify-center">
+					<Button on:click={() => (articleReportModal = true)}>Update Report</Button>
+				</div>
 				<Modal
 					title="Reporting an article"
 					bind:open={articleReportModal}

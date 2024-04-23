@@ -114,7 +114,7 @@ export const actions = {
 	},
 	createBookmark: async (event) => {
 		try {
-			console.log('Creating')
+			console.log('Creating');
 			const articleId = parseInt(event.params.id);
 			const userId = event.locals.user?.id;
 			const bookmarkResponse = await bookmarksService.createBookmark(
@@ -141,23 +141,41 @@ export const actions = {
 		}
 	},
 	createArticleReport: async (event) => {
-		console.log('Creating')
+		console.log('Creating');
 		const formData = await event.request.formData();
 		const content = formData.get('reportArticleContent') as string;
-		const id = parseInt(event.params.id)
+		const id = parseInt(event.params.id);
 		console.log(content, id);
-		const reportRespone = await reportService.createReport({ content: content, objectId: id, objectType: 'Article' })
+		const reportRespone = await reportService.createReport({
+			content: content,
+			objectId: id,
+			objectType: 'Article'
+		});
 		console.log(reportRespone);
-		return
+		return;
 	},
 	createCommentReport: async (event) => {
-		console.log('Creating')
+		console.log('Creating');
 		const formData = await event.request.formData();
 		const content = formData.get('reportCommentContent') as string;
 		const id = formData.get('reportCommentId') as unknown as number;
 		console.log(content, id);
-		const reportRespone = await reportService.createReport({ content: content, objectId: id, objectType: 'Comment' })
+		const reportRespone = await reportService.createReport({
+			content: content,
+			objectId: id,
+			objectType: 'Comment'
+		});
 		console.log(reportRespone);
-		return
+		return;
+	},
+	updateArticleReport: async (event) => {
+		console.log('Creating');
+		const formData = await event.request.formData();
+		const content = formData.get('reportArticleContent') as string;
+		const id = parseInt(event.params.id);
+		console.log(content, id);
+		const reportRespone = await reportService.updateReport({ content: content, reportId: id });
+		console.log(reportRespone);
+		return;
 	}
 } satisfies Actions;
