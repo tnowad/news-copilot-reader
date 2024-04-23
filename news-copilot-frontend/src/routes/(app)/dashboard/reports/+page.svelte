@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import {
 		TableBody,
 		TableBodyCell,
@@ -27,6 +28,8 @@
 	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
+	import type { ActionData } from '../$types';
+	import { toasts } from 'svelte-toasts';
 
 	export let data: PageData;
 	let page = +(data.metadata?.pagination.currentPage ?? 1);
@@ -65,6 +68,17 @@
 	$: debounce(() => {
 		gotoPage(page, limit, searchQuery);
 	}, 100);
+
+	export let form: ActionData;
+	$: {
+		if (form) {
+			if (form.statusCode >= 200 && form.statusCode < 300) {
+				toasts.success(form.message);
+			} else {
+				toasts.error(form.message);
+			}
+		}
+	}
 </script>
 
 <section>
@@ -80,7 +94,7 @@
 </section>
 
 <Section sectionClass="" classDiv="max-w-none !p-0">
-	<form method="get" action="/dashboard/catagories">
+	<form method="get" action="/dashboard/reports">
 		<TableSearch
 			placeholder="Search"
 			hoverable={true}
@@ -95,13 +109,18 @@
 				class="flex w-full flex-shrink-0 flex-col items-stretch justify-end space-y-2 md:w-auto md:flex-row md:items-center md:space-x-3 md:space-y-0"
 			>
 				<Button color="alternative">Actions<ChevronDownOutline class="ml-2 h-3 w-3 " /></Button>
-				<Dropdown class="w-44 divide-y divide-gray-100"></Dropdown>
+				<Dropdown class="w-20 divide-y divide-gray-100">
+					<DropdownItem>
+						<a href="/dashboard/reports/create">create</a>
+					</DropdownItem>
+				</Dropdown>
 			</div>
 			<TableHead>
 				<TableHeadCell padding="px-4 py-3" scope="col">ID</TableHeadCell>
 				<TableHeadCell padding="px-4 py-3" scope="col">Type</TableHeadCell>
 				<TableHeadCell padding="px-4 py-3" scope="col">ObjectId</TableHeadCell>
 				<TableHeadCell padding="px-4 py-3" scope="col">Description</TableHeadCell>
+				<TableHeadCell padding="px-4 py-3" scope="col">Actions</TableHeadCell>
 			</TableHead>
 			<TableBody tableBodyClass="divide-y">
 				{#each data.reports as report (report.id)}
@@ -123,6 +142,12 @@
 						{/if}
 						<TableBodyCell tdClass="px-4 py-3">{report.objectId}</TableBodyCell>
 						<TableBodyCell tdClass="px-4 py-3">{report.content}</TableBodyCell>
+						<TableBodyCell tdClass="px-4 py-3">
+							<form use:enhance method="post" action="/dashboard/reports?/deleteReport">
+								<input type="hidden" name="reportId" value={report.id} />
+								<Button outline color="red" type="submit">Delete</Button>
+							</form>
+						</TableBodyCell>
 					</TableBodyRow>
 				{/each}
 			</TableBody>
