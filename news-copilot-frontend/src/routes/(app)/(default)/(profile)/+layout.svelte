@@ -6,7 +6,9 @@
 		SidebarGroup,
 		SidebarItem,
 		SidebarWrapper,
-		SidebarDropdownWrapper
+		SidebarDropdownWrapper,
+		Avatar,
+		Heading
 	} from 'flowbite-svelte';
 	import {
 		BookOpenSolid,
@@ -61,6 +63,7 @@
 	];
 
 	let dropdowns = Object.fromEntries(Object.keys(menuItems).map((x) => [x, false]));
+	export let data;
 </script>
 
 <div class="container mx-0 flex w-full space-x-4">
@@ -72,10 +75,24 @@
 	>
 		<h4 class="sr-only">Main menu</h4>
 		<SidebarWrapper
-			divClass="overflow-y-auto px-3 pt-20 lg:pt-5 bg-white scrolling-touch max-w-2xs  lg:block dark:bg-gray-800 lg:me-0 lg:sticky top-2"
+			divClass="overflow-y-auto px-3 pt-10 bg-white scrolling-touch max-w-2xs lg:block dark:bg-gray-800 lg:me-0 lg:sticky top-2"
 		>
 			<nav class="divide-y divide-gray-200 dark:divide-gray-700">
 				<SidebarGroup ulClass={groupClass} class="mb-3">
+					<div class="flex w-full space-x-2">
+						<Avatar
+							class="2xl:mb-0 mb-4 h-20 w-20 overflow-hidden rounded-lg sm:mb-0 xl:mb-4"
+							size="none"
+							rounded
+						>
+							<img src={data.user?.avatarImage} class="h-full w-full object-cover" alt="Avatar" />
+						</Avatar>
+
+						<div class="py-0.5">
+							<p class="text-gray-600 dark:text-gray-400">{data.user?.email}</p>
+							<p class="text-gray-600 dark:text-gray-400">{data.user?.displayName}</p>
+						</div>
+					</div>
 					{#each menuItems as { name, icon, children, href } (name)}
 						{#if children}
 							<SidebarDropdownWrapper bind:isOpen={dropdowns[name]} label={name} class="pr-3">
