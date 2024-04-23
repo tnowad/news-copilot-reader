@@ -1,4 +1,3 @@
-import articleService from '$lib/services/article.service';
 import commentServerices from '$lib/services/comment.service';
 import { redirect } from '@sveltejs/kit';
 import { StatusCodes } from 'http-status-codes';
@@ -27,7 +26,7 @@ export const load = async (event) => {
 	};
 };
 export const actions = {
-	default: async (event) => {
+	getAllComment: async (event) => {
 		const formData = await event.request.formData();
 		if (!event.locals.user) {
 			return;
@@ -38,11 +37,23 @@ export const actions = {
 
 		const commentsResponse = await commentServerices.getAllComments({
 			sortOrder: sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : undefined,
-			sortBy: sortBy === 'article' || sortBy === 'user' || sortBy === 'createdAt' ? sortBy : undefined
+			sortBy:
+				sortBy === 'article' || sortBy === 'user' || sortBy === 'createdAt' ? sortBy : undefined
 		});
 		console.log(commentsResponse.data.comments);
 		return {
 			comments: commentsResponse.statusCode === StatusCodes.OK ? commentsResponse.data.comments : []
 		};
+	},
+	deleteComment: async (event) => {
+		const formData = await event.request.formData();
+		const commentId = formData.get('commentId') as unknown as number;
+		const deleteCommentResponse = await commentServerices.deleteComment(
+			{
+				id: commentId
+			},
+			{ Authorization: `Bearer ${event.cookies.get('accessToken')}` }
+		);
+		return deleteCommentResponse;
 	}
 } satisfies Actions;

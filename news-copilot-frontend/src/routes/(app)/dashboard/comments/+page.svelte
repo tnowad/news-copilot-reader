@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import {
 		TableBody,
 		TableBodyCell,
@@ -27,9 +28,10 @@
 		ChevronRightOutline,
 		ChevronLeftOutline
 	} from 'flowbite-svelte-icons';
-	import type { PageData } from './$types';
+	import type { PageData,ActionData } from './$types';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
+	import { toasts } from 'svelte-toasts';
 
 	export let data: PageData;
 
@@ -79,6 +81,17 @@
 		{ value: 'createdAt', name: 'Date' }
 	];
 	let selected: any;
+
+	export let form: ActionData;
+	$: {
+		if (form) {
+			if (form.statusCode >= 200 && form.statusCode < 300) {
+				toasts.success(form.message);
+			} else {
+				toasts.error(form.message);
+			}
+		}
+	}
 </script>
 
 <section>
@@ -94,7 +107,7 @@
 </section>
 
 <Section sectionClass="" classDiv="max-w-none !p-0">
-	<form method="get" action="/dashboard/articles">
+	<form method="get" action="/dashboard/articles/?c">
 		<TableSearch
 			placeholder="Search"
 			hoverable={true}
@@ -153,6 +166,7 @@
 				<TableHeadCell padding="px-4 py-3" scope="col">Author</TableHeadCell>
 				<TableHeadCell padding="px-4 py-3" scope="col">Content</TableHeadCell>
 				<TableHeadCell padding="px-4 py-3" scope="col">Article Title</TableHeadCell>
+				<TableHeadCell padding="px-4 py-3" scope="col">Actions</TableHeadCell>
 			</TableHead>
 			<TableBody tableBodyClass="divide-y">
 				{#each data.comments as comment (comment.id)}
@@ -165,6 +179,12 @@
 						<a href={`/dashboard/articles/${comment.article?.id}`}>
 							<TableBodyCell tdClass="px-4 py-3">{comment.article?.title}</TableBodyCell>
 						</a>
+						<TableBodyCell tdClass="px-4 py-3">
+							<form use:enhance action="/dashboard/comments?/deleteComment" method="post">
+								<input type="hidden" name="commentId" value={comment.id} />
+								<Button outline color="red" type="submit">Delete</Button>
+							</form>
+						</TableBodyCell>
 					</TableBodyRow>
 				{/each}
 			</TableBody>
