@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import {
 		TableBody,
 		TableBodyCell,
@@ -24,9 +25,10 @@
 		ChevronRightOutline,
 		ChevronLeftOutline
 	} from 'flowbite-svelte-icons';
-	import type { PageData } from './$types';
+	import type { PageData, ActionData } from './$types';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
+	import { toasts } from 'svelte-toasts';
 
 	export let data: PageData;
 
@@ -72,6 +74,17 @@
 	$: debounce(() => {
 		gotoPage(page, limit, searchQuery);
 	}, 100);
+
+	export let form: ActionData;
+	$: {
+		if (form) {
+			if (form.statusCode >= 200 && form.statusCode < 300) {
+				toasts.success(form.message);
+			} else {
+				toasts.error(form.message);
+			}
+		}
+	}
 </script>
 
 <section>
@@ -126,6 +139,7 @@
 				<TableHeadCell padding="px-4 py-3" scope="col">Author</TableHeadCell>
 				<TableHeadCell padding="px-4 py-3" scope="col">Categories</TableHeadCell>
 				<TableHeadCell padding="px-4 py-3" scope="col">Summary</TableHeadCell>
+				<TableHeadCell padding="px-4 py-3" scope="col">Actions</TableHeadCell>
 			</TableHead>
 			<TableBody tableBodyClass="divide-y">
 				{#each data.articles as article (article.id)}
@@ -141,6 +155,12 @@
 							{/each}</TableBodyCell
 						>
 						<TableBodyCell tdClass="px-4 py-3">{article.summary}</TableBodyCell>
+						<TableHeadCell padding="px-4 py-3">
+							<form use:enhance method="post" action="/dashboard/articles?/deleteArticle">
+								<input type="hidden" name="articleId" value={article.id} />
+								<Button outline color="red" type="submit">Delete</Button>
+							</form>
+						</TableHeadCell>
 					</TableBodyRow>
 				{/each}
 			</TableBody>
