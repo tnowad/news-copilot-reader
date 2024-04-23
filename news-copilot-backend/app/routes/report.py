@@ -145,11 +145,11 @@ def delete_report(report_id):
     return (
         jsonify(
             {
-                "statusCode": HTTPStatus.NO_CONTENT,
+                "statusCode": HTTPStatus.OK,
                 "message": "Report deleted successfully",
             }
         ),
-        HTTPStatus.NO_CONTENT,
+        HTTPStatus.OK,
     )
 
 
