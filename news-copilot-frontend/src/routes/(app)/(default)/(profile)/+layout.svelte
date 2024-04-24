@@ -46,17 +46,17 @@
 
 	let menuItems = [
 		{
-			name: 'profile',
+			name: 'Profile',
 			icon: TableColumnSolid,
 			href: '/profile/'
 		},
 		{
-			name: 'chat',
+			name: 'Chat',
 			icon: BookOpenSolid,
 			href: '/chat'
 		},
 		{
-			name: 'bookmarks',
+			name: 'Bookmarks',
 			icon: MessageCaptionSolid,
 			href: '/bookmarks'
 		}
@@ -66,7 +66,7 @@
 	export let data;
 </script>
 
-<div class="container mx-0 flex w-full space-x-4">
+<div class="container mx-0 mx-auto flex w-full space-x-4">
 	<Sidebar
 		class={drawerHidden ? 'hidden' : ''}
 		activeUrl={mainSidebarUrl}

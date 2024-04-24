@@ -8,11 +8,27 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 
 lemmatizer = WordNetLemmatizer()
-intents = json.loads(open("/home/huy/Documents/dataCode/python/news-copilot-reader/news-copilot-models/chatbotPython/intents.json").read())
+intents = json.loads(
+    open(
+        "/home/huy/Documents/dataCode/python/news-copilot-reader/news-copilot-models/chatbotPython/intents.json"
+    ).read()
+)
 
-words = pickle.load(open("/home/huy/Documents/dataCode/python/news-copilot-reader/news-copilot-models/chatbotPython/words.pkl", "rb"))
-classes = pickle.load(open("/home/huy/Documents/dataCode/python/news-copilot-reader/news-copilot-models/chatbotPython/classes.pkl", "rb"))
-model = tf.keras.models.load_model("/home/huy/Documents/dataCode/python/news-copilot-reader/news-copilot-models/chatbotPython/chatbot_model.h5")
+words = pickle.load(
+    open(
+        "/home/huy/Documents/dataCode/python/news-copilot-reader/news-copilot-models/chatbotPython/words.pkl",
+        "rb",
+    )
+)
+classes = pickle.load(
+    open(
+        "/home/huy/Documents/dataCode/python/news-copilot-reader/news-copilot-models/chatbotPython/classes.pkl",
+        "rb",
+    )
+)
+model = tf.keras.models.load_model(
+    "/home/huy/Documents/dataCode/python/news-copilot-reader/news-copilot-models/chatbotPython/chatbot_model.h5"
+)
 
 
 def clean_up_sentence(sentence):
