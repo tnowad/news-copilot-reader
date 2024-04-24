@@ -10,7 +10,7 @@ from app.extensions import db
 chatbot_bp = Blueprint("chatbot", __name__)
 
 
-@chatbot_bp.route("/chatbot", methods=["POST"])
+@chatbot_bp.route("/chat", methods=["POST"])
 def chatbot_api():
     try:
         data = request.get_json()
