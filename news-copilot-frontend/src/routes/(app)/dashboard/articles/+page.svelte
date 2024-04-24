@@ -37,8 +37,8 @@
 	let searchQuery = data.metadata?.filters?.search ?? '';
 
 	const sortByField = (field: string) => {
-		if (data.users && data.users.length > 0) {
-			data.users = data.users.sort((a, b) => a[field].localeCompare(b[field]));
+		if (data.articles && data.articles.length > 0) {
+			data.articles = data.articles.sort((a, b) => a[field].localeCompare(b[field]));
 		}
 	};
 
