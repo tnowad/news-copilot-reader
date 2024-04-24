@@ -42,7 +42,7 @@ type CategoryArticleCountResponse = {
 
 const getArticlesStatistics = async (): Promise<ArticlesStatisticsResponse> => {
 	try {
-		const url = new URL('/statistics/articles', API_URL);
+		const url = new URL('/statistics/all', API_URL);
 		const response = await fetch(url);
 		return response.json();
 	} catch (error) {

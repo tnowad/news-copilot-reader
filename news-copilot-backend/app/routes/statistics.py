@@ -2,6 +2,7 @@ from http import HTTPStatus
 from flask import Blueprint, jsonify
 from sqlalchemy import func
 
+from app.models.user import User
 from app.models.article import Article
 from app.models.category import Category
 from app.models.view import View
@@ -12,16 +13,19 @@ from app.extensions import db
 statistics_bp = Blueprint("statistics", __name__)
 
 
-@statistics_bp.route("/statistics/articles", methods=["GET"])
-def articles_statistics():
+@statistics_bp.route("/statistics/all", methods=["GET"])
+def get_all_statistics():
     total_articles = Article.query.count()
     total_views = View.query.count()
     total_comments = Comment.query.count()
-
+    total_user = User.query.count()
+    total_category = Category.query.count()
     statistics = {
+        "totalUser": total_user,
         "totalArticles": total_articles,
         "totalViews": total_views,
         "totalComments": total_comments,
+        "totalCategories": total_category,
     }
 
     return jsonify(
