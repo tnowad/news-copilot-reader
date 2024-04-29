@@ -5,7 +5,7 @@ from transformers import Trainer, TrainingArguments
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model_name = "news-copilot-viwiki"
+model_name = "news-copilot-gpt2"
 
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 model = GPT2LMHeadModel.from_pretrained(model_name).to(device)
@@ -17,21 +17,20 @@ train_dataset = TextDataset(tokenizer=tokenizer, file_path=train_file, block_siz
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
 training_args = TrainingArguments(
-    output_dir="./gpt2-finetuned",
+    output_dir=f"./{model_name}-finetuned",
     overwrite_output_dir=True,
-    num_train_epochs=1,
-    per_device_train_batch_size=2,
-    per_device_eval_batch_size=2,
+    num_train_epochs=3,
+    per_device_train_batch_size=8,
+    per_device_eval_batch_size=8,
     logging_dir="./logs",
-    logging_steps=100,
-    evaluation_strategy="steps",
-    eval_steps=500,
-    save_steps=500,
-    warmup_steps=100,
+    logging_steps=500, 
+    evaluation_strategy="epoch",
+    save_steps=1000,
+    warmup_steps=500,
     weight_decay=0.01,
     logging_first_step=True,
     save_total_limit=1,
-    dataloader_num_workers=1,
+    dataloader_num_workers=4,
 )
 
 trainer = Trainer(
