@@ -1,12 +1,13 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import ArticleSection from '$lib/widgets/article-section.svelte';
+	import ArticleHorizontalSection from '$lib/widgets/article-horizontal-section.svelte';
 
 	export let data: PageData;
 </script>
 
 <div>
-	<ArticleSection title="Hot News" articles={data.hotArticles} />
+	<ArticleHorizontalSection title="Hot News" articles={data.hotArticles} />
 	<ArticleSection title="Latest News" articles={data.latestArticles} />
 	<ArticleSection title="Recommend for you" articles={data.recommendArticles} />
 

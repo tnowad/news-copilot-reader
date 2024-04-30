@@ -21,7 +21,7 @@ export const load: PageServerLoad = async (event) => {
 				sortBy: 'viewCount',
 				sortOrder: 'desc',
 				includes: ['author', 'categories'],
-				limit: 12
+				limit: 7
 			}),
 			categoryService.getAllCategories({ limit: 10 }),
 			articleService.getRecommendArticles({ userId: event.locals.user?.id, limit: 5 })
