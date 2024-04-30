@@ -3,12 +3,22 @@ import userService from '$lib/services/user.service';
 import type { Handle, RequestEvent } from '@sveltejs/kit';
 import { StatusCodes } from 'http-status-codes';
 import jwt, { type JwtPayload } from 'jsonwebtoken';
+import { locale } from 'svelte-i18n';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	await processTokens(event);
 	await getCurrentUser(event);
+	getLocale(event);
 
 	return await resolve(event);
+};
+
+// i18n
+const getLocale = (event: RequestEvent) => {
+	const language = event.request.headers.get('accept-language')?.split(',')[0];
+	if (language) {
+		locale.set(language);
+	}
 };
 
 const processTokens = async (event: RequestEvent) => {

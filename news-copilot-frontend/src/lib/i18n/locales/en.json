@@ -1,0 +1,62 @@
+{
+	"common": {
+		"app-name": "News Copilot"
+	},
+	"sign-in": {
+		"page-title": "Sign In",
+		"labels": {
+			"email": "Email",
+			"password": "Password",
+			"remember-me": "Remember me"
+		},
+		"placeholders": {
+			"email": "Enter your email",
+			"password": "Enter your password"
+		},
+		"buttons": {
+			"sign-in": "Sign in"
+		},
+		"links": {
+			"no-account": "Don’t have an account yet?",
+			"sign-up": "Sign up",
+			"forgot-password": "Forgot password?"
+		},
+		"messages": {
+			"success": "You have successfully signed in",
+			"error-invalid-credentials": "Invalid email or password",
+			"error-unauthorized": "Unauthorized access",
+			"error-unprocessable-entity": "Unprocessable Entity"
+		}
+	},
+	"sign-up": {
+		"page-title": "Sign Up",
+		"labels": {
+			"name": "Name",
+			"email": "Email",
+			"password": "Password",
+			"confirm-password": "Confirm Password",
+			"accept-terms": "I accept the",
+			"terms-and-conditions": "Terms and Conditions"
+		},
+		"placeholders": {
+			"name": "Enter your name",
+			"email": "Enter your email",
+			"password": "Enter your password",
+			"confirm-password": "Confirm your password"
+		},
+		"buttons": {
+			"sign-up": "Sign up"
+		},
+		"links": {
+			"already-have-account": "Already have an account?",
+			"sign-in": "Sign in"
+		},
+		"messages": {
+			"success": "You have successfully signed up",
+			"error-existing-account": "An account with this email already exists",
+			"error-invalid-email": "Invalid email address",
+			"error-password-mismatch": "Passwords do not match",
+			"error-invalid-form-data": "Invalid form data. Please check the form and try again."
+		}
+	}
+}
