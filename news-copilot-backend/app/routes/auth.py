@@ -101,6 +101,22 @@ def sign_up():
                             "message": "Password is required" if not password else None,
                         },
                         {
+                            "field": "confirmPassword",
+                            "message": (
+                                "Password confirmation is required"
+                                if not confirm_password
+                                else None
+                            ),
+                        },
+                        {
+                            "field": "confirmPassword",
+                            "message": (
+                                "Passwords do not match"
+                                if password != confirm_password
+                                else None
+                            ),
+                        },
+                        {
                             "field": "displayName",
                             "message": (
                                 "Display name is required" if not display_name else None
@@ -135,7 +151,6 @@ def sign_up():
 
     # TODO: Hash the password
     new_user = User(email=email, display_name=display_name, password=password)
-    new_user = User(email=email, password=password)
     db.session.add(new_user)
     db.session.commit()
 
@@ -167,18 +182,17 @@ def sign_up():
     )
 
 
-# TODO: If we are refreshing a token here we have not verified the users password in
-# TODO: a while, so mark the newly created access token as not fresh
-@auth_bp.route("/refresh", methods=["POST"])
+@auth_bp.route("/refresh-token", methods=["POST"])
 @jwt_required(refresh=True)
 def refresh():
     identity = get_jwt_identity()
     access_token = create_access_token(identity=identity, fresh=False)
-    return jsonify(access_token=access_token)
-
-
-# TODO: Only allow fresh JWTs to access this route with the `fresh=True` arguement.
-@auth_bp.route("/protected", methods=["GET"])
-@jwt_required(fresh=True)
-def protected():
-    return jsonify(foo="bar")
+    return jsonify(
+        {
+            "statusCode": HTTPStatus.OK,
+            "message": "Token refreshed",
+            "data": {
+                "token": {"accessToken": access_token},
+            },
+        }
+    )
