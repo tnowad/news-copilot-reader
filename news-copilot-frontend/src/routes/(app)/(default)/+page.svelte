@@ -1,8 +1,12 @@
 <script lang="ts">
+	import {} from 'flowbite-svelte';
+	import {} from 'flowbite-svelte-blocks';
 </script>
 
 <div>
-	<h1>Home Page</h1>
-	<a href="/sign-in">Sign-in</a>
-	<a href="/sign-up">Sign-up</a>
+	<div>Slider Breaking news (Most trending news)</div>
+	<div>Recommendation news (Generate for each user)</div>
+	<div>News from followed author</div>
+	<div>Hot news each categories</div>
+	<div>Latest news</div>
 </div>

@@ -10,11 +10,13 @@ type GetCurrentUserProfileParams = {
 type GetCurrentUserProfileSuccessful = {
 	statusCode: StatusCodes.OK;
 	data: {
-		id: number;
-		email: string;
-		displayName: string;
-		avatar?: string;
-		roles?: string[];
+		user: {
+			id: number;
+			email: string;
+			displayName: string;
+			avatar?: string;
+			roles?: string[];
+		};
 	};
 	message: string;
 };

@@ -35,8 +35,6 @@
 	];
 
 	export let data: LayoutData;
-
-	$: console.log({ data });
 </script>
 
 <div class="flex flex-col min-h-screen">
@@ -82,13 +80,13 @@
 					<span class="block text-sm">Welcome, {data.user.displayName}!</span>
 					<span class="block truncate text-sm font-medium">{data.user.email}</span>
 				</DropdownHeader>
-				{#if data.user.roles.some((role) => role === 'ADMIN')}
+				{#if data.user.roles?.some((role) => role === 'ADMIN')}
 					<DropdownItem href="/admin">Admin Dashboard</DropdownItem>
 				{/if}
-				{#if data.user.roles.some((role) => role === 'WRITER')}
+				{#if data.user.roles?.some((role) => role === 'WRITER')}
 					<DropdownItem href="/writer">Writer Dashboard</DropdownItem>
 				{/if}
-				{#if data.user.roles.some((role) => role === 'USER')}
+				{#if data.user.roles?.some((role) => role === 'USER')}
 					<DropdownItem>Settings</DropdownItem>
 					<DropdownItem>Bookmark</DropdownItem>
 				{/if}

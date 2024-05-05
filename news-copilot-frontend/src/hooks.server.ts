@@ -4,9 +4,15 @@ import { StatusCodes } from 'http-status-codes';
 import jwt, { type JwtPayload } from 'jsonwebtoken';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	const accessToken = event.cookies.get('accessToken');
+	await processTokens(event);
 
-	if (accessToken && accessToken !== 'null') {
+	return await resolve(event);
+};
+
+const processTokens = async (event: RequestEvent) => {
+	const accessToken = event.cookies.get('accessToken');
+	const refreshToken = event.cookies.get('refreshToken');
+	if (accessToken) {
 		try {
 			const decoded = jwt.decode(accessToken) as JwtPayload;
 			if (!decoded) {
@@ -24,25 +30,30 @@ export const handle: Handle = async ({ event, resolve }) => {
 			}
 		} catch (error) {
 			event.cookies.delete('accessToken', { path: '/' });
+			await tryRefreshToken(event);
+		}
+	} else if (refreshToken) {
+		await tryRefreshToken(event);
+	}
+};
 
-			console.error('Error decoding accessToken:', error);
-			const refreshToken = event.cookies.get('refreshToken');
-			if (refreshToken) {
-				try {
-					await refreshAccessToken(event, refreshToken);
-				} catch (error) {
-					console.error('Error refreshing token:', error);
-					event.cookies.delete('refreshToken', { path: '/' });
-				}
-			}
+const tryRefreshToken = async (event: RequestEvent) => {
+	const refreshToken = event.cookies.get('refreshToken');
+	if (refreshToken) {
+		try {
+			await refreshAccessToken(event, refreshToken);
+		} catch (error) {
+			console.error('Error refreshing token:', error);
+			event.cookies.delete('refreshToken', { path: '/' });
 		}
 	}
-
-	return await resolve(event);
 };
 
 async function refreshAccessToken(event: RequestEvent, refreshToken: string) {
-	const response = await authService.refreshToken({ refreshToken });
+	const response = await authService.refreshToken(
+		{ refreshToken },
+		{ Authorization: `Bearer ${refreshToken}` }
+	);
 
 	switch (response.statusCode) {
 		case StatusCodes.OK:
