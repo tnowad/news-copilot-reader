@@ -1,9 +1,10 @@
 from typing import TYPE_CHECKING, List
 
 from sqlalchemy import ForeignKey, Integer, String, Text
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.orm import Mapped, relationship, validates
 
 from app.extensions import db
+from app.errors.validation_error import ValidationError
 
 if TYPE_CHECKING:
     from app.models.category import Category
@@ -71,3 +72,27 @@ class Article(db.Model):
 
     def __repr__(self):
         return f"<Article {self.title}>"
+
+    @validates("title")
+    def validate_title(self, key, title):
+        if not title:
+            raise ValidationError(field="title", message="Title cannot be empty")
+        return title
+
+    @validates("slug")
+    def validate_slug(self, key, slug):
+        if not slug:
+            raise ValidationError(field="slug", message="Slug cannot be empty")
+        return slug
+
+    @validates("content")
+    def validate_content(self, key, content):
+        if not content:
+            raise ValidationError(field="content", message="Content cannot be empty")
+        return content
+
+    @validates("summary")
+    def validate_summary(self, key, summary):
+        if summary and len(summary) > 255:
+            raise ValidationError(field="summary", message="Summary is too long")
+        return summary

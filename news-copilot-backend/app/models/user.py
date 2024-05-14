@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING, List
 
 from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.orm import validates
 
 from app.extensions import bcrypt, db
+from app.errors.validation_error import ValidationError
 
 if TYPE_CHECKING:
     from app.models.article import Article
@@ -72,3 +74,20 @@ class User(db.Model):
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password, password)
+
+    def has_role(self, role_name):
+        return role_name in [role.name for role in self.roles]
+
+    @validates("email")
+    def validate_email(self, key, email):
+        if not email:
+            raise ValidationError(field="email", message="Email cannot be empty")
+        return email
+
+    @validates("display_name")
+    def validate_display_name(self, key, display_name):
+        if not display_name:
+            raise ValidationError(
+                field="display_name", message="Display name cannot be empty"
+            )
+        return display_name
