@@ -48,6 +48,8 @@ class Comment(db.Model):
 
     @validates("content")
     def validate_content(self, key, content):
+        if not content:
+            raise ValidationError(field="content", message="Content cannot be empty")
         if len(content) > 200:
             raise ValidationError(field="content", message="Content is too long")
         return content
