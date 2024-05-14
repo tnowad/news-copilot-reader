@@ -71,7 +71,7 @@
 		class={drawerHidden ? 'hidden' : ''}
 		activeUrl={mainSidebarUrl}
 		activeClass="bg-gray-100 dark:bg-gray-700"
-		asideClass="bg-gray-800 z-30 flex-none w-64 border border-gray-200 dark:border-gray-600 lg:overflow-y-visible lg:block"
+		asideClass="dark:bg-gray-800 z-30 flex-none w-64 border border-gray-200 dark:border-gray-600 lg:overflow-y-visible lg:block"
 	>
 		<h4 class="sr-only">Main menu</h4>
 		<SidebarWrapper

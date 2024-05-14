@@ -54,7 +54,7 @@
 				/>
 			</div>
 			<div class="flex items-center space-x-4">
-				<Button type="submit" class="w-64">Update product</Button>
+				<Button type="submit" class="w-64">Update category</Button>
 			</div>
 		</div>
 	</form>

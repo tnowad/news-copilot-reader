@@ -33,7 +33,7 @@ const generateText = async (params: GenerateTextParams, headers: HeadersInit = {
 
 	try {
 		const { maxLength = 10, temperature = 0.1, topK = 1 } = params;
-		const url = new URL('/api/generate-text', 'http://localhost:5173');
+		const url = new URL('/api/generate-text', 'http://localhost:4173');
 		const requestInit: RequestInit = {
 			method: 'POST',
 			body: JSON.stringify({ prompt, maxLength, temperature, topK }),

@@ -8,7 +8,7 @@
 
 <div>
 	{#if data.category}
-		<Card size="none">
+		<Card size="none" class="container mx-auto">
 			<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
 				{data.category.title}
 			</h5>

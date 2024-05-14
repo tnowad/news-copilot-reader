@@ -9,8 +9,9 @@ generation_bp = Blueprint("generation", __name__)
 def generate_text_cached(prompt, max_length=100, temperature=0.9, top_k=20):
     from app.services.generation.text_generation import text_generation_pipeline
 
+    top_p = 0.9
     data = text_generation_pipeline(
-        prompt, max_length=max_length, temperature=temperature, top_k=top_k
+        prompt, max_length=max_length, temperature=temperature, top_k=top_k, top_p=top_p
     )
 
     return data[0].get("generated_text")  # type: ignore

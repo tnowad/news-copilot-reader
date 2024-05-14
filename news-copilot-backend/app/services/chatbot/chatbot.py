@@ -61,6 +61,8 @@ def predict_class(sentence):
 
 
 def getResponseChatBot(intent_list, intent_json):
+    if not intent_list:
+        return "I am sorry, I do not understand you."
     tag = intent_list[0]["intent"]
     list_of_intents = intent_json["intents"]
     for i in list_of_intents:
