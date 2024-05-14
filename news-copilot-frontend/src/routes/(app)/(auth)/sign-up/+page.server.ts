@@ -38,9 +38,8 @@ export const actions = {
 				};
 			case StatusCodes.CONFLICT:
 			case StatusCodes.BAD_REQUEST:
-				break;
 			case StatusCodes.UNPROCESSABLE_ENTITY:
-				break;
+				console.log(response);
 			default:
 		}
 

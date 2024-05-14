@@ -48,9 +48,9 @@
 				</Label>
 				<Label class="space-y-2">
 					<span>{$_('sign-up.labels.name')}</span>
-					<Input type="text" name="name" placeholder={$_('sign-up.placeholders.name')} required />
-					{#if form?.errors && getErrorFieldMessage(form.errors, 'name')}
-						<p class="mt-1 text-xs text-red-500">{getErrorFieldMessage(form.errors, 'name')}</p>
+					<Input type="text" name="displayName" placeholder={$_('sign-up.placeholders.name')} required />
+					{#if form?.errors && getErrorFieldMessage(form.errors, 'displayName')}
+						<p class="mt-1 text-xs text-red-500">{getErrorFieldMessage(form.errors, 'displayName')}</p>
 					{/if}
 				</Label>
 				<Label class="space-y-2">

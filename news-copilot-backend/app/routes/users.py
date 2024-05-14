@@ -51,7 +51,7 @@ def profile():
         response_data["data"]["user"]["bio"] = current_user.bio
         response_data["data"]["user"]["birthDate"] = datetime.strftime(
             current_user.birth_date, "%Y-%m-%d"
-        )
+        ) if current_user.birth_date else None
         response_data["data"]["user"]["phoneNumber"] = current_user.phone_number
 
     include_params = request.args.getlist("include")
