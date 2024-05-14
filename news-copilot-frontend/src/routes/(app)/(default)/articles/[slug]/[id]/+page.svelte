@@ -25,7 +25,8 @@
 		PaperClipOutline,
 		MapPinAltSolid,
 		ImageOutline,
-		DotsHorizontalOutline
+		DotsHorizontalOutline,
+		DotsVerticalOutline
 	} from 'flowbite-svelte-icons';
 	import { CommentItem, Section } from 'flowbite-svelte-blocks';
 	import { onMount } from 'svelte';
@@ -40,7 +41,11 @@
 	let userReportModal = false;
 	export let data: PageData;
 	export let form: ActionData;
-
+	function submitForm(event) {
+		event.preventDefault(); // Prevent the default form submission behavior
+		const form = event.target.closest('form'); // Find the closest form element
+		form.submit(); // Submit the form
+	}
 	const markArticleViewed = async () => {
 		if (!data.article?.id) {
 			return;
@@ -77,7 +82,7 @@
 			<Breadcrumb class="mb-6">
 				<BreadcrumbItem home href="/">Home</BreadcrumbItem>
 				<BreadcrumbItem
-					class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
+					class="hover:text-primary-600 inline-flex items-center text-gray-700 dark:text-gray-300 dark:hover:text-white"
 					href="/articles">Article</BreadcrumbItem
 				>
 				<BreadcrumbItem>{data.article?.title}</BreadcrumbItem>
@@ -146,7 +151,10 @@
 						</div>
 					</div>
 				</a>
-				<div class="mt-3 text-center">
+
+				<DotsVerticalOutline class="dots-menu dark:text-white" />
+				<Dropdown triggeredBy=".dots-menu">
+					<DropdownItem on:click={() => (articleReportModal = true)}>Report</DropdownItem>
 					{#if data.bookmark}
 						<form
 							action={`/articles/${data.article?.slug}/${data.article?.id}?/deleteBookmark`}
@@ -155,7 +163,7 @@
 						>
 							<input type="hidden" name="bookmarkId" value={data.bookmark.id} />
 
-							<Button type="submit">Unbookmark</Button>
+							<DropdownItem on:click={submitForm}>Unbookmark</DropdownItem>
 						</form>
 					{:else}
 						<form
@@ -165,16 +173,10 @@
 						>
 							<input type="hidden" name="articleId" value={data.article?.id} />
 
-							<Button type="submit">Bookmark</Button>
+							<DropdownItem on:click={submitForm}>Bookmark</DropdownItem>
 						</form>
 					{/if}
-				</div>
-				<div class="m-5 flex justify-center">
-					<Button on:click={() => (articleReportModal = true)}>Report</Button>
-				</div>
-				<div class="m-5 flex justify-center">
-					<Button on:click={() => (articleReportModal = true)}>Update Report</Button>
-				</div>
+				</Dropdown>
 				<Modal
 					title="Reporting an article"
 					bind:open={articleReportModal}
