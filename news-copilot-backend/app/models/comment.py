@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
 from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.orm import validates
+from app.errors.validation_error import ValidationError
 
 from app.extensions import db
 
@@ -43,3 +45,9 @@ class Comment(db.Model):
 
     def __repr__(self):
         return f"<Comment {self.id}>"
+
+    @validates("content")
+    def validate_content(self, key, content):
+        if len(content) > 200:
+            raise ValidationError(field="content", message="Content is too long")
+        return content
