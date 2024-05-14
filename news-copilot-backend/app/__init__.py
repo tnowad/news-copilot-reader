@@ -5,6 +5,8 @@ from flask_migrate import Migrate
 
 from app.extensions import cache, db, jwt, mail
 from app.seed import seed_database
+from flask import jsonify
+from http import HTTPStatus
 
 migrate = Migrate()
 
@@ -37,6 +39,19 @@ def create_app():
     migrate.init_app(app, db, render_as_batch=True)
     cache.init_app(app)
     mail.init_app(app)
+
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
+                    "message": "Internal Server Error",
+                    "error": str(e),
+                }
+            ),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
 
     with app.app_context():
         from .routes import routes_bp

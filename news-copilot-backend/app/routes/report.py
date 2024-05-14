@@ -95,46 +95,59 @@ def get_report():
 
 @report_bp.route("/reports", methods=["POST"])
 def create_report():
-    data = request.get_json()
-    content = data.get("content")
-    object_id = data.get("objectId")
-    object_type = data.get("objectType")
-    created_at = datetime.now()
+    try:
+        data = request.get_json()
+        content = data.get("content")
+        object_id = data.get("objectId")
+        object_type = data.get("objectType")
+        created_at = datetime.now()
 
-    report = Report(
-        content,
-        object_id,
-        object_type,
-        created_at,
-    )
+        report = Report(
+            content,
+            object_id,
+            object_type,
+            created_at,
+        )
 
-    # db.session.query(Report).delete()
-    # db.session.commit()
+        # db.session.query(Report).delete()
+        # db.session.commit()
 
-    db.session.add(report)
-    db.session.commit()
-    """reports = Report.query.all()
-    print("Report Data:")
-    print("ID\t| Object ID\t| Object Type\t| Created At\t\t\t| Content")
-    print("-" * 80)
-    for report in reports:
-        print(
-            f"{report.id}\t| {report.object_id}\t\t| {report.object_type}\t\t| {report.created_at}\t| {report.content}"
-        )"""
-    return (
-        jsonify(
-            {
-                "id": report.id,
-                "object_id": report.object_id,
-                "object_type": report.object_type,
-                "created": report.created_at,
-                "content": report.content,
-                "statusCode": HTTPStatus.ACCEPTED,
-                "message": "Report was successfully created",
-            }
-        ),
-        HTTPStatus.ACCEPTED,
-    )
+        db.session.add(report)
+        db.session.commit()
+        """reports = Report.query.all()
+        print("Report Data:")
+        print("ID\t| Object ID\t| Object Type\t| Created At\t\t\t| Content")
+        print("-" * 80)
+        for report in reports:
+            print(
+                f"{report.id}\t| {report.object_id}\t\t| {report.object_type}\t\t| {report.created_at}\t| {report.content}"
+            )"""
+        return (
+            jsonify(
+                {
+                    "id": report.id,
+                    "object_id": report.object_id,
+                    "object_type": report.object_type,
+                    "created": report.created_at,
+                    "content": report.content,
+                    "statusCode": HTTPStatus.ACCEPTED,
+                    "message": "Report was successfully created",
+                }
+            ),
+            HTTPStatus.ACCEPTED,
+        )
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
+                    "message": "Internal Server Error",
+                    "error": str(e),
+                }
+            ),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
 
 
 @report_bp.route("/reports/<int:report_id>", methods=["DELETE"])
