@@ -36,7 +36,7 @@ class Report(db.Model):
 
     @validates("object_type")
     def validate_object_type(self, key, object_type):
-        if object_type not in ["article", "comment", "user"]:
+        if object_type not in ["Article", "Comment", "User"]:
             raise ValidationError(field="object_type", message="Invalid object type")
         return object_type
 

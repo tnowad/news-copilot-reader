@@ -106,7 +106,6 @@ def create_report():
             content,
             object_id,
             object_type,
-            created_at,
         )
 
         # db.session.query(Report).delete()
