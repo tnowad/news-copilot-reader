@@ -89,7 +89,7 @@
 				<Editor bind:content />
 				<input type="hidden" name="content" bind:value={content} />
 			</div>
-			<Button type="submit" class="w-32">Add product</Button>
+			<Button type="submit" class="w-32">Add Article</Button>
 		</div>
 	</form>
 

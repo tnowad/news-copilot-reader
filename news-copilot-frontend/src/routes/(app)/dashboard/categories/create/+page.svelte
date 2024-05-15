@@ -27,7 +27,7 @@
 				/>
 			</div>
 			<div class="flex items-center space-x-4">
-				<Button type="submit" class="w-64">Create product</Button>
+				<Button type="submit" class="w-64">Create Category</Button>
 			</div>
 		</div>
 	</form>
