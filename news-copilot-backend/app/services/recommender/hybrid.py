@@ -1,7 +1,15 @@
+from app.services.recommender.data_loader import load_articles, load_views
+from app.services.recommender.content_based import ContentBasedRecommender
+from app.services.recommender.collaborative_filtering import (
+    CollaborativeFilteringRecommender,
+)
+
+
 class HybridRecommender:
-    def __init__(self, collaborative_filtering_recommender, content_based_recommender):
-        self.collaborative_filtering_recommender = collaborative_filtering_recommender
-        self.content_based_recommender = content_based_recommender
+    def __init__(self):
+        self.collaborative_filtering_recommender = CollaborativeFilteringRecommender()
+        self.content_based_recommender = ContentBasedRecommender()
+        self.train(load_views(), load_articles())
 
     def train(self, views_df, articles_df):
         self.collaborative_filtering_recommender.train(views_df)

@@ -24,7 +24,11 @@ export const load: PageServerLoad = async (event) => {
 				limit: 7
 			}),
 			categoryService.getAllCategories({ limit: 10 }),
-			articleService.getRecommendArticles({ userId: event.locals.user?.id, limit: 5 })
+			articleService.getRecommendArticles({
+				userId: event.locals.user?.id,
+				limit: 4,
+				includes: ['author', 'categories']
+			})
 		]);
 
 		const latestArticles =

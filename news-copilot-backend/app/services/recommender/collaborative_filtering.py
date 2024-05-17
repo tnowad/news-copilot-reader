@@ -38,8 +38,8 @@ class CollaborativeFilteringRecommender:
         user_similarities = self.user_similarity_matrix[user_index]  # type: ignore
         similar_users = np.where(user_similarities > similarity_threshold)[0]
 
-        if len(similar_users) == 0:
-            return []
+        # if len(similar_users) == 0:
+        #     return []
 
         item_scores = np.sum(self.user_item_matrix.values[similar_users], axis=0)
         item_scores[user_index] = 0
