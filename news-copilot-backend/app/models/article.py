@@ -93,6 +93,6 @@ class Article(db.Model):
 
     @validates("summary")
     def validate_summary(self, key, summary):
-        if summary and len(summary) > 255:
+        if summary and len(summary) > 2000:
             raise ValidationError(field="summary", message="Summary is too long")
         return summary

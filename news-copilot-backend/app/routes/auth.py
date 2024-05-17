@@ -40,6 +40,7 @@ def sign_in():
         )
 
     user = User.query.filter_by(email=email).first()
+    print(user)
 
     # TODO: Use check_password method
     if not user or not user.check_password(password):
