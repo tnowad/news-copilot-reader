@@ -1,7 +1,7 @@
 from datetime import datetime
 from http import HTTPStatus
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
 from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required,
@@ -11,452 +11,365 @@ from app.decorators.authorization import role_required
 from app.extensions import db
 from app.models.role import Role, RoleEnum
 from app.models.user import User
+from app.services.user_service import UserService
+from app.utils.response_helper import APIResponse
+from app.utils.logging import app_logger, log_api_call
+from app.utils.error_handler import ValidationException, AuthenticationException
+from app.decorators.validation import require_fields
 
 users_bp = Blueprint("user", __name__)
+user_service = UserService()
 
 
 @users_bp.route("/users/profile", methods=["GET"])
 @jwt_required()
+@log_api_call()
 def profile():
-    current_user = User.query.filter_by(email=get_jwt_identity()).first()
+    """Enhanced user profile endpoint with service layer integration"""
+    try:
+        current_user_email = get_jwt_identity()
+        
+        # Use service layer to get user profile
+        profile_result = user_service.get_user_profile(current_user_email)
+        
+        if profile_result['statusCode'] != 200:
+            return APIResponse.error(
+                message=profile_result['message'],
+                status_code=HTTPStatus(profile_result['statusCode'])
+            )
 
-    if not current_user:
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.NOT_FOUND,
-                    "message": "User not found",
-                    "error": "User not found",
-                }
-            ),
-            HTTPStatus.NOT_FOUND,
+        user_data = profile_result['data']['user']
+        
+        # Check if full profile is requested
+        style_param = request.args.get("style")
+        if style_param == "full":
+            # Get additional profile information
+            extended_result = user_service.get_extended_profile(current_user_email)
+            if extended_result['statusCode'] == 200:
+                user_data.update(extended_result['data'])
+
+        app_logger.log_business_event("profile_viewed", {
+            "user_id": user_data.get('id'),
+            "style": style_param
+        })
+
+        return APIResponse.success(
+            message="User profile retrieved successfully",
+            data={"user": user_data}
         )
-
-    response_data = {
-        "statusCode": HTTPStatus.OK,
-        "message": "User profile",
-        "data": {
-            "user": {
-                "id": current_user.id,
-                "email": current_user.email,
-                "displayName": current_user.display_name,
-                "avatarImage": current_user.avatar_image,
-            }
-        },
-    }
-
-    style_param = request.args.get("style")
-
-    if style_param == "full":
-        response_data["data"]["user"]["bio"] = current_user.bio
-        response_data["data"]["user"]["birthDate"] = datetime.strftime(
-            current_user.birth_date, "%Y-%m-%d"
-        ) if current_user.birth_date else None
-        response_data["data"]["user"]["phoneNumber"] = current_user.phone_number
-
-    include_params = request.args.getlist("include")
-
-    if "roles" in include_params:
-        roles = [str(role.name) for role in current_user.roles]
-        response_data["data"]["user"]["roles"] = roles
-
-    return jsonify(response_data), HTTPStatus.OK
+        
+    except Exception as e:
+        app_logger.log_error(e, {
+            "endpoint": "profile",
+            "user_email": get_jwt_identity()
+        })
+        return APIResponse.error(
+            message="Failed to retrieve user profile",
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR
+        )
 
 
 @users_bp.route("/users", methods=["GET"])
+@log_api_call()
 def get_users():
+    """Enhanced get users endpoint with service layer integration"""
     try:
-        page = request.args.get("page", type=int) or 1
-        limit = request.args.get("limit", type=int) or 10
-        search = request.args.get("search", type=str)
-        sort_by = request.args.get("sortBy", type=str)
-        sort_order = request.args.get("sortOrder", type=str)
-
-        query = User.query
-
-        if search:
-            query = query.filter(User.display_name.ilike(f"%{search}%"))
-
-        if sort_by:
-            if sort_by == "display_name":
-                query = query.order_by(User.display_name)
-
-        if sort_order:
-            if sort_order == "desc":
-                query = query.order_by(User.display_name.desc())
-            elif sort_order == "asc":
-                query = query.order_by(User.display_name.asc())
-
-        total_users = query.count()
-
-        if page and limit:
-            offset = (page - 1) * limit
-            query = query.offset(offset).limit(limit)
-
-        users = query.all()
-
-        users_data = []
-        for user in users:
-            user_info = {
-                "id": user.id,
-                "email": user.email,
-                "displayName": user.display_name,
-                "avatarImage": user.avatar_image,
-                "bio": user.bio,
-                # "birthDate": datetime.strftime(user.birth_date, "%Y-%m-%d"),
-                "phoneNumber": user.phone_number,
-                "roles": [str(role.name) for role in user.roles],
-                # "createdAt": datetime.strftime(user.created_at, "%Y-%m-%d"),
-                # "updatedAt": datetime.strftime(user.updated_at, "%Y-%m-%d"),
-            }
-            users_data.append(user_info)
-
-        metadata = {
-            "pagination": {
-                "offset": (page - 1) * limit if (page and limit) else None,
-                "limit": limit,
-                "previousOffset": (page - 2) * limit if page > 1 else None,
-                "nextOffset": page * limit if len(users) == limit else None,
-                "currentPage": page if page else None,
-                "pageCount": (
-                    (total_users + limit - 1) // limit if page and limit else None
-                ),
-                "totalCount": total_users,
-            },
-            "sortedBy": {"name": sort_by, "order": sort_order},
-            "filters": {
-                "search": search,
-            },
+        # Extract query parameters
+        filters = {
+            'page': request.args.get("page", type=int) or 1,
+            'limit': request.args.get("limit", type=int) or 10,
+            'search': request.args.get("search", type=str),
+            'sort_by': request.args.get("sortBy", type=str) or 'created_at',
+            'sort_order': request.args.get("sortOrder", type=str) or 'desc',
+            'role': request.args.get("role", type=str),
+            'status': request.args.get("status", type=str)
         }
 
-        response_data = {
-            "statusCode": HTTPStatus.OK,
-            "message": "Get all users route",
-            "data": {"users": users_data, "metadata": metadata},
-        }
+        # Use service layer to get users
+        users_result = user_service.get_users_with_filters(filters)
+        
+        if users_result['statusCode'] != 200:
+            return APIResponse.error(
+                message=users_result['message'],
+                status_code=HTTPStatus(users_result['statusCode'])
+            )
 
-        return jsonify(response_data), HTTPStatus.OK
+        app_logger.log_business_event("users_list_viewed", {
+            "filters": filters,
+            "total_results": users_result['data']['totalUsers']
+        })
 
+        return APIResponse.success(
+            message="Users retrieved successfully",
+            data=users_result['data']
+        )
+        
     except Exception as e:
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
-                    "message": "Internal Server Error",
-                    "error": str(e),
-                }
-            ),
-            HTTPStatus.INTERNAL_SERVER_ERROR,
+        app_logger.log_error(e, {"endpoint": "get_users"})
+        return APIResponse.error(
+            message="Failed to retrieve users",
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR
+        )
+
+
+@users_bp.route("/users/<int:user_id>", methods=["GET"])
+@log_api_call()
+def get_user(user_id):
+    """Enhanced get user by ID endpoint with service layer integration"""
+    try:
+        # Use service layer to get user by ID
+        user_result = user_service.get_user_by_id(user_id)
+        
+        if user_result['statusCode'] != 200:
+            return APIResponse.error(
+                message=user_result['message'],
+                status_code=HTTPStatus(user_result['statusCode'])
+            )
+
+        app_logger.log_business_event("user_profile_viewed", {
+            "target_user_id": user_id,
+            "viewer_id": getattr(g, 'current_user', {}).get('id') if hasattr(g, 'current_user') else None
+        })
+
+        return APIResponse.success(
+            message="User retrieved successfully",
+            data=user_result['data']
+        )
+        
+    except Exception as e:
+        app_logger.log_error(e, {
+            "endpoint": "get_user",
+            "user_id": user_id
+        })
+        return APIResponse.error(
+            message="Failed to retrieve user",
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR
+        )
+
+
+@users_bp.route("/users/health", methods=["GET"])
+@log_api_call()
+def users_health_check():
+    """Health check endpoint for users service"""
+    try:
+        # Basic health checks
+        total_users = User.query.count()
+        active_users = User.query.filter(User.deleted_at.is_(None)).count() if hasattr(User, 'deleted_at') else total_users
+        
+        # Recent activity
+        from datetime import datetime, timedelta
+        last_24h = datetime.utcnow() - timedelta(hours=24)
+        recent_users = User.query.filter(User.created_at >= last_24h).count() if hasattr(User, 'created_at') else 0
+        
+        health_data = {
+            "service": "users",
+            "status": "healthy",
+            "timestamp": datetime.utcnow().isoformat(),
+            "statistics": {
+                "totalUsers": total_users,
+                "activeUsers": active_users,
+                "recentUsers24h": recent_users
+            },
+            "features": {
+                "profileManagement": "enabled",
+                "userListing": "enabled",
+                "userDeletion": "enabled",
+                "roleManagement": "enabled"
+            }
+        }
+        
+        return APIResponse.success(
+            message="Users service is healthy",
+            data=health_data
+        )
+        
+    except Exception as e:
+        app_logger.log_error(e, {"endpoint": "users_health_check"})
+        return APIResponse.error(
+            message="Users service health check failed",
+            error_details=str(e),
+            status_code=HTTPStatus.SERVICE_UNAVAILABLE
+        )
+
+
+@users_bp.route("/users", methods=["POST"])
+@log_api_call()
+@require_fields(['email', 'password', 'displayName'])
+def create_user():
+    """Enhanced create user endpoint with service layer integration"""
+    try:
+        data = request.get_json()
+        
+        # Use service layer to create user
+        create_result = user_service.create_user(data)
+        
+        if create_result['statusCode'] != 201:
+            return APIResponse.error(
+                message=create_result['message'],
+                status_code=HTTPStatus(create_result['statusCode'])
+            )
+
+        app_logger.log_business_event("user_created_admin", {
+            "user_id": create_result['data']['user']['id'],
+            "email": data.get('email')
+        })
+
+        return APIResponse.success(
+            message="User created successfully",
+            data=create_result['data'],
+            status_code=HTTPStatus.CREATED
+        )
+        
+    except ValidationException as e:
+        return APIResponse.validation_error(e.errors, e.message)
+    except Exception as e:
+        app_logger.log_error(e, {
+            "endpoint": "create_user",
+            "data": locals().get('data', {})
+        })
+        return APIResponse.error(
+            message="Failed to create user",
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR
+        )
+
+
+@users_bp.route("/users/profile", methods=["PUT"])
+@jwt_required()
+@log_api_call()
+def update_profile():
+    """Enhanced update profile endpoint with service layer integration"""
+    try:
+        current_user_email = get_jwt_identity()
+        data = request.get_json()
+        
+        # Get current user ID
+        current_user = user_service.get_user_by_email(current_user_email)
+        if current_user['statusCode'] != 200:
+            return APIResponse.error(
+                message="Current user not found",
+                status_code=HTTPStatus.UNAUTHORIZED
+            )
+        
+        user_id = current_user['data']['user']['id']
+        
+        # Use service layer to update profile
+        update_result = user_service.update_user_profile(
+            user_id=user_id,
+            current_user_email=current_user_email,
+            update_data=data
+        )
+        
+        if update_result['statusCode'] != 200:
+            return APIResponse.error(
+                message=update_result['message'],
+                status_code=HTTPStatus(update_result['statusCode'])
+            )
+
+        app_logger.log_business_event("profile_updated", {
+            "user_id": user_id,
+            "fields_updated": list(data.keys()) if data else []
+        })
+
+        return APIResponse.success(
+            message="Profile updated successfully",
+            data=update_result['data']
+        )
+        
+    except ValidationException as e:
+        return APIResponse.validation_error(e.errors, e.message)
+    except Exception as e:
+        app_logger.log_error(e, {
+            "endpoint": "update_profile",
+            "current_user": get_jwt_identity()
+        })
+        return APIResponse.error(
+            message="Failed to update profile",
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR
         )
 
 
 @users_bp.route("/users/<int:user_id>", methods=["PUT"])
 @jwt_required()
+@log_api_call()
 def update_user(user_id):
-    current_user = User.query.filter_by(id=user_id).first()
-
-    if not current_user:
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.NOT_FOUND,
-                    "message": "User not found",
-                    "error": "User not found",
-                }
-            ),
-            HTTPStatus.NOT_FOUND,
+    """Enhanced update user endpoint with service layer integration"""
+    try:
+        current_user_email = get_jwt_identity()
+        data = request.get_json()
+        
+        # Use service layer to update user
+        update_result = user_service.update_user_profile(
+            user_id=user_id,
+            current_user_email=current_user_email,
+            update_data=data
         )
-    data = request.get_json()
+        
+        if update_result['statusCode'] != 200:
+            return APIResponse.error(
+                message=update_result['message'],
+                status_code=HTTPStatus(update_result['statusCode'])
+            )
 
-    display_name = data.get("displayName")
-    avatar_image = data.get("avatarImage")
-    password = data.get("password")
-    phone_number = data.get("phoneNumber")
-    bio = data.get("bio")
-    birth_date = data.get("birthDate")
-    roleIds = data.get_list("roleIds")
+        app_logger.log_business_event("user_profile_updated", {
+            "user_id": user_id,
+            "updated_by": current_user_email,
+            "fields_updated": list(data.keys()) if data else []
+        })
 
-    if password and not current_user.check_password(password):
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.BAD_REQUEST,
-                    "message": "Password is incorrect",
-                }
-            ),
-            HTTPStatus.BAD_REQUEST,
+        return APIResponse.success(
+            message="User updated successfully",
+            data=update_result['data']
         )
-
-    if display_name is not None and current_user.display_name != display_name:
-        current_user.display_name = display_name
-    if avatar_image is not None and current_user.avatar_image != avatar_image:
-        current_user.avatar_image = avatar_image
-    if phone_number is not None and current_user.phone_number != phone_number:
-        current_user.phone_number = phone_number
-    if bio is not None and current_user.bio != bio:
-        current_user.bio = bio
-    if birth_date is not None and current_user.birth_date != birth_date:
-        current_user.birth_date = datetime.strptime(birth_date, "%Y-%m-%d")
-
-    if roleIds:
-        current_user.roles.clear()
-        for roleId in roleIds:
-            role = Role.query.filter_by(id=roleId).first()
-            if role:
-                current_user.roles.append(role)
-
-    response_data = {
-        "statusCode": HTTPStatus.OK,
-        "message": "User updated successfully",
-        "data": {
-            "user": {
-                "id": current_user.id,
-                "email": current_user.email,
-                "displayName": current_user.display_name,
-                "avatarImage": current_user.avatar_image,
-                "bio": current_user.bio,
-                "birthDate": datetime.strftime(current_user.birth_date, "%Y-%m-%d"),
-                "phoneNumber": current_user.phone_number,
-                "roles": [str(role.name) for role in current_user.roles],
-                "createdAt": datetime.strftime(current_user.created_at, "%Y-%m-%d"),
-                "updatedAt": datetime.strftime(current_user.updated_at, "%Y-%m-%d"),
-            }
-        },
-    }
-
-    db.session.commit()
-
-    return (
-        jsonify(response_data),
-        HTTPStatus.OK,
-    )
+        
+    except ValidationException as e:
+        return APIResponse.validation_error(e.errors, e.message)
+    except Exception as e:
+        app_logger.log_error(e, {
+            "endpoint": "update_user",
+            "user_id": user_id,
+            "current_user": get_jwt_identity()
+        })
+        return APIResponse.error(
+            message="Failed to update user",
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR
+        )
 
 
 @users_bp.route("/users/<int:user_id>", methods=["DELETE"])
 @jwt_required()
+@role_required([RoleEnum.ADMIN])
+@log_api_call()
 def delete_user(user_id):
-    current_user = User.query.filter_by(id=user_id).first()
-
-    if not current_user:
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.NOT_FOUND,
-                    "message": "User not found",
-                    "error": "User not found",
-                }
-            ),
-            HTTPStatus.NOT_FOUND,
-        )
-
-    db.session.delete(current_user)
-    db.session.commit()
-
-    response_data = {
-        "statusCode": HTTPStatus.OK,
-        "message": "User profile deleted successfully",
-    }
-
-    return jsonify(response_data), HTTPStatus.OK
-
-
-@users_bp.route("/users", methods=["POST"])
-def create_user():
-    data = request.get_json()
-    email = data.get("email")
-    password = data.get("password")
-    display_name = data.get("displayName")
-    avatar_image = data.get("avatarImage")
-    phone_number = data.get("phoneNumber")
-    bio = data.get("bio")
-    birth_date = data.get("birthDate")
-
-    if not email:
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.BAD_REQUEST,
-                    "message": "Email is required",
-                    "error": "Email is required",
-                }
-            ),
-            HTTPStatus.BAD_REQUEST,
-        )
-
-    if User.query.filter_by(email=email).first():
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.BAD_REQUEST,
-                    "message": "Email is already registered",
-                }
-            ),
-            HTTPStatus.BAD_REQUEST,
-        )
-
-    new_user = User(
-        email=email,
-        password=password,
-        display_name=display_name,
-        avatar_image=avatar_image,
-        phone_number=phone_number,
-        bio=bio,
-        birth_date=datetime.strptime(birth_date, "%Y-%m-%d"),
-    )
-
-    db.session.add(new_user)
-    db.session.commit()
-
-    response_data = {
-        "statusCode": HTTPStatus.CREATED,
-        "message": "User profile created successfully",
-        "data": {
-            "user": {
-                "id": new_user.id,
-                "email": new_user.email,
-                "displayName": new_user.display_name,
-                "avatarImage": new_user.avatar_image,
-                "bio": new_user.bio,
-                "birthDate": new_user.birth_date,
-                "phoneNumber": new_user.phone_number,
-                "createdAt": datetime.strftime(new_user.created_at, "%Y-%m-%d"),
-                "updatedAt": datetime.strftime(new_user.updated_at, "%Y-%m-%d"),
-            }
-        },
-    }
-
-    return jsonify(response_data), HTTPStatus.CREATED
-
-
-@users_bp.route("/users/<int:user_id>", methods=["GET"])
-def get_user(user_id):
-    if user_id is None:
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.BAD_REQUEST,
-                    "message": "User ID is required",
-                }
-            ),
-            HTTPStatus.BAD_REQUEST,
-        )
-
-    user = User.query.get(user_id)
-
-    if not user:
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.NOT_FOUND,
-                    "message": "User not found",
-                    "error": "User not found",
-                }
-            ),
-            HTTPStatus.NOT_FOUND,
-        )
-
-    response_data = {
-        "statusCode": HTTPStatus.OK,
-        "message": "User profile",
-        "data": {
-            "user": {
-                "id": user.id,
-                "email": user.email,
-                "displayName": user.display_name,
-                "avatarImage": user.avatar_image,
-            }
-        },
-    }
-
-    style_param = request.args.get("style")
-
-    if style_param == "full":
-        response_data["data"]["user"]["bio"] = user.bio
-        response_data["data"]["user"]["birthDate"] = datetime.strftime(
-            user.birth_date, "%Y-%m-%d"
-        )
-        response_data["data"]["user"]["phoneNumber"] = user.phone_number
-
-    include_params = request.args.getlist("include")
-
-    if "roles" in include_params:
-        roles = [str(role.name) for role in user.roles]
-        response_data["data"]["user"]["roles"] = roles
-
-    return jsonify(response_data), HTTPStatus.OK
-
-
-@users_bp.route("/users/profile", methods=["PUT"])
-@jwt_required()
-def update_profile_user():
+    """Enhanced delete user endpoint with service layer integration"""
     try:
-        current_user = User.query.filter_by(email=get_jwt_identity()).first_or_404()
-        data = request.get_json()
-
-        display_name = data.get("displayName")
-        avatar_image = data.get("avatarImage")
-        password = data.get("password")
-        phone_number = data.get("phoneNumber")
-        bio = data.get("bio")
-        birth_date = data.get("birthDate")
-
-        if password and not current_user.check_password(password):
-            return (
-                jsonify(
-                    {
-                        "statusCode": HTTPStatus.BAD_REQUEST,
-                        "message": "Password is incorrect",
-                    }
-                ),
-                HTTPStatus.BAD_REQUEST,
+        current_user_email = get_jwt_identity()
+        
+        # Use service layer to delete user
+        delete_result = user_service.delete_user(user_id, current_user_email)
+        
+        if delete_result['statusCode'] != 200:
+            return APIResponse.error(
+                message=delete_result['message'],
+                status_code=HTTPStatus(delete_result['statusCode'])
             )
 
-        if display_name is not None and current_user.display_name != display_name:
-            current_user.display_name = display_name
-        if (
-            avatar_image is not None
-            and current_user.avatar_image != avatar_image
-            and avatar_image != ""
-        ):
-            current_user.avatar_image = avatar_image
-        if phone_number is not None and current_user.phone_number != phone_number:
-            current_user.phone_number = phone_number
-        if bio is not None and current_user.bio != bio:
-            current_user.bio = bio
-        if birth_date is not None and current_user.birth_date != birth_date:
-            current_user.birth_date = datetime.strptime(birth_date, "%Y-%m-%d")
+        app_logger.log_business_event("user_deleted", {
+            "deleted_user_id": user_id,
+            "deleted_by": current_user_email
+        })
 
-        db.session.commit()
-        response_data = {
-            "statusCode": HTTPStatus.OK,
-            "message": "User updated successfully",
-            "data": {
-                "user": {
-                    "id": current_user.id,
-                    "email": current_user.email,
-                    "displayName": current_user.display_name,
-                    "avatarImage": current_user.avatar_image,
-                    "bio": current_user.bio,
-                    "birthDate": datetime.strftime(current_user.birth_date, "%Y-%m-%d"),
-                    "phoneNumber": current_user.phone_number,
-                    "roles": [str(role.name) for role in current_user.roles],
-                    "createdAt": datetime.strftime(current_user.created_at, "%Y-%m-%d"),
-                    "updatedAt": datetime.strftime(current_user.updated_at, "%Y-%m-%d"),
-                }
-            },
-        }
-
-        return (
-            jsonify(response_data),
-            HTTPStatus.OK,
+        return APIResponse.success(
+            message="User deleted successfully",
+            data=delete_result['data']
         )
+        
     except Exception as e:
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.BAD_REQUEST,
-                    "message": str(e),
-                }
-            ),
-            HTTPStatus.BAD_REQUEST,
+        app_logger.log_error(e, {
+            "endpoint": "delete_user",
+            "user_id": user_id,
+            "current_user": get_jwt_identity()
+        })
+        return APIResponse.error(
+            message="Failed to delete user",
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR
         )

@@ -1,111 +1,87 @@
 from http import HTTPStatus
+import logging
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
-from app.models.article import Article
+from app.services.recommendation_service import RecommendationService
+from app.utils.response_helper import APIResponse
+
+logger = logging.getLogger(__name__)
+recommendation_service = RecommendationService()
 
 recommendations_bp = Blueprint("recommendations", __name__)
 
 
+def handle_service_response(result, success_message, error_message, success_status=HTTPStatus.OK):
+    """Helper function to handle service responses consistently"""
+    if result.get("success"):
+        return APIResponse.success(
+            message=success_message,
+            data=result.get("data"),
+            status_code=HTTPStatus(result["statusCode"])
+        )
+    else:
+        return APIResponse.error(
+            message=error_message,
+            error_details=result.get("message"),
+            status_code=HTTPStatus(result["statusCode"])
+        )
+
+
 @recommendations_bp.route("/recommendations/articles", methods=["GET"])
 def get_recommendations_articles():
+    """Get article recommendations using hybrid recommender"""
     try:
+        # Extract and validate query parameters
         user_id = request.args.get("userId", type=int)
         article_id = request.args.get("articleId", type=int)
         limit = request.args.get("limit", type=int) or 10
         style = request.args.get("style", type=str) or "compact"
         includes = request.args.getlist("includes", type=str)
 
-        from app.services.recommender.recommender import hybrid_recommender
-
-        recommendations_data = hybrid_recommender.recommend_articles(
-            user_id, article_id, limit
+        logger.info(f"Getting article recommendations for user {user_id}, article {article_id}")
+        
+        result = recommendation_service.get_recommended_articles(
+            user_id=user_id,
+            article_id=article_id,
+            limit=limit,
+            style=style,
+            includes=includes
+        )
+        
+        return handle_service_response(
+            result,
+            "Recommendations retrieved successfully",
+            "Failed to retrieve recommendations"
+        )
+        
+    except Exception as e:
+        logger.error(f"Error in get_recommendations_articles endpoint: {str(e)}")
+        return APIResponse.error(
+            "Internal server error",
+            str(e),
+            HTTPStatus.INTERNAL_SERVER_ERROR
         )
 
-        articles = Article.query.filter(Article.id.in_(recommendations_data)).all()
 
-        articles_data = []
-        for article in articles:
-            article_info = {
-                "id": article.id,
-                "title": article.title,
-                "summary": article.summary,
-                "coverImage": article.cover_image,
-                "slug": article.slug,
-                "createdAt": article.created_at,
-            }
-
-            if style == "full":
-                article_info["content"] = article.content
-                article_info["updatedAt"] = article.updated_at
-                article_info["deletedAt"] = article.deleted_at
-
-            if "comments" in includes:
-                article_info["comments"] = [
-                    {
-                        "id": comment.id,
-                        "content": comment.content,
-                        "createdAt": comment.created_at,
-                        "updatedAt": comment.updated_at,
-                        "parentCommentId": comment.parent_id,
-                        "author": {
-                            "id": comment.author.id,
-                            "email": comment.author.email,
-                            "displayName": comment.author.display_name,
-                            "avatarImage": comment.author.avatar_image,
-                        },
-                    }
-                    for comment in article.comments
-                ]
-
-            if "categories" in includes:
-                article_info["categories"] = [
-                    {
-                        "id": category.id,
-                        "title": category.title,
-                        "slug": category.slug,
-                    }
-                    for category in article.categories
-                ]
-
-            if "author" in includes:
-                article_info["author"] = {
-                    "id": article.author.id,
-                    "email": article.author.email,
-                    "displayName": article.author.display_name,
-                    "avatarImage": article.author.avatar_image,
-                }
-
-            articles_data.append(article_info)
-
-        metadata = {
-            "pagination": {
-                "limit": limit,
-            },
-            "style": style,
-            "includes": includes,
-            "filters": {
-                "userId": user_id,
-                "articleId": article_id,
-            },
-        }
-
-        response_data = {
-            "statusCode": HTTPStatus.OK,
-            "message": "Get all articles route",
-            "data": {"articles": articles_data, "metadata": metadata},
-        }
-
-        return jsonify(response_data), HTTPStatus.OK
-
+@recommendations_bp.route("/recommendations/health", methods=["GET"])
+def recommendations_health_check():
+    """Health check endpoint for recommendations service"""
+    try:
+        logger.info("Performing recommendations service health check")
+        
+        result = recommendation_service.get_recommendation_health()
+        
+        return handle_service_response(
+            result,
+            "Recommendations service health check completed",
+            "Recommendations service health check failed"
+        )
+        
     except Exception as e:
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
-                    "message": "Internal Server Error",
-                    "error": str(e),
-                }
-            ),
-            HTTPStatus.INTERNAL_SERVER_ERROR,
+        logger.error(f"Error in recommendations health check endpoint: {str(e)}")
+        return APIResponse.error(
+            "Health check failed",
+            str(e),
+            HTTPStatus.SERVICE_UNAVAILABLE
         )

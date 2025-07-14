@@ -1,225 +1,266 @@
 from datetime import datetime
 from http import HTTPStatus
-from typing import List
+import logging
 
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from app.extensions import db
-from flask import Blueprint, jsonify, request
-from app.models.report import Report
+from app.models.user import User
+from app.services.report_service import ReportService
+from app.utils.response_helper import APIResponse
+from app.decorators.authorization import authorize_roles
+
+logger = logging.getLogger(__name__)
+report_service = ReportService()
 
 report_bp = Blueprint("report", __name__)
 
 
 @report_bp.route("/reports", methods=["GET"])
-def get_report():
+@jwt_required()
+@authorize_roles(['admin', 'moderator'])
+def get_reports():
+    """
+    Get all reports with optional filtering and pagination
+    """
     try:
-        page = request.args.get("page", type=int) or 1
-        limit = request.args.get("limit", type=int) or 10
-        sort_by = request.args.get("sortBy", type=str)
-        sort_order = request.args.get("sortOrder", type=str)
-        style = request.args.get("style", type=str)
-        search = request.args.get("search", type=str)
+        # Extract query parameters
+        page = request.args.get("page", 1, type=int)
+        per_page = min(request.args.get("per_page", 10, type=int), 100)
+        sort_by = request.args.get("sortBy", "created_at")
+        sort_order = request.args.get("sortOrder", "desc")
+        report_type = request.args.get("type")
+        status = request.args.get("status")
+        reported_by = request.args.get("reported_by", type=int)
+        search = request.args.get("search")
 
-        query = Report.query
+        # Get current user
+        current_user_id = get_jwt_identity()
+        current_user = User.query.get(current_user_id)
+        if not current_user:
+            return APIResponse.error("User not found", HTTPStatus.NOT_FOUND)
 
-        if search:
-            query = query.filter(Report.title.ilike(f"%{search}%"))  # type: ignore
+        # Get reports using service
+        result = report_service.get_reports_with_filters(
+            page=page,
+            per_page=per_page,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            report_type=report_type,
+            status=status,
+            reported_by=reported_by,
+            current_user=current_user,
+            search=search
+        )
 
-        if sort_by and sort_order:
-            if sort_by == "id":
-                query = query.order_by(
-                    Report.id.asc() if sort_order == "asc" else Report.id.desc()
-                )
-            if sort_by == "created_at":
-                query = query.order_by(
-                    Report.created_at.asc()
-                    if sort_order == "asc"
-                    else Report.created_at.desc()
-                )
-
-        if page and limit:
-            offset = (page - 1) * limit
-            query = query.offset(offset).limit(limit)
-
-        reports = query.all()
-
-        reports_data = []
-        for report in reports:
-            report_info = {
-                "id": report.id,
-                "content": report.content,
-                "objectType": report.object_type,
-                "objectId": report.object_id,
-            }
-            reports_data.append(report_info)
-
-        metadata = {
-            "pagination": {
-                "offset": (page - 1) * limit if (page and limit) else None,
-                "limit": limit,
-                "previousOffset": (page - 2) * limit if page > 1 else None,
-                "nextOffset": page * limit if reports else None,
-                "currentPage": page if page else None,
-                "totalCount": query.count(),
-            },
-            "sortedBy": {
-                "name": sort_by,
-                "order": sort_order,
-            },
-            "style": style,
-        }
-
-        response_data = {
-            "statusCode": HTTPStatus.OK,
-            "message": "Get all report route",
-            "data": {
-                "reports": reports_data,
-                "metadata": metadata,
-            },
-        }
-
-        return jsonify(response_data), HTTPStatus.OK
+        logger.info(f"Retrieved {len(result['reports'])} reports for user {current_user_id}")
+        return APIResponse.success("Reports retrieved successfully", result)
 
     except Exception as e:
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
-                    "message": "Internal Server Error",
-                    "error": str(e),
-                }
-            ),
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-        )
+        logger.error(f"Error retrieving reports: {str(e)}")
+        return APIResponse.error("Error retrieving reports", HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
 @report_bp.route("/reports", methods=["POST"])
+@jwt_required()
 def create_report():
+    """
+    Create a new report
+    """
     try:
         data = request.get_json()
+        if not data:
+            return APIResponse.error("No data provided", HTTPStatus.BAD_REQUEST)
+
+        # Get current user
+        current_user_id = get_jwt_identity()
+        current_user = User.query.get(current_user_id)
+        if not current_user:
+            return APIResponse.error("User not found", HTTPStatus.NOT_FOUND)
+
+        # Extract required fields
         content = data.get("content")
-        object_id = data.get("objectId")
         object_type = data.get("objectType")
-        created_at = datetime.now()
+        object_id = data.get("objectId")
 
-        report = Report(
-            content,
-            object_id,
-            object_type,
-        )
+        if not all([content, object_type, object_id]):
+            return APIResponse.error("Missing required fields: content, objectType, objectId", HTTPStatus.BAD_REQUEST)
 
-        # db.session.query(Report).delete()
-        # db.session.commit()
+        # Create report using service
+        report_data = {
+            'content': content,
+            'object_type': object_type,
+            'object_id': object_id,
+            'reported_by': current_user_id,
+            'status': 'pending'
+        }
 
-        db.session.add(report)
-        db.session.commit()
-        """reports = Report.query.all()
-        print("Report Data:")
-        print("ID\t| Object ID\t| Object Type\t| Created At\t\t\t| Content")
-        print("-" * 80)
-        for report in reports:
-            print(
-                f"{report.id}\t| {report.object_id}\t\t| {report.object_type}\t\t| {report.created_at}\t| {report.content}"
-            )"""
-        return (
-            jsonify(
-                {
-                    "id": report.id,
-                    "object_id": report.object_id,
-                    "object_type": report.object_type,
-                    "created": report.created_at,
-                    "content": report.content,
-                    "statusCode": HTTPStatus.ACCEPTED,
-                    "message": "Report was successfully created",
-                }
-            ),
-            HTTPStatus.ACCEPTED,
-        )
+        report = report_service.create_report(report_data, current_user)
+        
+        logger.info(f"Report {report['id']} created by user {current_user_id}")
+        return APIResponse.success("Report created successfully", report, HTTPStatus.CREATED)
 
+    except ValueError as e:
+        logger.warning(f"Invalid report data: {str(e)}")
+        return APIResponse.error(str(e), HTTPStatus.BAD_REQUEST)
     except Exception as e:
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
-                    "message": "Internal Server Error",
-                    "error": str(e),
-                }
-            ),
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-        )
-
-
-@report_bp.route("/reports/<int:report_id>", methods=["DELETE"])
-def delete_report(report_id):
-    report = Report.query.get_or_404(report_id)
-    db.session.delete(report)
-    db.session.commit()
-    return (
-        jsonify(
-            {
-                "statusCode": HTTPStatus.OK,
-                "message": "Report deleted successfully",
-            }
-        ),
-        HTTPStatus.OK,
-    )
-
-
-@report_bp.route("/reports/<int:report_id>", methods=["PUT"])
-def update_report(report_id):
-    report = Report.query.get_or_404(report_id)
-    data = request.get_json()
-    content = data.get("content")
-
-    report.content = content
-    db.session.commit()
-
-    response_data = {
-        "id": report.id,
-        "object_id": report.object_id,
-        "object_type": report.object_type,
-        "created": report.created_at,
-        "content": report.content,
-        "message": "Report updated successfully",
-    }
-
-    response = {
-        "statusCode": HTTPStatus.OK,
-        "message": "Report updated successfully",
-        "data": response_data,
-    }
-
-    return jsonify(response), HTTPStatus.OK
+        logger.error(f"Error creating report: {str(e)}")
+        return APIResponse.error("Error creating report", HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
 @report_bp.route("/reports/<int:report_id>", methods=["GET"])
+@jwt_required()
+@authorize_roles(['admin', 'moderator'])
 def get_report_by_id(report_id):
+    """
+    Get a specific report by ID
+    """
     try:
-        report = Report.query.get_or_404(report_id)
+        # Get current user
+        current_user_id = get_jwt_identity()
+        current_user = User.query.get(current_user_id)
+        if not current_user:
+            return APIResponse.error("User not found", HTTPStatus.NOT_FOUND)
 
-        report_data = {
-            "id": report.id,
-            "content": report.content,
-            "objectType": report.object_type,
-            "objectId": report.object_id,
-        }
+        # Get report using service
+        report = report_service.get_report_by_id(report_id, current_user)
+        
+        if not report:
+            return APIResponse.error("Report not found", HTTPStatus.NOT_FOUND)
 
-        response_data = {
-            "statusCode": HTTPStatus.OK,
-            "message": "Get report by ID",
-            "data": report_data,
-        }
-
-        return jsonify(response_data), HTTPStatus.OK
+        logger.info(f"Report {report_id} retrieved by user {current_user_id}")
+        return APIResponse.success("Report retrieved successfully", report)
 
     except Exception as e:
-        return (
-            jsonify(
-                {
-                    "statusCode": HTTPStatus.INTERNAL_SERVER_ERROR,
-                    "message": "Internal Server Error",
-                    "error": str(e),
-                }
-            ),
-            HTTPStatus.INTERNAL_SERVER_ERROR,
+        logger.error(f"Error retrieving report {report_id}: {str(e)}")
+        return APIResponse.error("Error retrieving report", HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
+@report_bp.route("/reports/<int:report_id>", methods=["PUT"])
+@jwt_required()
+@authorize_roles(['admin', 'moderator'])
+def update_report(report_id):
+    """
+    Update a report (typically to change status or add review)
+    """
+    try:
+        data = request.get_json()
+        if not data:
+            return APIResponse.error("No data provided", HTTPStatus.BAD_REQUEST)
+
+        # Get current user
+        current_user_id = get_jwt_identity()
+        current_user = User.query.get(current_user_id)
+        if not current_user:
+            return APIResponse.error("User not found", HTTPStatus.NOT_FOUND)
+
+        # Update report using service
+        updated_report = report_service.update_report(report_id, data, current_user)
+        
+        if not updated_report:
+            return APIResponse.error("Report not found", HTTPStatus.NOT_FOUND)
+
+        logger.info(f"Report {report_id} updated by user {current_user_id}")
+        return APIResponse.success("Report updated successfully", updated_report)
+
+    except ValueError as e:
+        logger.warning(f"Invalid update data for report {report_id}: {str(e)}")
+        return APIResponse.error(str(e), HTTPStatus.BAD_REQUEST)
+    except Exception as e:
+        logger.error(f"Error updating report {report_id}: {str(e)}")
+        return APIResponse.error("Error updating report", HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
+@report_bp.route("/reports/<int:report_id>", methods=["DELETE"])
+@jwt_required()
+@authorize_roles(['admin'])
+def delete_report(report_id):
+    """
+    Delete a report (admin only)
+    """
+    try:
+        # Get current user
+        current_user_id = get_jwt_identity()
+        current_user = User.query.get(current_user_id)
+        if not current_user:
+            return APIResponse.error("User not found", HTTPStatus.NOT_FOUND)
+
+        # Delete report using service
+        success = report_service.delete_report(report_id, current_user)
+        
+        if not success:
+            return APIResponse.error("Report not found", HTTPStatus.NOT_FOUND)
+
+        logger.info(f"Report {report_id} deleted by user {current_user_id}")
+        return APIResponse.success("Report deleted successfully")
+
+    except Exception as e:
+        logger.error(f"Error deleting report {report_id}: {str(e)}")
+        return APIResponse.error("Error deleting report", HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
+@report_bp.route("/reports/by-object", methods=["GET"])
+@jwt_required()
+@authorize_roles(['admin', 'moderator'])
+def get_reports_by_object():
+    """
+    Get reports for a specific object (article, comment, user)
+    """
+    try:
+        object_type = request.args.get('type')
+        object_id = request.args.get('id', type=int)
+        page = request.args.get('page', 1, type=int)
+        per_page = min(request.args.get('per_page', 10, type=int), 100)
+
+        if not object_type or not object_id:
+            return APIResponse.error("Missing required parameters: type and id", HTTPStatus.BAD_REQUEST)
+
+        # Get current user
+        current_user_id = get_jwt_identity()
+        current_user = User.query.get(current_user_id)
+        if not current_user:
+            return APIResponse.error("User not found", HTTPStatus.NOT_FOUND)
+
+        # Get reports using service
+        result = report_service.get_reports_by_object(
+            object_type=object_type,
+            object_id=object_id,
+            page=page,
+            per_page=per_page,
+            current_user=current_user
         )
+
+        logger.info(f"Retrieved {len(result['reports'])} reports for {object_type} {object_id}")
+        return APIResponse.success("Reports retrieved successfully", result)
+
+    except ValueError as e:
+        logger.warning(f"Invalid object type or ID: {str(e)}")
+        return APIResponse.error(str(e), HTTPStatus.BAD_REQUEST)
+    except Exception as e:
+        logger.error(f"Error retrieving reports by object: {str(e)}")
+        return APIResponse.error("Error retrieving reports", HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
+@report_bp.route("/reports/statistics", methods=["GET"])
+@jwt_required()
+@authorize_roles(['admin', 'moderator'])
+def get_report_statistics():
+    """
+    Get report statistics (counts by status, type, etc.)
+    """
+    try:
+        # Get current user
+        current_user_id = get_jwt_identity()
+        current_user = User.query.get(current_user_id)
+        if not current_user:
+            return APIResponse.error("User not found", HTTPStatus.NOT_FOUND)
+
+        # Get statistics using service
+        stats = report_service.get_report_statistics(current_user)
+
+        logger.info(f"Report statistics retrieved by user {current_user_id}")
+        return APIResponse.success("Statistics retrieved successfully", stats)
+
+    except Exception as e:
+        logger.error(f"Error retrieving report statistics: {str(e)}")
+        return APIResponse.error("Error retrieving statistics", HTTPStatus.INTERNAL_SERVER_ERROR)
