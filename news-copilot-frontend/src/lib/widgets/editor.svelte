@@ -3,12 +3,16 @@
 	import * as monaco from 'monaco-editor';
 	import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 	import generateService from '$lib/services/generate.service';
-	import { StatusCodes } from 'http-status-codes';
 
 	let editorElement: HTMLDivElement;
 	let editor: monaco.editor.IStandaloneCodeEditor;
 	let model: monaco.editor.ITextModel;
 	export let content = '';
+	export let articleContext: string = 'news'; // Allow context to be passed from parent
+
+	// Article completion settings
+	let completionEnabled = true;
+	let completionDelay = 1000;
 
 	function loadCode(code: string, language: string) {
 		model = monaco.editor.createModel(code, language);
@@ -33,36 +37,54 @@
 
 		monaco.languages.registerInlineCompletionsProvider('markdown', {
 			provideInlineCompletions: async function (model, position, context, token) {
-				const result = await generateText(model.getValue().slice(0, model.getOffsetAt(position)));
-				switch (result.statusCode) {
-					case StatusCodes.OK:
-						console.log({
-							model: model.getValue(),
-							result: result.data.generatedText,
-							modelLength: model.getValue().length,
-							resultLength: result.data.generatedText.length
-						});
-
+				try {
+					if (!completionEnabled) {
+						return Promise.resolve({ items: [] });
+					}
+					
+					const currentText = model.getValue();
+					const cursorOffset = model.getOffsetAt(position);
+					
+					// Don't provide completions for very short content
+					if (currentText.trim().length < 10) {
+						return Promise.resolve({ items: [] });
+					}
+					
+					// Use the new smart completion function with dynamic context
+					const completion = await generateService.getSmartCompletion(
+						currentText,
+						cursorOffset,
+						articleContext
+					);
+					
+					if (completion && completion.length > 0) {
 						return Promise.resolve({
 							items: [
 								{
-									insertText: result.data.generatedText.slice(model.getValue().length),
+									insertText: completion,
 									range: new monaco.Range(
 										position.lineNumber,
 										position.column,
 										position.lineNumber,
 										position.column
-									)
+									),
+									kind: monaco.languages.CompletionItemKind.Text,
+									detail: `AI-powered ${articleContext} completion`,
+									documentation: 'Press Tab to accept this AI-generated completion'
 								}
 							]
 						});
-					default:
-						return Promise.resolve({
-							items: []
-						});
+					}
+					
+					return Promise.resolve({ items: [] });
+				} catch (error) {
+					console.error('Inline completion error:', error);
+					return Promise.resolve({ items: [] });
 				}
 			},
-			freeInlineCompletions(arg) {}
+			freeInlineCompletions(completions) {
+				// Cleanup if needed
+			}
 		});
 
 		editor = monaco.editor.create(editorElement, {
