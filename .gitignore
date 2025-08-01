@@ -1,4 +1,60 @@
-.ipynb_checkpoints
-one_step
-training_checkpoints
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv
+env/
+venv/
+*.egg
+.Python
+*.pt
+*.pth
 *.tar.xz
+
+# Node
+node_modules/
+.svelte-kit/
+.output/
+.vite/
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints
+
+# Training
+one_step/
+training_checkpoints/
+
+# Logs
+*.log
+logs/
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# Database
+*.db
+*.sqlite3
