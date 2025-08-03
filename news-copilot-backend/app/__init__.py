@@ -193,7 +193,3 @@ def _initialize_database(app: Flask):
     except Exception as e:
         app_logger.log_error(e, {"context": "database_initialization"})
         raise
-
-        app.register_blueprint(routes_bp)
-
-        return app
