@@ -1,10 +1,11 @@
 from typing import Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
+import secrets
 
 from app.models.user import User
 from app.models.role import Role, RoleEnum
 from app.services.base_service import BaseService
-from app.extensions import db, bcrypt
+from app.extensions import db, bcrypt, cache
 
 
 class UserService(BaseService):
@@ -177,6 +178,143 @@ class UserService(BaseService):
             
         except Exception as e:
             return self._format_error_response(500, "Failed to retrieve user statistics", str(e))
+
+    def register_user(self, email: str, password: str, display_name: str) -> Dict[str, Any]:
+        """Register a new user (used by the auth blueprint)"""
+        return self.create_user({
+            "email": email,
+            "password": password,
+            "displayName": display_name,
+        })
+
+    def initiate_password_reset(self, email: str) -> Dict[str, Any]:
+        """Generate a password reset token for the given email"""
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return self._format_response(200, "Reset token sent if email exists")
+
+        token = secrets.token_urlsafe(32)
+        cache.set(f"password_reset:{token}", user.id, timeout=3600)
+        return self._format_response(200, "Reset token sent if email exists", {"reset_token": token})
+
+    def reset_password(self, token: str, new_password: str) -> Dict[str, Any]:
+        """Reset a user's password using a valid reset token"""
+        user_id = cache.get(f"password_reset:{token}")
+        if not user_id:
+            return self._format_error_response(400, "Invalid or expired reset token")
+
+        user = User.query.get(user_id)
+        if not user:
+            return self._format_error_response(404, "User not found")
+
+        validation = self._validate_password(new_password)
+        if not validation["valid"]:
+            return self._format_error_response(400, "Invalid password", validation["errors"])
+
+        user.set_password(new_password)
+        user.updated_at = datetime.utcnow()
+        cache.delete(f"password_reset:{token}")
+        db.session.commit()
+
+        return self._format_response(200, "Password reset successful", {"user_id": user.id})
+
+    def get_user_profile(self, email: str) -> Dict[str, Any]:
+        """Get a user's profile by email"""
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return self._format_error_response(404, "User not found")
+
+        return self._format_response(200, "Profile retrieved", {
+            "user": self._serialize(user, include_sensitive=True)
+        })
+
+    def get_extended_profile(self, email: str) -> Dict[str, Any]:
+        """Get extended profile with stats"""
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return self._format_error_response(404, "User not found")
+
+        stats = self.get_user_stats(user.id)
+        data = self._serialize(user, include_sensitive=True)
+        if stats.get("statusCode") == 200:
+            data["stats"] = stats["data"]["stats"]
+
+        return self._format_response(200, "Extended profile retrieved", data)
+
+    def get_users_with_filters(self, filters: Dict[str, Any]) -> Dict[str, Any]:
+        """Get users with filtering and pagination"""
+        page = filters.get("page", 1)
+        per_page = filters.get("limit", 10)
+        search = filters.get("search")
+
+        query = User.query
+
+        if search:
+            query = query.filter(
+                User.email.ilike(f"%{search}%") | User.display_name.ilike(f"%{search}%")
+            )
+
+        total = query.count()
+        users = query.order_by(User.created_at.desc()).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+
+        return self._format_response(200, "Users retrieved", {
+            "users": [self._serialize(u) for u in users.items],
+            "totalUsers": total,
+            "page": page,
+            "perPage": per_page,
+            "totalPages": users.pages,
+        })
+
+    def get_user_by_id(self, user_id: int) -> Dict[str, Any]:
+        """Get a single user by ID"""
+        user = User.query.get(user_id)
+        if not user:
+            return self._format_error_response(404, "User not found")
+
+        return self._format_response(200, "User retrieved", {
+            "user": self._serialize(user, include_sensitive=True)
+        })
+
+    def get_user_by_email(self, email: str) -> Dict[str, Any]:
+        """Get a single user by email"""
+        return self.get_user_profile(email)
+
+    def update_user_profile(self, user_id: int, current_user_email: str, update_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Update a user's profile (with basic ownership check)"""
+        current_user = User.query.filter_by(email=current_user_email).first()
+        if not current_user:
+            return self._format_error_response(404, "Current user not found")
+
+        if current_user.id != user_id:
+            is_admin = any(str(r.name) == "ADMIN" for r in current_user.roles)
+            if not is_admin:
+                return self._format_error_response(403, "Cannot edit other users")
+
+        return self.update_profile(user_id, update_data)
+
+    def delete_user(self, user_id: int, current_user_email: str) -> Dict[str, Any]:
+        """Soft-delete a user (admin or self)"""
+        current_user = User.query.filter_by(email=current_user_email).first()
+        if not current_user:
+            return self._format_error_response(404, "Current user not found")
+
+        if current_user.id != user_id:
+            is_admin = any(str(r.name) == "ADMIN" for r in current_user.roles)
+            if not is_admin:
+                return self._format_error_response(403, "Cannot delete other users")
+
+        user = User.query.get(user_id)
+        if not user:
+            return self._format_error_response(404, "User not found")
+
+        user.deleted_at = datetime.utcnow()
+        db.session.commit()
+
+        return self._format_response(200, "User deleted", {
+            "user": self._serialize(user)
+        })
     
     def _validate_password(self, password: str) -> Dict[str, Any]:
         """Validate password strength"""
