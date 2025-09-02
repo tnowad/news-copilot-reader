@@ -58,6 +58,9 @@ class ResourceNotFoundException(CustomException):
         self.resource_id = resource_id
 
 
+NotFoundError = ResourceNotFoundException  # alias for compatibility
+
+
 class BusinessLogicException(CustomException):
     """Exception for business logic errors"""
     

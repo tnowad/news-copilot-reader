@@ -65,6 +65,17 @@ def role_required(roles: List[RoleEnum]):
     return decorator
 
 
+def authorize_roles(roles: list):
+    """String-based role authorization decorator (e.g. @authorize_roles(['admin', 'moderator']))"""
+    role_enums = []
+    for r in roles:
+        try:
+            role_enums.append(RoleEnum[r.upper()])
+        except KeyError:
+            pass
+    return role_required(role_enums)
+
+
 def ownership_required(get_resource_owner_id):
     """Decorator to check if user owns the resource or has admin privileges"""
     def decorator(func):
