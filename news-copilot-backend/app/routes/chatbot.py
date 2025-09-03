@@ -11,9 +11,6 @@ from app.utils.response_helper import APIResponse
 logger = logging.getLogger(__name__)
 chatbot_service = ChatbotService()
 
-logger = logging.getLogger(__name__)
-chatbot_service = ChatbotService()
-
 chatbot_bp = Blueprint("chatbot", __name__)
 
 

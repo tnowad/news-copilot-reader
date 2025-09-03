@@ -3,32 +3,21 @@ import json
 import pickle
 import numpy as np
 import tensorflow as tf
+import os
 
 import nltk
 from nltk.stem import WordNetLemmatizer
 
+BASE_DIR = os.path.join(os.path.dirname(__file__), "../../../news-copilot-models/chatbotPython")
+
 lemmatizer = WordNetLemmatizer()
 intents = json.loads(
-    open(
-        "/home/huy/Documents/dataCode/python/news-copilot-reader/news-copilot-models/chatbotPython/intents.json"
-    ).read()
+    open(os.path.join(BASE_DIR, "intents.json")).read()
 )
 
-words = pickle.load(
-    open(
-        "/home/huy/Documents/dataCode/python/news-copilot-reader/news-copilot-models/chatbotPython/words.pkl",
-        "rb",
-    )
-)
-classes = pickle.load(
-    open(
-        "/home/huy/Documents/dataCode/python/news-copilot-reader/news-copilot-models/chatbotPython/classes.pkl",
-        "rb",
-    )
-)
-model = tf.keras.models.load_model(
-    "/home/huy/Documents/dataCode/python/news-copilot-reader/news-copilot-models/chatbotPython/chatbot_model.h5"
-)
+words = pickle.load(open(os.path.join(BASE_DIR, "words.pkl"), "rb"))
+classes = pickle.load(open(os.path.join(BASE_DIR, "classes.pkl"), "rb"))
+model = tf.keras.models.load_model(os.path.join(BASE_DIR, "chatbot_model.h5"))
 
 
 def clean_up_sentence(sentence):
