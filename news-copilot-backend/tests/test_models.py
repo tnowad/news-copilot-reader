@@ -17,7 +17,7 @@ class TestUserModel:
             email="test@example.com",
             display_name="Test User",
         )
-        user.set_password("password123")
+        user.set_password("SecureP@ssw0rd!")
         session.add(user)
         session.commit()
 

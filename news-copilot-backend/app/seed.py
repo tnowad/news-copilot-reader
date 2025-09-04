@@ -30,7 +30,7 @@ def seed_users():
             "email": "admin@example.com",
             "display_name": "Admin User",
             "avatar_image": "https://i.pravatar.cc/150?img=1",
-            "password": "Password123",
+            "password": "Admin@2024!",
             "bio": "I'm an admin user.",
             "birth_date": "1990-01-01",
             "phone_number": "1234567890",
@@ -40,7 +40,7 @@ def seed_users():
             "email": "writer@example.com",
             "display_name": "Writer User",
             "avatar_image": "https://i.pravatar.cc/150?img=2",
-            "password": "Password123",
+            "password": "Writer@2024!",
             "bio": "I'm a writer user.",
             "birth_date": "1990-01-01",
             "phone_number": "1234567890",
@@ -50,7 +50,7 @@ def seed_users():
             "email": "user@example.com",
             "display_name": "Normal User",
             "avatar_image": "https://i.pravatar.cc/150?img=3",
-            "password": "Password123",
+            "password": "User@2024!",
             "bio": "I'm a user.",
             "birth_date": "1990-01-01",
             "phone_number": "1234567890",
@@ -82,13 +82,16 @@ def seed_users():
 
 def seed_categories():
     categories = [
-        {
-            "id": i,
-            "description": fake.paragraph(),
-            "title": fake.word(),
-            "slug": fake.slug(),
-        }
-        for i in range(10)
+        {"id": 1, "title": "Technology", "slug": "technology", "description": "Latest tech news and innovations"},
+        {"id": 2, "title": "Business", "slug": "business", "description": "Business and financial news"},
+        {"id": 3, "title": "Sports", "slug": "sports", "description": "Sports updates and highlights"},
+        {"id": 4, "title": "Health", "slug": "health", "description": "Health and medical news"},
+        {"id": 5, "title": "Science", "slug": "science", "description": "Scientific discoveries and research"},
+        {"id": 6, "title": "Politics", "slug": "politics", "description": "Political news and analysis"},
+        {"id": 7, "title": "Entertainment", "slug": "entertainment", "description": "Movies, music and culture"},
+        {"id": 8, "title": "World", "slug": "world", "description": "International news and events"},
+        {"id": 9, "title": "Education", "slug": "education", "description": "Education news and trends"},
+        {"id": 10, "title": "Environment", "slug": "environment", "description": "Climate and environmental news"},
     ]
 
     for category in categories:
