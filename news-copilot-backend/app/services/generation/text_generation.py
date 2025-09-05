@@ -63,24 +63,22 @@ try:
         
         def _fallback_generation(self, prompt: str, max_length: int) -> str:
             """Fallback generation when model is not available"""
-            fallback_completions = {
-                "breaking": " news just in: significant developments reported across multiple sectors...",
-                "technology": " advances continue to reshape industries with artificial intelligence leading innovation...",
-                "sports": " update: teams prepare for upcoming matches with renewed strategies and player rotations...",
-                "weather": " forecast indicates changing conditions with temperatures varying across regions...",
-                "economy": " indicators show mixed signals as markets respond to recent policy changes...",
-                "health": " officials announce new guidelines following recent research findings...",
-                "politics": " leaders address key issues in ongoing discussions about policy reforms...",
-                "environment": " scientists report new findings about climate patterns and conservation efforts...",
-                "education": " institutions implement innovative approaches to enhance learning outcomes...",
-                "entertainment": " industry figures announce exciting projects and collaborations..."
-            }
-            
-            prompt_lower = prompt.lower()
-            for key, completion in fallback_completions.items():
-                if key in prompt_lower:
-                    return prompt + completion[:max_length]
-            
+            fallback_phrases = [
+                " according to official sources.",
+                " as confirmed by recent reports.",
+                " with further details expected soon.",
+                " marking a notable development in the region.",
+                " drawing attention from analysts worldwide.",
+                " as stakeholders closely monitor the situation.",
+                " prompting discussion among experts in the field.",
+                " with implications for future policy decisions.",
+                " reflecting broader trends in the industry.",
+                " as the situation continues to evolve.",
+            ]
+
+            import random
+            if len(prompt) > 20:
+                return prompt + random.choice(fallback_phrases)
             return prompt + " continues to develop as more information becomes available..."
 
     # Initialize the global generator
@@ -107,33 +105,60 @@ try:
 except ImportError as e:
     print(f"Failed to import transformer components: {e}")
     print("Using fallback text generation...")
-    
+
+    import random
+
+    _FALLBACK_PHRASES = [
+        " according to officials familiar with the matter.",
+        " as confirmed by multiple sources close to the investigation.",
+        " with authorities urging the public to remain patient.",
+        " while experts weigh in on the broader implications.",
+        " though details remain sparse at this early stage.",
+        " and more information is expected in the coming days.",
+        " as community leaders call for immediate action.",
+        " marking a significant shift in the ongoing discourse.",
+        " fueling debate among analysts and policymakers.",
+        " with reactions pouring in from across the industry.",
+        " as the story continues to capture public attention.",
+        " prompting renewed scrutiny of related policies.",
+        " echoing concerns raised by advocacy groups.",
+        " as stakeholders await further clarification.",
+        " triggering a wave of responses on social media.",
+        " with updates expected following the next briefing.",
+    ]
+
+    _DEFAULT_PREFIXES = [
+        "The development follows",
+        "This comes as",
+        "Reports indicate that",
+        "Analysts suggest",
+        "Observers noted that",
+        "Initial findings show",
+        "Authorities stated that",
+        "Witnesses reported",
+        "Experts believe",
+        "Sources claim",
+    ]
+
     def text_generation_pipeline(prompt: str,
                                 max_length: int = 100,
                                 temperature: float = 0.7,
                                 top_k: int = 20,
                                 top_p: float = 0.9) -> list:
         """Fallback text generation when transformer is not available"""
-        
-        # Simple rule-based completions for news
-        completions = {
-            "breaking": f"{prompt} news alerts indicate significant developments across multiple regions with authorities responding to emerging situations...",
-            "technology": f"{prompt} innovations continue advancing with artificial intelligence and machine learning driving unprecedented changes in various industries...",
-            "sports": f"{prompt} updates reveal competitive matches and player performances as teams prepare for upcoming tournaments and league competitions...",
-            "weather": f"{prompt} patterns show changing conditions with meteorologists tracking systems that may impact regional forecasting and planning...",
-            "economy": f"{prompt} indicators demonstrate market fluctuations as analysts monitor trends affecting global trade and financial stability...",
-            "health": f"{prompt} research reveals important findings that could influence medical practices and public health policy recommendations...",
-            "politics": f"{prompt} developments show leaders addressing critical issues through diplomatic channels and legislative processes...",
-            "environment": f"{prompt} studies highlight conservation efforts and climate research that inform environmental protection strategies...",
-            "education": f"{prompt} initiatives focus on improving learning outcomes through innovative teaching methods and educational technology integration...",
-            "entertainment": f"{prompt} industry news features upcoming releases and creative collaborations among artists and production companies..."
-        }
-        
-        prompt_lower = prompt.lower()
-        for key, completion in completions.items():
-            if key in prompt_lower:
-                return [{"generated_text": completion[:len(prompt) + max_length]}]
-        
-        # Default completion
-        default_completion = f"{prompt} story continues to develop as journalists gather more information and officials prepare statements for the public..."
-        return [{"generated_text": default_completion[:len(prompt) + max_length]}]
+
+        words = prompt.split()
+        options = sum(length <= max_length for length in [30, 60, 100])
+        choices = []
+
+        for _ in range(min(3, max_length // 30 + 1)):
+            prefix = random.choice(_DEFAULT_PREFIXES)
+            phrase = random.choice(_FALLBACK_PHRASES)
+            choices.append(f"{prefix} {phrase}")
+
+        if len(words) < 10:
+            result = f"{prompt}. {''.join(random.sample(choices, min(2, len(choices))))}"
+        else:
+            result = f"{prompt}{random.choice(_FALLBACK_PHRASES)}"
+
+        return [{"generated_text": result[:len(prompt) + max_length]}]
