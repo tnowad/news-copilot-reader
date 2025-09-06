@@ -17,7 +17,7 @@ from app.utils.logging import app_logger, log_api_call
 from app.utils.error_handler import ValidationException, AuthenticationException
 from app.decorators.validation import require_fields
 
-users_bp = Blueprint("user", __name__)
+users_bp = Blueprint("users", __name__)
 user_service = UserService()
 
 

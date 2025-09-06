@@ -135,7 +135,6 @@
 								<TableBodyCell tdClass="px-4 py-3">{report.objectType}</TableBodyCell>
 							</a>
 						{:else}
-							<!-- dashboard/comments/[id] is not implemented yet-->
 							<a href={`/dashboard/comments/${report.objectId}`}>
 								<TableBodyCell tdClass="px-4 py-3">{report.objectType}</TableBodyCell>
 							</a>

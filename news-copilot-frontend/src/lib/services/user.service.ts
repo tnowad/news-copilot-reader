@@ -161,13 +161,13 @@ type GetAllUsersSuccessful = {
 	};
 	message: string;
 };
-type GetALlUsersFailed = {
+type GetAllUsersFailed = {
 	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
 	message: string;
 	error: string;
 };
 type GetAllUsersResponse = Omit<Response, 'json'> & {
-	json: () => Promise<GetAllUsersSuccessful | GetALlUsersFailed>;
+	json: () => Promise<GetAllUsersSuccessful | GetAllUsersFailed>;
 };
 const getAllUsers = async (
 	params: GetAllUsersParams = {},
@@ -201,22 +201,22 @@ const getAllUsers = async (
 	}
 };
 
-type deleteUserSuccessful = {
+type DeleteUserSuccessful = {
 	statusCode: StatusCodes.OK;
 	message: string;
 };
-type deleteUserFailed = {
+type DeleteUserFailed = {
 	statusCode: StatusCodes.INTERNAL_SERVER_ERROR;
 	message: string;
 	error: string;
 };
-type deleteUserResponse = Omit<Response, 'json'> & {
-	json: () => Promise<deleteUserSuccessful | deleteUserFailed>;
+type DeleteUserResponse = Omit<Response, 'json'> & {
+	json: () => Promise<DeleteUserSuccessful | DeleteUserFailed>;
 };
 const deleteUser = async (
 	id: number,
 	headers: HeadersInit = {}
-): Promise<deleteUserSuccessful | deleteUserFailed> => {
+): Promise<DeleteUserSuccessful | DeleteUserFailed> => {
 	try {
 		const url = new URL(`/users/${id}`, API_URL);
 		const requestInit: RequestInit = {
